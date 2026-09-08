@@ -1,0 +1,148 @@
+﻿.more-from-gcu {
+  padding: 80px 0;
+  background-color: #fff;
+  font-family: 'Open Sans', Arial, sans-serif;
+  overflow: hidden; /* Fix for horizontal scroll/one-sided look */
+}
+
+.more-from-gcu .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section-title {
+  font-size: 36px;
+  color: #1E3A8A;
+  margin-bottom: 50px;
+  font-weight: 700;
+}
+
+.more-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+.more-card {
+  background-color: #f4f8fb;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.card-image {
+  position: relative;
+  height: 200px;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-logo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 80px;
+}
+
+.card-content {
+  padding: 30px;
+}
+
+.card-content h3 {
+  font-size: 24px;
+  color: #1E3A8A;
+  margin-bottom: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.card-content p {
+  font-size: 16px;
+  color: #1E3A8A;
+  line-height: 1.6;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .more-from-gcu {
+    padding: 40px 0;
+    overflow: hidden;
+  }
+
+  .more-from-gcu .container {
+    width: 100%;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .section-title {
+    font-size: 24px;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 30px;
+  }
+
+  .more-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 10px 0 30px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-snap-type: x mandatory;
+    margin: 0 -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    width: calc(100% + 40px);
+  }
+
+  .more-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .more-card {
+    min-width: 85vw;
+    max-width: 85vw;
+    scroll-snap-align: center;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .card-image {
+    height: 180px;
+    width: 100%;
+  }
+
+  .card-content {
+    padding: 20px;
+  }
+
+  .card-content h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .card-content p {
+    font-size: 14px;
+  }
+  
+  .section-title {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .more-card {
+    min-width: 88vw;
+    max-width: 88vw;
+  }
+}

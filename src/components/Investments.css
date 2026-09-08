@@ -1,0 +1,88 @@
+﻿.investments-page { font-family: 'Open Sans', Arial, sans-serif; color: #1E3A8A; background-color: #f4f4f4; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+.investments-hero { background-color: #310c4f; color: #fff; padding: 80px 0; }
+.investments-hero .container { display: flex; align-items: center; gap: 60px; }
+.investments-hero .hero-content { flex: 1; }
+.badge { display: inline-block; background-color: #ff6a00; color: #fff; padding: 4px 12px; border-radius: 4px; font-weight: 700; text-transform: uppercase; font-size: 12px; margin-bottom: 20px; }
+.investments-hero h1 { font-size: 42px; font-weight: 700; line-height: 1.2; margin-bottom: 20px; max-width: 520px; }
+.hero-lead { font-size: 18px; margin-bottom: 12px; max-width: 480px; line-height: 1.6; opacity: 0.9; }
+.hero-detail { font-size: 15px; opacity: 0.8; margin-bottom: 32px; max-width: 460px; line-height: 1.6; }
+.btn-primary { background-color: #ff6a00; color: #fff; border: none; padding: 14px 28px; font-size: 16px; font-weight: 700; border-radius: 25px; cursor: pointer; transition: background-color 0.2s; }
+.btn-primary:hover { background-color: #e55f00; }
+.legal-disclaimer { font-size: 13px; opacity: 0.6; max-width: 460px; line-height: 1.5; margin-top: 16px; }
+
+/* Risk Panel */
+.hero-risk-panel { background: #fff; color: #1E3A8A; border-radius: 12px; padding: 30px; min-width: 320px; box-shadow: 0 12px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 16px; }
+.panel-label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #ff6a00; }
+.risk-row { display: flex; align-items: flex-start; gap: 14px; }
+.risk-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.risk-text { display: flex; flex-direction: column; gap: 3px; }
+.risk-level { font-size: 15px; font-weight: 700; }
+.risk-desc { font-size: 12px; color: #666; line-height: 1.4; }
+.risk-bar { margin-top: 6px; }
+.risk-bar-fill { height: 8px; border-radius: 4px; background: linear-gradient(to right, #3fbc4c, #ff6a00, #1E3A8A); margin-bottom: 6px; }
+.risk-labels { display: flex; justify-content: space-between; font-size: 11px; color: #999; }
+
+/* Features */
+.investments-features { padding: 80px 0; background-color: #fff; }
+.section-title { font-size: 32px; font-weight: 700; color: #1E3A8A; margin-bottom: 50px; text-align: center; }
+.features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+.feature-card { background-color: #f8f4fc; border-radius: 12px; padding: 40px 32px; display: flex; flex-direction: column; gap: 14px; }
+.feature-icon { color: #ff6a00; }
+.feature-card h3 { font-size: 22px; font-weight: 700; margin: 0; }
+.feature-card p { font-size: 15px; line-height: 1.6; margin: 0; flex: 1; }
+.feature-link { display: inline-flex; align-items: center; gap: 4px; color: #ff6a00; font-weight: 700; font-size: 14px; text-decoration: none; }
+.feature-link:hover { text-decoration: underline; }
+
+/* Cards */
+.account-options { padding: 80px 0; background-color: #f4f4f4; }
+.accounts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-bottom: 30px; }
+.account-card { background: #fff; border-radius: 16px; padding: 36px; display: flex; flex-direction: column; gap: 16px; border: 2px solid transparent; transition: transform 0.2s, box-shadow 0.2s; }
+.account-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(66,20,95,0.12); }
+.account-card.highlight { border-color: #ff6a00; box-shadow: 0 8px 24px rgba(255,106,0,0.12); transform: scale(1.03); }
+.account-card.dark { background-color: #310c4f; color: #fff; }
+.account-header h3 { font-size: 20px; font-weight: 700; }
+.account-tag { display: inline-block; background-color: #ff6a00; color: #fff; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; }
+.account-desc { font-size: 14px; line-height: 1.6; opacity: 0.85; }
+.account-benefits { list-style: none; padding: 0; margin: 0; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.account-benefits li { display: flex; gap: 10px; font-size: 14px; align-items: flex-start; }
+.btn-outline { background: transparent; border: 2px solid #1E3A8A; color: #1E3A8A; padding: 12px; border-radius: 25px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.btn-outline:hover { background-color: #1E3A8A; color: #fff; }
+.btn-outline-white { background: transparent; border: 2px solid #fff; color: #fff; padding: 12px; border-radius: 25px; font-weight: 700; cursor: pointer; }
+.legal-disclaimer-small { font-size: 12px; text-align: center; opacity: 0.6; margin-top: 10px; line-height: 1.6; }
+
+/* Prize Banner */
+.investments-prize { padding: 60px 0; background-color: #fff; }
+.prize-banner { background: linear-gradient(135deg, #310c4f 0%, #1E3A8A 100%); border-radius: 16px; padding: 50px; display: flex; justify-content: space-between; align-items: center; gap: 40px; color: #fff; }
+.prize-tag { display: inline-block; background-color: #ff6a00; color: #fff; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 4px; margin-bottom: 16px; }
+.prize-content h2 { font-size: 28px; font-weight: 700; margin-bottom: 12px; max-width: 500px; }
+.prize-content p { font-size: 15px; line-height: 1.6; opacity: 0.85; margin-bottom: 24px; max-width: 480px; }
+.prize-amount { font-size: 80px; font-weight: 900; color: #ffde00; white-space: nowrap; text-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+
+/* Support */
+.investments-support { padding: 60px 0; background-color: #f8f8f8; }
+.support-grid { display: flex; justify-content: space-between; align-items: center; gap: 40px; }
+.support-info h2 { font-size: 28px; margin-bottom: 12px; }
+.support-info p { font-size: 16px; margin-bottom: 20px; opacity: 0.85; }
+.contact-details { display: flex; gap: 40px; }
+.contact-item { display: flex; flex-direction: column; gap: 4px; }
+.contact-item .label { font-size: 13px; opacity: 0.7; }
+.contact-item .value { font-size: 18px; font-weight: 700; }
+.btn-chat { background-color: #1E3A8A; color: #fff; border: none; padding: 14px 28px; border-radius: 25px; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 16px; transition: background-color 0.2s; }
+.btn-chat:hover { background-color: #310c4f; }
+
+@media (max-width: 1024px) {
+  .investments-hero .container { flex-direction: column; }
+  .hero-risk-panel { min-width: unset; width: 100%; }
+  .features-grid, .accounts-grid { grid-template-columns: 1fr; max-width: 520px; margin: 0 auto; }
+  .account-card.highlight { transform: none; }
+  .prize-banner { flex-direction: column; text-align: center; }
+  .support-grid { flex-direction: column; text-align: center; }
+  .contact-details { justify-content: center; }
+}
+@media (max-width: 600px) {
+  .investments-hero h1 { font-size: 30px; }
+  .section-title { font-size: 26px; }
+  .prize-amount { font-size: 56px; }
+}

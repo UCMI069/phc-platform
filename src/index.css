@@ -1,0 +1,7 @@
+﻿/* Basic resets already handled in App.css */
+body {
+  margin: 0;
+  font-family: 'Open Sans', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

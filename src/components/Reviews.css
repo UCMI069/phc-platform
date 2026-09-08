@@ -1,0 +1,139 @@
+﻿.reviews-section {
+  padding: 80px 0;
+  background-color: #f4f8fb;
+  font-family: 'Open Sans', Arial, sans-serif;
+  overflow: hidden;
+}
+
+.reviews-section .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.reviews-title {
+  font-size: 36px;
+  color: #1E3A8A;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.reviews-subtitle {
+  font-size: 16px;
+  color: #6b7280;
+  margin-bottom: 40px;
+}
+
+.reviews-scroll-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0 20px;
+}
+
+.reviews-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.reviews-track {
+  display: flex;
+  gap: 20px;
+  padding: 10px 0 20px;
+  min-width: max-content;
+}
+
+.review-card {
+  min-width: 300px;
+  max-width: 300px;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s, box-shadow 0.3s;
+  flex-shrink: 0;
+}
+
+.review-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(66, 20, 95, 0.1);
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.review-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #f0e6f6;
+}
+
+.review-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.review-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1E3A8A;
+  margin-bottom: 4px;
+}
+
+.review-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.star {
+  color: #f5a623;
+  font-size: 14px;
+}
+
+.review-text {
+  font-size: 14px;
+  color: #4a5568;
+  line-height: 1.7;
+}
+
+@media (max-width: 768px) {
+  .reviews-section {
+    padding: 50px 0;
+  }
+
+  .reviews-title {
+    font-size: 26px;
+    text-align: center;
+  }
+
+  .reviews-subtitle {
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .review-card {
+    min-width: 260px;
+    max-width: 260px;
+    padding: 22px;
+  }
+
+  .review-avatar {
+    width: 42px;
+    height: 42px;
+  }
+
+  .review-name {
+    font-size: 14px;
+  }
+
+  .review-text {
+    font-size: 13px;
+  }
+}

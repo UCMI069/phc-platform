@@ -1,0 +1,255 @@
+﻿.transfer-container {
+  padding-bottom: 40px;
+}
+
+.transfer-header {
+  margin-bottom: 30px;
+  background-color: #1E3A8A;
+  padding: 30px 40px;
+  border-radius: 16px;
+  color: #ffffff;
+}
+
+.transfer-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff !important;
+  margin-bottom: 5px;
+}
+
+.transfer-header p {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 15px;
+}
+
+.transfer-card {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-section {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.form-section:last-child {
+  border-bottom: none;
+}
+
+.form-section h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #adb5bd;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #310c4f;
+  margin-bottom: 8px;
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #310c4f;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus, .form-group select:focus {
+  border-color: #1E3A8A;
+}
+
+.no-symbol-input {
+  padding-left: 15px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  color: #310c4f !important;
+}
+
+.amount-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 15px;
+  font-weight: 700;
+  color: #1E3A8A;
+}
+
+.amount-input input {
+  padding-left: 30px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1E3A8A;
+}
+
+.next-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: #1E3A8A;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.next-btn:hover {
+  background-color: #5a1c82;
+}
+
+.review-grid {
+  display: grid;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.review-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.review-item span {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.review-item strong {
+  color: #310c4f;
+  font-weight: 700;
+}
+
+.review-item.highlight strong {
+  color: #1E3A8A;
+  font-size: 18px;
+}
+
+.security-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #e6f7ef;
+  color: #00b050;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.security-notice p {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.back-btn {
+  flex: 1;
+  padding: 14px;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  color: #6c757d;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirm-btn {
+  flex: 2;
+  padding: 14px;
+  background-color: #1E3A8A;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.success-section {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.success-icon {
+  color: #00b050;
+  margin-bottom: 20px;
+}
+
+.success-section h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #310c4f;
+  margin-bottom: 10px;
+}
+
+.success-section p {
+  color: #6c757d;
+  margin-bottom: 30px;
+}
+
+.tx-ref {
+  font-size: 12px;
+  color: #adb5bd;
+  margin-bottom: 30px;
+}
+
+.finish-btn {
+  padding: 12px 30px;
+  background-color: #1E3A8A;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #d12c2c;
+  background-color: #fdeaea;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (max-width: 576px) {
+  .transfer-card {
+    padding: 20px;
+  }
+}

@@ -1,0 +1,398 @@
+﻿.mortgages-page {
+  font-family: 'Open Sans', Arial, sans-serif;
+  color: #1E3A8A;
+  background-color: #f4f4f4;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* â”€â”€ Hero â”€â”€ */
+.mortgages-hero {
+  background-color: #310c4f;
+  color: #fff;
+  padding: 80px 0;
+}
+
+.mortgages-hero .container {
+  display: flex;
+  align-items: center;
+  gap: 60px;
+}
+
+.mortgages-hero .hero-content { flex: 1; }
+
+.badge {
+  display: inline-block;
+  background-color: #ff6a00;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+
+.mortgages-hero h1 {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  max-width: 540px;
+}
+
+.hero-lead {
+  font-size: 18px;
+  margin-bottom: 12px;
+  max-width: 500px;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.hero-detail {
+  font-size: 16px;
+  opacity: 0.8;
+  margin-bottom: 32px;
+  max-width: 480px;
+  line-height: 1.6;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.btn-primary {
+  background-color: #ff6a00;
+  color: #fff;
+  border: none;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.btn-primary:hover { background-color: #e55f00; }
+
+.btn-secondary {
+  background-color: transparent;
+  color: #fff;
+  border: 2px solid #fff;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { background-color: rgba(255,255,255,0.1); }
+
+.legal-disclaimer {
+  font-size: 13px;
+  opacity: 0.6;
+  max-width: 480px;
+  line-height: 1.5;
+}
+
+/* Stats Panel */
+.hero-stats {
+  background-color: #fff;
+  color: #1E3A8A;
+  border-radius: 12px;
+  padding: 36px 30px;
+  min-width: 300px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 0;
+  width: 100%;
+}
+.stat-value { font-size: 36px; font-weight: 800; color: #1E3A8A; }
+.stat-label { font-size: 13px; color: #666; margin-top: 4px; }
+.stat-divider { width: 80%; height: 1px; background-color: #eee; }
+.stat-disclaimer { font-size: 11px; color: #999; margin-top: 16px; text-align: center; }
+
+/* â”€â”€ Features â”€â”€ */
+.mortgages-features {
+  padding: 80px 0;
+  background-color: #fff;
+}
+
+.section-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1E3A8A;
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+.feature-card {
+  background-color: #f8f4fc;
+  border-radius: 12px;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.feature-icon { color: #ff6a00; }
+.feature-card h3 { font-size: 22px; font-weight: 700; margin: 0; }
+.feature-card p { font-size: 15px; line-height: 1.6; margin: 0; flex: 1; }
+
+.feature-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #ff6a00;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+}
+.feature-link:hover { text-decoration: underline; }
+
+/* â”€â”€ Products â”€â”€ */
+.account-options {
+  padding: 80px 0;
+  background-color: #f4f4f4;
+}
+
+.accounts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.account-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 2px solid transparent;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.account-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(66,20,95,0.12);
+}
+.account-card.highlight {
+  border-color: #ff6a00;
+  box-shadow: 0 8px 24px rgba(255,106,0,0.12);
+  transform: scale(1.03);
+}
+.account-card.dark {
+  background-color: #310c4f;
+  color: #fff;
+}
+
+.account-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.account-header h3 { font-size: 20px; font-weight: 700; }
+
+.account-tag {
+  display: inline-block;
+  background-color: #ff6a00;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 4px;
+}
+
+.account-desc { font-size: 14px; line-height: 1.6; opacity: 0.85; }
+
+.account-benefits {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.account-benefits li {
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+  align-items: flex-start;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid #1E3A8A;
+  color: #1E3A8A;
+  padding: 12px;
+  border-radius: 25px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-outline:hover { background-color: #1E3A8A; color: #fff; }
+
+.btn-outline-white {
+  background: transparent;
+  border: 2px solid #fff;
+  color: #fff;
+  padding: 12px;
+  border-radius: 25px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-outline-white:hover { background-color: rgba(255,255,255,0.1); }
+
+/* â”€â”€ Steps â”€â”€ */
+.mortgage-steps {
+  padding: 80px 0;
+  background-color: #fff;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.step-card {
+  background: #f8f4fc;
+  border-radius: 12px;
+  padding: 32px 24px;
+}
+
+.step-num {
+  font-size: 48px;
+  font-weight: 800;
+  color: #ff6a00;
+  display: block;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+.step-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+.step-card p { font-size: 14px; line-height: 1.6; opacity: 0.85; }
+
+/* â”€â”€ FAQ â”€â”€ */
+.mortgage-faq {
+  padding: 80px 0;
+  background-color: #f4f4f4;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px 24px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+.faq-item.open { border-color: #ff6a00; }
+.faq-item:hover { border-color: #ddd; }
+
+.faq-question {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.faq-chevron {
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  color: #ff6a00;
+}
+.faq-item.open .faq-chevron { transform: rotate(90deg); }
+
+.faq-answer {
+  font-size: 15px;
+  line-height: 1.7;
+  margin-top: 14px;
+  opacity: 0.8;
+  padding-top: 14px;
+  border-top: 1px solid #eee;
+}
+
+/* â”€â”€ Support â”€â”€ */
+.mortgages-support {
+  padding: 60px 0;
+  background-color: #f8f8f8;
+}
+
+.support-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+}
+.support-info h2 { font-size: 28px; margin-bottom: 12px; }
+.support-info p { font-size: 16px; margin-bottom: 20px; opacity: 0.85; }
+
+.contact-details { display: flex; gap: 40px; }
+.contact-item { display: flex; flex-direction: column; gap: 4px; }
+.contact-item .label { font-size: 13px; opacity: 0.7; }
+.contact-item .value { font-size: 18px; font-weight: 700; }
+
+.btn-chat {
+  background-color: #1E3A8A;
+  color: #fff;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 25px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+.btn-chat:hover { background-color: #310c4f; }
+
+/* â”€â”€ Responsive â”€â”€ */
+@media (max-width: 1024px) {
+  .mortgages-hero .container { flex-direction: column; }
+  .hero-stats { min-width: unset; width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .stat-divider { display: none; }
+  .features-grid, .accounts-grid { grid-template-columns: 1fr; max-width: 520px; margin: 0 auto; }
+  .steps-grid { grid-template-columns: repeat(2, 1fr); }
+  .account-card.highlight { transform: none; }
+  .support-grid { flex-direction: column; text-align: center; }
+  .contact-details { justify-content: center; }
+}
+
+@media (max-width: 600px) {
+  .mortgages-hero h1 { font-size: 30px; }
+  .hero-actions { flex-direction: column; }
+  .section-title { font-size: 26px; }
+  .steps-grid { grid-template-columns: 1fr; }
+}

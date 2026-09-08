@@ -1,0 +1,32 @@
+{
+  "rewrites": [
+    {
+      "source": "/favicon/sw.js",
+      "destination": "/favicon/sw.js"
+    },
+    {
+      "source": "/favicon/manifest.webmanifest",
+      "destination": "/favicon/manifest.webmanifest"
+    },
+    {
+      "source": "/favicon/favicon.ico",
+      "destination": "/favicon/favicon.ico"
+    },
+    {
+      "source": "/favicon/apple-touch-icon.png",
+      "destination": "/favicon/apple-touch-icon.png"
+    },
+    {
+      "source": "/favicon/web-app-manifest-192x192.png",
+      "destination": "/favicon/web-app-manifest-192x192.png"
+    },
+    {
+      "source": "/favicon/web-app-manifest-512x512.png",
+      "destination": "/favicon/web-app-manifest-512x512.png"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

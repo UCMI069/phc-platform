@@ -1,0 +1,287 @@
+﻿.loan-container {
+  padding-bottom: 40px;
+}
+
+.loan-header {
+  margin-bottom: 30px;
+  background-color: #1E3A8A;
+  padding: 30px 40px;
+  border-radius: 16px;
+  color: #ffffff;
+}
+
+.loan-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff !important;
+  margin-bottom: 5px;
+}
+
+.loan-header p {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 15px;
+}
+
+.loan-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 30px;
+}
+
+.loan-card {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.loan-card h3 {
+  font-size: 20px;
+  color: #310c4f;
+  margin-bottom: 30px;
+  font-weight: 700;
+}
+
+.loan-form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #310c4f;
+}
+
+.form-group select, .form-group input, .form-group textarea {
+  padding: 12px 15px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #310c4f;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  border-color: #1E3A8A;
+}
+
+.no-symbol-input {
+  padding-left: 15px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  color: #310c4f !important;
+}
+
+.amount-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 15px;
+  font-weight: 700;
+  color: #1E3A8A;
+}
+
+.amount-input input {
+  padding-left: 30px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1E3A8A;
+}
+
+.loan-preview {
+  background-color: #f3f0f7;
+  padding: 25px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.monthly-est {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: center;
+}
+
+.monthly-est span {
+  font-size: 13px;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.monthly-est strong {
+  font-size: 32px;
+  color: #1E3A8A;
+  font-weight: 800;
+}
+
+.preview-details {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(66, 20, 95, 0.1);
+  padding-top: 20px;
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail span {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.detail strong {
+  font-size: 14px;
+  color: #310c4f;
+}
+
+.loan-btn {
+  background-color: #1E3A8A;
+  color: #ffffff;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.loan-btn:hover {
+  background-color: #5a1c82;
+}
+
+.security-notice {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background-color: #e6f7ef;
+  color: #00b050;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.security-notice p {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.back-btn {
+  flex: 1;
+  padding: 14px;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  color: #6c757d;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirm-btn {
+  flex: 2;
+  padding: 14px;
+  background-color: #1E3A8A;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.success-card {
+  text-align: center;
+  padding: 60px 40px;
+}
+
+.success-icon {
+  color: #00b050;
+  margin-bottom: 25px;
+}
+
+.success-card h3 {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.status-note {
+  font-size: 14px;
+  color: #6c757d;
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+.finish-btn {
+  padding: 12px 30px;
+  background-color: #1E3A8A;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.info-sidebar-card {
+  background-color: #ffffff;
+}
+
+.loan-info-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.loan-info-list li {
+  display: flex;
+  gap: 15px;
+}
+
+.info-icon {
+  color: #1E3A8A;
+  flex-shrink: 0;
+}
+
+.loan-info-list strong {
+  display: block;
+  font-size: 14px;
+  color: #310c4f;
+  margin-bottom: 4px;
+}
+
+.loan-info-list p {
+  font-size: 13px;
+  color: #6c757d;
+  line-height: 1.5;
+}
+
+@media (max-width: 992px) {
+  .loan-grid {
+    grid-template-columns: 1fr;
+  }
+}

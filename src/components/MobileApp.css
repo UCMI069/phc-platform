@@ -1,0 +1,260 @@
+﻿.mobile-app {
+  padding: 80px 0;
+  background-color: #fff;
+  font-family: 'Open Sans', Arial, sans-serif;
+  overflow: hidden; /* Fix for horizontal scroll/one-sided look */
+}
+
+.mobile-app .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section-title {
+  font-size: 36px;
+  color: #1E3A8A;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.section-description {
+  font-size: 18px;
+  color: #1E3A8A;
+  margin-bottom: 50px;
+  max-width: 800px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+.feature-card {
+  background-color: #f4f8fb;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.card-top {
+  padding: 40px;
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9fbfc;
+  position: relative;
+}
+
+.feature-icon {
+  height: 120px;
+  width: auto;
+  margin-bottom: 20px;
+}
+
+.status-bar {
+  width: 150px;
+  height: 40px;
+  border: 2px solid #1E3A8A;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+}
+
+.status-label {
+  font-size: 12px;
+  color: #1E3A8A;
+  font-weight: 600;
+}
+
+.notification-bubble {
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 10px 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #1E3A8A;
+  font-weight: 600;
+  position: absolute;
+  bottom: 40px;
+}
+
+.notification-bubble .check {
+  background-color: #3fbc4c;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+.credit-gauge {
+  text-align: center;
+  padding: 20px;
+}
+
+.credit-gauge .score {
+  font-size: 48px;
+  color: #1E3A8A;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.credit-gauge .label {
+  font-size: 18px;
+  color: #1E3A8A;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.credit-gauge .provider {
+  font-size: 10px;
+  color: #666;
+}
+
+.card-body {
+  padding: 30px;
+  flex: 1;
+}
+
+.card-body h3 {
+  font-size: 24px;
+  color: #1E3A8A;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.card-body p {
+  font-size: 16px;
+  color: #1E3A8A;
+  line-height: 1.6;
+}
+
+.card-footer {
+  padding: 0 30px 30px;
+}
+
+.card-footer a {
+  color: #1E3A8A;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  border-bottom: 2px solid #1E3A8A;
+  padding-bottom: 2px;
+  transition: color 0.2s;
+}
+
+.card-footer a:hover {
+  color: #ff6a00;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .mobile-app {
+    padding: 40px 0;
+    overflow: hidden;
+  }
+
+  .mobile-app .container {
+    width: 100%;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .section-title {
+    font-size: 24px;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .section-description {
+    font-size: 15px;
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 0 10px;
+    width: 100%;
+  }
+
+  .features-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 10px 0 30px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-snap-type: x mandatory;
+    margin: 0 -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    width: calc(100% + 40px);
+  }
+
+  .features-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .feature-card {
+    min-width: 85vw;
+    max-width: 85vw;
+    scroll-snap-align: center;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .card-top {
+    height: 200px;
+    padding: 20px;
+  }
+
+  .feature-icon {
+    height: 100px;
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  .card-body h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .card-body p {
+    font-size: 14px;
+  }
+
+  .section-title {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .section-description {
+    font-size: 15px;
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .feature-card {
+    min-width: 88vw;
+    max-width: 88vw;
+  }
+}

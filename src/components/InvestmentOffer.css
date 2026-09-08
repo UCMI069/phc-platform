@@ -1,0 +1,151 @@
+﻿.investment-offer {
+  padding: 60px 0;
+  background-color: #fff;
+  font-family: 'Open Sans', Arial, sans-serif;
+}
+
+.investment-offer .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.offer-title-top {
+  display: none;
+}
+
+.offer-grid {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.offer-image {
+  flex: 1;
+}
+
+.offer-image img {
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.offer-content {
+  flex: 1;
+  max-width: 500px;
+}
+
+.offer-title {
+  font-size: 32px;
+  color: #1E3A8A;
+  margin-bottom: 25px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.offer-description p {
+  font-size: 16px;
+  color: #1E3A8A;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.risk-warning {
+  font-size: 14px;
+  color: #1E3A8A;
+  font-weight: 400;
+  margin-top: 20px;
+}
+
+.offer-btn {
+  background-color: #1E3A8A;
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 20px;
+}
+
+.offer-btn:hover {
+  background-color: #310c4f;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .investment-offer {
+    padding: 40px 0;
+    overflow: hidden;
+  }
+
+  .investment-offer .container {
+    width: 100%;
+    padding: 0 20px;
+  }
+
+  .offer-title-top {
+    display: block;
+    font-size: 24px;
+    color: #1E3A8A;
+    margin-bottom: 20px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .offer-title {
+    display: none;
+  }
+
+  .offer-grid {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+    align-items: center;
+  }
+  
+  .offer-image {
+    width: 100%;
+    max-width: 100%;
+    order: 1; /* Image on top */
+  }
+
+  .offer-content {
+    width: 100%;
+    max-width: 100%;
+    order: 2; /* Text under */
+    padding: 0 10px;
+  }
+  
+  .offer-image img {
+    border-radius: 12px;
+  }
+
+  .offer-title {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+
+  .offer-description p {
+    font-size: 14px;
+    margin-bottom: 15px;
+  }
+
+  .offer-btn {
+    width: 100%;
+    padding: 12px 30px;
+  }
+}
+
+@media (max-width: 600px) {
+  .offer-title {
+    font-size: 24px;
+  }
+  
+  .offer-btn {
+    width: 100%;
+    padding: 12px 20px;
+  }
+}

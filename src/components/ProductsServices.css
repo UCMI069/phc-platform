@@ -1,0 +1,124 @@
+﻿.products-services {
+  padding: 60px 0;
+  background-color: #fff;
+  font-family: 'Open Sans', Arial, sans-serif;
+}
+
+.products-services .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section-title {
+  font-size: 32px;
+  color: #1E3A8A;
+  margin-bottom: 40px;
+  font-weight: 700;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.service-column {
+  background-color: #f4f8fb;
+  padding: 40px;
+  border-radius: 8px;
+}
+
+.service-column h3 {
+  font-size: 24px;
+  color: #1E3A8A;
+  margin-bottom: 25px;
+  font-weight: 700;
+}
+
+.service-column ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.service-column li {
+  margin-bottom: 12px;
+  color: #1E3A8A;
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .section-title {
+    font-size: 28px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .products-services {
+    padding: 40px 0;
+    overflow: hidden;
+  }
+
+  .products-services .container {
+    width: 100%;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .section-title {
+    font-size: 24px;
+    margin-bottom: 30px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .services-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 10px 0 30px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-snap-type: x mandatory;
+    margin: 0 -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    width: calc(100% + 40px);
+  }
+
+  .services-grid::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .service-column {
+    min-width: 85vw;
+    max-width: 85vw;
+    padding: 25px;
+    border-radius: 12px;
+    scroll-snap-align: center;
+    background-color: #f4f8fb;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  }
+  
+  .service-column h3 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  .service-column li {
+    margin-bottom: 10px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .service-column {
+    padding: 20px;
+  }
+}

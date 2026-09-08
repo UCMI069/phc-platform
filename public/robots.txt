@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://gcu-platform.vercel.app/sitemap.xml

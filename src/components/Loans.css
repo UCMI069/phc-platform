@@ -1,0 +1,86 @@
+﻿.loans-page { font-family: 'Open Sans', Arial, sans-serif; color: #1E3A8A; background-color: #f4f4f4; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+/* Hero */
+.loans-hero { background-color: #310c4f; color: #fff; padding: 80px 0; }
+.loans-hero .container { display: flex; align-items: flex-start; gap: 60px; }
+.loans-hero .hero-content { flex: 1; }
+.badge { display: inline-block; background-color: #ff6a00; color: #fff; padding: 4px 12px; border-radius: 4px; font-weight: 700; text-transform: uppercase; font-size: 12px; margin-bottom: 20px; }
+.loans-hero h1 { font-size: 42px; font-weight: 700; line-height: 1.2; margin-bottom: 20px; max-width: 500px; }
+.hero-lead { font-size: 18px; margin-bottom: 12px; max-width: 480px; line-height: 1.6; opacity: 0.9; }
+.hero-detail { font-size: 15px; opacity: 0.8; margin-bottom: 32px; }
+.btn-primary { background-color: #ff6a00; color: #fff; border: none; padding: 14px 28px; font-size: 16px; font-weight: 700; border-radius: 25px; cursor: pointer; transition: background-color 0.2s; }
+.btn-primary:hover { background-color: #e55f00; }
+.legal-disclaimer { font-size: 13px; opacity: 0.6; max-width: 440px; line-height: 1.5; margin-top: 16px; }
+
+/* Calculator */
+.loan-calculator { background: #fff; color: #1E3A8A; border-radius: 12px; padding: 32px; min-width: 340px; box-shadow: 0 12px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 20px; }
+.calc-label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #ff6a00; margin-bottom: -8px; }
+.calc-field { display: flex; flex-direction: column; gap: 6px; }
+.calc-field label { font-size: 14px; font-weight: 600; }
+.range-value { font-size: 26px; font-weight: 800; color: #1E3A8A; }
+.calc-field input[type="range"] { width: 100%; accent-color: #1E3A8A; cursor: pointer; }
+.range-bounds { display: flex; justify-content: space-between; font-size: 12px; color: #999; }
+
+.calc-result { background: #f8f4fc; border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+.result-item { display: flex; justify-content: space-between; align-items: center; }
+.result-label { font-size: 14px; font-weight: 600; }
+.result-value { font-size: 24px; font-weight: 800; color: #1E3A8A; }
+.result-value.secondary { font-size: 20px; color: #666; }
+.result-divider { height: 1px; background: #ddd; }
+.calc-disclaimer { font-size: 11px; color: #999; line-height: 1.5; }
+
+/* Features */
+.loans-features { padding: 80px 0; background-color: #fff; }
+.section-title { font-size: 32px; font-weight: 700; color: #1E3A8A; margin-bottom: 50px; text-align: center; }
+.features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+.feature-card { background-color: #f8f4fc; border-radius: 12px; padding: 40px 32px; display: flex; flex-direction: column; gap: 14px; }
+.feature-icon { color: #ff6a00; }
+.feature-card h3 { font-size: 22px; font-weight: 700; margin: 0; }
+.feature-card p { font-size: 15px; line-height: 1.6; margin: 0; flex: 1; }
+.feature-link { display: inline-flex; align-items: center; gap: 4px; color: #ff6a00; font-weight: 700; font-size: 14px; text-decoration: none; }
+.feature-link:hover { text-decoration: underline; }
+
+/* Cards */
+.account-options { padding: 80px 0; background-color: #f4f4f4; }
+.accounts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-bottom: 30px; }
+.account-card { background: #fff; border-radius: 16px; padding: 36px; display: flex; flex-direction: column; gap: 16px; border: 2px solid transparent; transition: transform 0.2s, box-shadow 0.2s; }
+.account-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(66,20,95,0.12); }
+.account-card.highlight { border-color: #ff6a00; box-shadow: 0 8px 24px rgba(255,106,0,0.12); transform: scale(1.03); }
+.account-card.dark { background-color: #310c4f; color: #fff; }
+.account-header h3 { font-size: 20px; font-weight: 700; }
+.account-tag { display: inline-block; background-color: #ff6a00; color: #fff; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; }
+.loan-rate { font-size: 22px; font-weight: 800; }
+.loan-rate small { font-size: 13px; font-weight: 400; }
+.account-desc { font-size: 14px; line-height: 1.6; opacity: 0.85; }
+.account-benefits { list-style: none; padding: 0; margin: 0; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.account-benefits li { display: flex; gap: 10px; font-size: 14px; align-items: flex-start; }
+.btn-outline { background: transparent; border: 2px solid #1E3A8A; color: #1E3A8A; padding: 12px; border-radius: 25px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.btn-outline:hover { background-color: #1E3A8A; color: #fff; }
+.btn-outline-white { background: transparent; border: 2px solid #fff; color: #fff; padding: 12px; border-radius: 25px; font-weight: 700; cursor: pointer; }
+.legal-disclaimer-small { font-size: 12px; text-align: center; opacity: 0.6; margin-top: 10px; line-height: 1.6; }
+
+/* Support */
+.loans-support { padding: 60px 0; background-color: #f8f8f8; }
+.support-grid { display: flex; justify-content: space-between; align-items: center; gap: 40px; }
+.support-info h2 { font-size: 28px; margin-bottom: 12px; }
+.support-info p { font-size: 16px; margin-bottom: 20px; opacity: 0.85; }
+.contact-details { display: flex; gap: 40px; }
+.contact-item { display: flex; flex-direction: column; gap: 4px; }
+.contact-item .label { font-size: 13px; opacity: 0.7; }
+.contact-item .value { font-size: 18px; font-weight: 700; }
+.btn-chat { background-color: #1E3A8A; color: #fff; border: none; padding: 14px 28px; border-radius: 25px; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 16px; transition: background-color 0.2s; }
+.btn-chat:hover { background-color: #310c4f; }
+
+@media (max-width: 1024px) {
+  .loans-hero .container { flex-direction: column; }
+  .loan-calculator { min-width: unset; width: 100%; }
+  .features-grid, .accounts-grid { grid-template-columns: 1fr; max-width: 520px; margin: 0 auto; }
+  .account-card.highlight { transform: none; }
+  .support-grid { flex-direction: column; text-align: center; }
+  .contact-details { justify-content: center; }
+}
+@media (max-width: 600px) {
+  .loans-hero h1 { font-size: 30px; }
+  .section-title { font-size: 26px; }
+}
