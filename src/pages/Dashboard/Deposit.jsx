@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { neon as supabase } from '../../lib/neon';
 import { ArrowDownCircle, ShieldCheck, Wallet, History, AlertCircle, CheckCircle2, Bitcoin } from 'lucide-react';
 import './Deposit.css';
 
@@ -130,6 +130,19 @@ const Deposit = () => {
       });
 
       if (txError) throw txError;
+
+      // Update account balance
+      const { data: acc } = await supabase
+        .from('accounts')
+        .select('balance')
+        .eq('id', formData.toAccount)
+        .single();
+
+      const newBalance = (parseFloat(acc?.balance) || 0) + parseFloat(formData.amount);
+      await supabase
+        .from('accounts')
+        .update({ balance: newBalance })
+        .eq('id', formData.toAccount);
       
       setStep(3); // Move to success step
     } catch (err) {

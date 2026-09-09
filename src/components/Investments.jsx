@@ -41,7 +41,7 @@ const products = [
 const riskLevels = [
   { level: 'Cautious', color: '#3fbc4c', desc: 'Lower potential returns, lower risk of loss. Suits shorter time horizons.' },
   { level: 'Balanced', color: '#ff6a00', desc: 'A mix of growth and stability. Suits medium-term investors.' },
-  { level: 'Adventurous', color: '#42145f', desc: 'Higher potential returns with greater risk. Suits long-term investors.' },
+  { level: 'Adventurous', color: '#1E3A8A', desc: 'Higher potential returns with greater risk. Suits long-term investors.' },
 ];
 
 const Investments = () => (
@@ -112,20 +112,6 @@ const Investments = () => (
           ))}
         </div>
         <p className="legal-disclaimer-small">When investing, your capital is at risk. Investment values can fall as well as rise. Past performance is not a guide to future performance. Fees apply.</p>
-      </div>
-    </section>
-
-    <section className="investments-prize">
-      <div className="container">
-        <div className="prize-banner">
-          <div className="prize-content">
-            <span className="prize-tag">Limited time offer</span>
-            <h2>You could win £100,000 when you invest</h2>
-            <p>For every £50 invested in a PHC Stocks and Shares ISA between 12th January and 30th April 2026, you'll receive one entry into our prize draw.</p>
-            <button className="btn-primary">See the offer</button>
-          </div>
-          <div className="prize-amount">£100K</div>
-        </div>
       </div>
     </section>
 

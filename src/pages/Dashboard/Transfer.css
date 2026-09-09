@@ -58,7 +58,7 @@
   display: block;
   font-size: 14px;
   font-weight: 600;
-  color: #310c4f;
+  color: #1E3A8A;
   margin-bottom: 8px;
 }
 
@@ -68,7 +68,7 @@
   border: 1px solid #dee2e6;
   border-radius: 8px;
   font-size: 15px;
-  color: #310c4f;
+  color: #1E3A8A;
   outline: none;
   transition: border-color 0.2s;
 }
@@ -81,7 +81,7 @@
   padding-left: 15px !important;
   font-size: 16px !important;
   font-weight: 500 !important;
-  color: #310c4f !important;
+  color: #1E3A8A !important;
 }
 
 .amount-input {
@@ -122,7 +122,7 @@
 }
 
 .next-btn:hover {
-  background-color: #5a1c82;
+  background-color: #2563EB;
 }
 
 .review-grid {
@@ -145,7 +145,7 @@
 }
 
 .review-item strong {
-  color: #310c4f;
+  color: #1E3A8A;
   font-weight: 700;
 }
 
@@ -210,7 +210,7 @@
 .success-section h3 {
   font-size: 24px;
   font-weight: 700;
-  color: #310c4f;
+  color: #1E3A8A;
   margin-bottom: 10px;
 }
 

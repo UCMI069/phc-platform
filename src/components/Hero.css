@@ -57,57 +57,40 @@
   background-color: #f4f4f4;
 }
 
-.hero-rates-card {
+
+
+.hero-bottom-bar {
+  background-color: #1E3A8A;
+  padding: 15px 0;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Features Section */
+.hero-features {
   background-color: white;
   color: #1E3A8A;
   padding: 30px;
   border-radius: 8px;
-  width: 350px;
-  text-align: center;
+  margin-top: 30px;
   box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
-.rate-item {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.hero-features h3 {
+  font-size: 24px;
   margin-bottom: 20px;
+  color: #1E3A8A;
 }
 
-.rate-item .balance {
+.hero-features ul {
+  list-style: none;
+  padding: 0;
+}
+
+.hero-features li {
+  padding: 12px 0;
+  border-bottom: 1px solid #e0e0e0;
   font-size: 16px;
-  font-weight: 600;
-}
-
-.rate-item .rate {
-  font-size: 36px;
-  font-weight: 800;
-  border-bottom: 2px solid #1E3A8A;
-  display: inline-block;
-  margin: 0 auto;
-}
-
-.rate-item .rate small {
-  font-size: 18px;
-}
-
-.rate-divider {
-  height: 1px;
-  background-color: #eee;
-  margin: 20px 0;
-}
-
-.disclaimer {
-  font-size: 12px;
-  color: #666;
-  margin-top: 20px;
-}
-
-.hero-bottom-bar {
-  background-color: #310c4f;
-  padding: 15px 0;
-  font-size: 14px;
-  text-align: center;
 }
 
 /* Responsive Styles */
@@ -126,11 +109,6 @@
 
   .hero-content h1 {
     font-size: 32px;
-  }
-
-  .hero-rates-card {
-    width: 100%;
-    max-width: 400px;
   }
 }
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { useNavigate } from 'react-router-dom';
+import { neon as supabase } from '../../lib/neon';
 import { Wallet, Landmark, Calculator, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import './Loan.css';
 
@@ -10,6 +11,7 @@ const LOAN_TYPES = [
 ];
 
 const Loan = () => {
+  const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -247,7 +249,7 @@ const Loan = () => {
               <h3>Application Submitted!</h3>
               <p>Your application for a <strong>£{parseFloat(formData.amount).toLocaleString()} {LOAN_TYPES.find(t => t.id === formData.loanType).name}</strong> has been received.</p>
               <p className="status-note">Our loan officers are reviewing your request. You will see this as a "Pending" transaction in your dashboard.</p>
-              <button onClick={() => window.location.href = '/dashboard'} className="finish-btn">
+              <button onClick={() => navigate('/dashboard')} className="finish-btn">
                 Back to Dashboard
               </button>
             </div>

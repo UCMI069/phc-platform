@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { neon as supabase } from '../../lib/neon';
 import { useNotification } from '../../context/NotificationContext';
 import { Crown, Star, Shield, Sparkles, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 import './Upgrade.css';

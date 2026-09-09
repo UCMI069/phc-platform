@@ -134,7 +134,7 @@
 .confirm-modal-header h3 {
   font-size: 18px;
   font-weight: 700;
-  color: #310c4f;
+  color: #1E3A8A;
   margin: 0;
 }
 
@@ -182,7 +182,7 @@
 }
 
 .confirm-btn-action.primary:hover {
-  background: #310c4f;
+  background: #1E3A8A;
 }
 
 .confirm-btn-action.danger {

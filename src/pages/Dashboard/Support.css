@@ -43,7 +43,7 @@
 
 .support-card h3 {
   font-size: 20px;
-  color: #310c4f;
+  color: #1E3A8A;
   margin-bottom: 30px;
   font-weight: 700;
 }
@@ -63,7 +63,7 @@
 .form-group label {
   font-size: 14px;
   font-weight: 700;
-  color: #310c4f;
+  color: #1E3A8A;
 }
 
 .form-group input, .form-group select, .form-group textarea {
@@ -71,7 +71,7 @@
   border: 1px solid #dee2e6;
   border-radius: 8px;
   font-size: 15px;
-  color: #310c4f;
+  color: #1E3A8A;
   outline: none;
   transition: border-color 0.2s;
 }
@@ -96,7 +96,7 @@
 }
 
 .submit-support-btn:hover {
-  background-color: #5a1c82;
+  background-color: #2563EB;
 }
 
 .faq-section {
@@ -105,7 +105,7 @@
 
 .faq-section h3 {
   font-size: 20px;
-  color: #310c4f;
+  color: #1E3A8A;
   margin-bottom: 25px;
 }
 
@@ -132,7 +132,7 @@
 
 .faq-question strong {
   font-size: 16px;
-  color: #310c4f;
+  color: #1E3A8A;
 }
 
 .faq-answer {

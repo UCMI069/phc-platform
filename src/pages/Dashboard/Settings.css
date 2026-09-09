@@ -91,7 +91,7 @@
 
 .avatar-info h3 {
   font-size: 20px;
-  color: #310c4f;
+  color: #1E3A8A;
   margin-bottom: 4px;
 }
 
@@ -121,7 +121,7 @@
 .form-group label {
   font-size: 13px;
   font-weight: 700;
-  color: #310c4f;
+  color: #1E3A8A;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -132,7 +132,7 @@
   border: 1px solid #dee2e6;
   border-radius: 8px;
   font-size: 15px;
-  color: #310c4f;
+  color: #1E3A8A;
   outline: none;
   transition: border-color 0.2s;
 }
@@ -163,7 +163,7 @@
 }
 
 .save-settings-btn:hover {
-  background-color: #5a1c82;
+  background-color: #2563EB;
 }
 
 .save-settings-btn:disabled {
@@ -175,7 +175,7 @@
   width: 100%;
   background-color: #ffffff;
   border: 1px solid #dee2e6;
-  color: #310c4f;
+  color: #1E3A8A;
   padding: 12px;
   border-radius: 8px;
   font-weight: 600;
@@ -185,7 +185,7 @@
 
 .info-card h3 {
   font-size: 18px;
-  color: #310c4f;
+  color: #1E3A8A;
   margin-bottom: 20px;
 }
 
@@ -216,7 +216,7 @@
 .settings-info-list strong {
   display: block;
   font-size: 14px;
-  color: #310c4f;
+  color: #1E3A8A;
   margin-bottom: 2px;
 }
 

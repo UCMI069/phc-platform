@@ -1,9 +1,9 @@
 import React from 'react';
-import './MoreFromGCU.css';
+import './MoreFromPHC.css';
 
-const MoreFromGCU = () => {
+const MoreFromPHC = () => {
   return (
-    <section className="more-from-gcu">
+    <section className="more-from-phc">
       <div className="container">
         <h3>More from PHC</h3>
         
@@ -43,4 +43,4 @@ const MoreFromGCU = () => {
   );
 };
 
-export default MoreFromGCU;
+export default MoreFromPHC;

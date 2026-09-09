@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { neon as supabase } from '../../lib/neon';
 import { User, Mail, Phone, MapPin, Globe, Camera, Save, AlertCircle, CheckCircle2 } from 'lucide-react';
 import './Settings.css';
 

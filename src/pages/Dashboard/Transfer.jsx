@@ -1,9 +1,11 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { useNavigate } from 'react-router-dom';
+import { neon as supabase } from '../../lib/neon';
 import { Send, Search, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import './Transfer.css';
 
 const Transfer = () => {
+  const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -107,6 +109,7 @@ const Transfer = () => {
 
       // 2. Update account balance immediately (Standard banking practice)
       const sourceAccount = accounts.find(a => a.id === formData.fromAccount);
+      if (!sourceAccount) throw new Error('Source account not found');
       const newBalance = sourceAccount.balance - parseFloat(formData.amount);
       
       const { error: accError } = await supabase
@@ -153,7 +156,7 @@ const Transfer = () => {
                 >
                   {accounts.map(acc => (
                     <option key={acc.id} value={acc.id}>
-                      {acc.type.toUpperCase()} (****{acc.id.slice(-4)}) - Â£{acc.balance.toLocaleString()}
+                      {acc.type.toUpperCase()} (****{acc.id.slice(-4)}) - £{acc.balance.toLocaleString()}
                     </option>
                   ))}
                 </select>
@@ -200,7 +203,7 @@ const Transfer = () => {
             <div className="form-section">
               <h3>Payment Details</h3>
               <div className="form-group">
-                <label>Amount (Â£)</label>
+                <label>Amount (£)</label>
                 <input 
                   type="number" 
                   name="amount" 
@@ -254,7 +257,7 @@ const Transfer = () => {
               </div>
               <div className="review-item highlight">
                 <span>Amount</span>
-                <strong>Â£{parseFloat(formData.amount).toLocaleString()}</strong>
+                <strong>£{parseFloat(formData.amount).toLocaleString()}</strong>
               </div>
               <div className="review-item">
                 <span>Reference</span>
@@ -283,9 +286,9 @@ const Transfer = () => {
               <ShieldCheck size={64} />
             </div>
             <h3>Transfer Successful</h3>
-            <p>Your payment of <strong>Â£{parseFloat(formData.amount).toLocaleString()}</strong> to <strong>{formData.accountName}</strong> has been initiated.</p>
+            <p>Your payment of <strong>£{parseFloat(formData.amount).toLocaleString()}</strong> to <strong>{formData.accountName}</strong> has been initiated.</p>
             <div className="tx-ref">Transaction Reference: {Math.random().toString(36).substr(2, 9).toUpperCase()}</div>
-            <button onClick={() => window.location.href = '/dashboard/transactions'} className="finish-btn">
+            <button onClick={() => navigate('/dashboard/transactions')} className="finish-btn">
               View Transactions
             </button>
           </div>

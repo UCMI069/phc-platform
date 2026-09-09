@@ -12,7 +12,7 @@
 
 /* â”€â”€ Hero â”€â”€ */
 .mortgages-hero {
-  background-color: #310c4f;
+  background-color: #1E3A8A;
   color: #fff;
   padding: 80px 0;
 }
@@ -205,7 +205,7 @@
   transform: scale(1.03);
 }
 .account-card.dark {
-  background-color: #310c4f;
+  background-color: #1E3A8A;
   color: #fff;
 }
 
@@ -376,7 +376,7 @@
   font-size: 16px;
   transition: background-color 0.2s;
 }
-.btn-chat:hover { background-color: #310c4f; }
+.btn-chat:hover { background-color: #1E3A8A; }
 
 /* â”€â”€ Responsive â”€â”€ */
 @media (max-width: 1024px) {

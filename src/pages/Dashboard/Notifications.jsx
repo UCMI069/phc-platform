@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { neon as supabase } from '../../lib/neon';
 import { useNotification } from '../../context/NotificationContext';
 import { 
   Bell, 

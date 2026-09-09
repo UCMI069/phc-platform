@@ -65,7 +65,7 @@
 }
 
 .balance-hero-card {
-  background: linear-gradient(135deg, #1E3A8A 0%, #310c4f 100%);
+  background: linear-gradient(135deg, #1E3A8A 0%, #1E3A8A 100%);
   border-radius: 24px;
   padding: 40px;
   color: #ffffff;

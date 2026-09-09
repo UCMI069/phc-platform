@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { neon as supabase } from '../lib/neon';
 import { useNotification } from '../context/NotificationContext';
 import { Eye, EyeOff } from 'lucide-react';
 import './Auth.css';
@@ -40,6 +40,12 @@ const Register = () => {
       return;
     }
 
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
@@ -55,42 +61,8 @@ const Register = () => {
 
       if (signUpError) throw signUpError;
 
-      if (data?.user) {
-        const user = data.user;
-        
-        // 1. Manually create the profile (bypass trigger issues)
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .upsert({
-            id: user.id,
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            username: formData.email,
-            currency: 'GBP'
-          });
-
-        if (profileError) {
-          console.error("Profile creation error:", profileError);
-        }
-
-        // 2. Manually create the initial account
-        const { error: accountError } = await supabase
-          .from('accounts')
-          .insert({
-            user_id: user.id,
-            type: formData.accountType,
-            balance: 0.00,
-            active: true,
-            tier: 'Standard'
-          });
-
-        if (accountError) {
-          console.error("Account creation error:", accountError);
-        }
-
-        addNotification("Registration successful! You can now log in to your account.", "success");
-        navigate('/login');
-      }
+      addNotification("Registration successful! Welcome to PHC.", "success");
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -144,9 +116,9 @@ const Register = () => {
               onChange={handleChange}
               required
             >
-              <option value="savings">savings Account</option>
+              <option value="savings">Savings Account</option>
               <option value="Stocks">Stocks Account</option>
-              <option value="checkings">checkings Account</option>
+              <option value="checkings">Checkings Account</option>
             </select>
           </div>
           <div className="form-group">

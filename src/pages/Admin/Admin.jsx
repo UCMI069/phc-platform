@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { neon as supabase } from '../../lib/neon';
 import { useNotification } from '../../context/NotificationContext';
 import { 
   Users, 
@@ -100,41 +100,84 @@ const Admin = () => {
         return;
       }
 
-      // Fetch Profiles with accounts
+      // Fetch Profiles
       const { data: allProfiles, error: profileError } = await supabase
         .from('profiles')
-        .select('*, accounts(*)');
+        .select('*');
       
       if (profileError) {
         console.error('Profile fetch error:', profileError);
         addNotification('Error fetching users: ' + profileError.message, 'error');
       }
       
-      console.log('Admin Data - Raw Profiles:', allProfiles);
       const profilesList = allProfiles || [];
-      console.log('Admin Data - Profiles count:', profilesList.length);
       setProfiles(profilesList);
+
+      // Fetch Accounts separately
+      const { data: allAccounts } = await supabase
+        .from('accounts')
+        .select('*');
+
+      // Attach accounts to profiles
+      const accountsByUser = {};
+      (allAccounts || []).forEach(acc => {
+        if (!accountsByUser[acc.user_id]) accountsByUser[acc.user_id] = [];
+        accountsByUser[acc.user_id].push(acc);
+      });
+      const profilesListWithAccounts = profilesList.map(p => ({
+        ...p,
+        accounts: accountsByUser[p.id] || [],
+      }));
+      setProfiles(profilesListWithAccounts);
 
       // Fetch All Transactions
       const { data: allTxs, error: txError } = await supabase
         .from('transactions')
-        .select('*, profiles(first_name, last_name)')
+        .select('*')
         .order('created_at', { ascending: false });
       
       if (txError) console.error('Transaction fetch error:', txError);
-      setTransactions(allTxs || []);
-
-      // Filter Pending Actions (Deposits & Transfers)
-      setPendingActions(allTxs?.filter(tx => tx.status === 'pending' || tx.status === 'pending_transfer') || []);
+      
+      // Fetch profiles for transaction user IDs
+      const txUserIds = [...new Set((allTxs || []).map(tx => tx.user_id).filter(Boolean))];
+      let txProfiles = [];
+      if (txUserIds.length > 0) {
+        const { data } = await supabase.from('profiles').select('*').in('id', txUserIds);
+        txProfiles = data || [];
+      }
+      const txProfileMap = {};
+      txProfiles.forEach(p => { txProfileMap[p.id] = p; });
+      
+      const txsWithProfiles = (allTxs || []).map(tx => ({
+        ...tx,
+        profiles: txProfileMap[tx.user_id] || null,
+      }));
+      setTransactions(txsWithProfiles);
+      setPendingActions(txsWithProfiles.filter(tx => tx.status === 'pending' || tx.status === 'pending_transfer'));
 
       // Fetch All Support Messages
       const { data: allSupport, error: supportError } = await supabase
         .from('support_messages')
-        .select('*, profiles(first_name, last_name)')
+        .select('*')
         .order('created_at', { ascending: false });
       
       if (supportError) console.error('Support fetch error:', supportError);
-      setSupportMessages(allSupport || []);
+      
+      // Fetch profiles for support message user IDs
+      const supUserIds = [...new Set((allSupport || []).map(m => m.user_id).filter(Boolean))];
+      let supProfiles = [];
+      if (supUserIds.length > 0) {
+        const { data } = await supabase.from('profiles').select('*').in('id', supUserIds);
+        supProfiles = data || [];
+      }
+      const supProfileMap = {};
+      supProfiles.forEach(p => { supProfileMap[p.id] = p; });
+      
+      const supportWithProfiles = (allSupport || []).map(m => ({
+        ...m,
+        profiles: supProfileMap[m.user_id] || null,
+      }));
+      setSupportMessages(supportWithProfiles);
 
       // Fetch Upgrade Prices
       const { data: priceRows, error: priceError } = await supabase
@@ -153,11 +196,25 @@ const Admin = () => {
       // Fetch Upgrade Requests
       const { data: reqRows, error: reqError } = await supabase
         .from('account_upgrade_requests')
-        .select('*, profiles(first_name, last_name, username)')
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (!reqError) {
-        setUpgradeRequests(reqRows || []);
+        // Fetch profiles for request user IDs
+        const reqUserIds = [...new Set((reqRows || []).map(r => r.user_id).filter(Boolean))];
+        let reqProfiles = [];
+        if (reqUserIds.length > 0) {
+          const { data } = await supabase.from('profiles').select('*').in('id', reqUserIds);
+          reqProfiles = data || [];
+        }
+        const reqProfileMap = {};
+        reqProfiles.forEach(p => { reqProfileMap[p.id] = p; });
+        
+        const reqsWithProfiles = (reqRows || []).map(r => ({
+          ...r,
+          profiles: reqProfileMap[r.user_id] || null,
+        }));
+        setUpgradeRequests(reqsWithProfiles);
       }
 
       // Fetch Crypto Deposit Details
@@ -562,20 +619,20 @@ const Admin = () => {
       const fileName = `crypto-qr-${Date.now()}-${Math.random().toString(16).slice(2)}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('crypto_qr')
+        .from('cryptoqr')
         .upload(fileName, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
       const { data: publicData } = supabase.storage
-        .from('crypto_qr')
+        .from('cryptoqr')
         .getPublicUrl(fileName);
 
       setCryptoForm((prev) => ({ ...prev, qrImageUrl: publicData.publicUrl }));
       addNotification('QR code uploaded. Save crypto details to apply.', 'success');
     } catch (err) {
       addNotification(
-        err.message || "Failed to upload QR image. Ensure a Supabase Storage bucket named 'crypto_qr' exists and is Public.",
+        err.message || "Failed to upload QR image. Ensure the cryptoqr storage bucket exists and is Public.",
         'error'
       );
     } finally {
@@ -690,8 +747,13 @@ const Admin = () => {
     
     setSubmitting(true);
     try {
-      // Use the RPC function we created in SQL
-      const { error } = await supabase.rpc('admin_delete_user', { target_user_id: userId });
+      // Delete related data first, then user
+      await supabase.from('transactions').delete().eq('user_id', userId);
+      await supabase.from('notifications').delete().eq('user_id', userId);
+      await supabase.from('support_messages').delete().eq('user_id', userId);
+      await supabase.from('accounts').delete().eq('user_id', userId);
+      await supabase.from('profiles').delete().eq('id', userId);
+      const { error } = await supabase.from('users').delete().eq('id', userId);
 
       if (error) throw error;
       addNotification('User deleted successfully', 'success');
@@ -724,6 +786,11 @@ const Admin = () => {
       });
 
       if (error) throw error;
+
+      // Update account balance
+      const { data: currentAcc } = await supabase.from('accounts').select('balance').eq('id', acc.id).single();
+      const newBalance = (parseFloat(currentAcc?.balance) || 0) + parseFloat(amount);
+      await supabase.from('accounts').update({ balance: newBalance }).eq('id', acc.id);
 
       addNotification('Incoming deposit created. User will see it as "Pending".', 'success');
       fetchAdminData();
@@ -1225,7 +1292,7 @@ const Admin = () => {
 
             <section className="admin-section sidebar-form">
               <h3>{cryptoForm.id ? 'Edit Crypto Details' : 'Add Crypto Details'}</h3>
-              <p className="form-help">Upload a QR code image using a Supabase Storage bucket named crypto_qr (Public).</p>
+              <p className="form-help">Upload a QR code image for crypto deposits.</p>
 
               <div className="form-group">
                 <label>Crypto Currency</label>

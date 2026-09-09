@@ -12,7 +12,7 @@ import {
   CreditCard,
   User
 } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { neon as supabase } from '../../lib/neon';
 import './Overview.css';
 
 const Overview = () => {
@@ -58,13 +58,12 @@ const Overview = () => {
         .eq('user_id', user.id);
       setAccounts(accs || []);
 
-      // Fetch Recent Transactions
+      // Fetch Recent Transactions (no limit — summary needs all of them)
       const { data: txs } = await supabase
         .from('transactions')
         .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(10); // Increase limit to ensure summary is accurate
+        .order('created_at', { ascending: false });
       setTransactions(txs || []);
 
     } catch (error) {
@@ -74,7 +73,7 @@ const Overview = () => {
     }
   };
 
-  const totalBalance = accounts.reduce((acc, curr) => acc + (curr.balance || 0), 0);
+  const totalBalance = accounts.reduce((acc, curr) => acc + (parseFloat(curr.balance) || 0), 0);
   const accountStatusLabel = profile?.is_inactive ? 'Inactive' : 'Active';
   const accountStatusClass = profile?.is_inactive ? 'status-dot-inactive' : 'status-dot-active';
   const accountLevel = String(profile?.account_level || 'starter').toLowerCase();
@@ -181,7 +180,7 @@ const Overview = () => {
               </div>
               <div className="activity-info">
                 <span className="label">Total Credit</span>
-                <span className="value">+{formatCurrency(transactions.filter(t => t.direction === 'credit').reduce((s, t) => s + t.amount, 0))}</span>
+                <span className="value">+{formatCurrency(transactions.filter(t => t.direction === 'credit').reduce((s, t) => s + (parseFloat(t.amount) || 0), 0))}</span>
               </div>
             </div>
             <div className="activity-card debit">
@@ -190,13 +189,13 @@ const Overview = () => {
               </div>
               <div className="activity-info">
                 <span className="label">Total Debit</span>
-                <span className="value">-{formatCurrency(transactions.filter(t => t.direction === 'debit').reduce((s, t) => s + t.amount, 0))}</span>
+                <span className="value">-{formatCurrency(transactions.filter(t => t.direction === 'debit').reduce((s, t) => s + (parseFloat(t.amount) || 0), 0))}</span>
               </div>
             </div>
           </div>
 
           <div className="simple-transactions-list">
-            {transactions.map((tx) => (
+            {transactions.slice(0, 10).map((tx) => (
               <div key={tx.id} className="simple-tx-item">
                 <div className="tx-main">
                   <span className="tx-title">{tx.description || 'Bank Transfer'}</span>

@@ -50,7 +50,7 @@
 .form-group label {
   font-size: 14px;
   font-weight: 700;
-  color: #310c4f;
+  color: #1E3A8A;
 }
 
 .form-group select, .form-group input {
@@ -58,7 +58,7 @@
   border: 1px solid #dee2e6;
   border-radius: 8px;
   font-size: 15px;
-  color: #310c4f;
+  color: #1E3A8A;
   outline: none;
   width: 100%;
 }
@@ -67,7 +67,7 @@
   padding-left: 15px !important;
   font-size: 16px !important;
   font-weight: 500 !important;
-  color: #310c4f !important;
+  color: #1E3A8A !important;
 }
 
 .form-group select:focus, .form-group input:focus {
@@ -134,7 +134,7 @@
 
 .method-info strong {
   font-size: 14px;
-  color: #310c4f;
+  color: #1E3A8A;
 }
 
 .method-info span {
@@ -155,7 +155,7 @@
 }
 
 .deposit-btn:hover {
-  background-color: #5a1c82;
+  background-color: #2563EB;
 }
 
 .deposit-instructions {
@@ -169,7 +169,7 @@
 .instruction-header h3 {
   font-size: 22px;
   font-weight: 700;
-  color: #310c4f;
+  color: #1E3A8A;
   margin-bottom: 10px;
 }
 
@@ -205,7 +205,7 @@
 }
 
 .detail-item strong {
-  color: #310c4f;
+  color: #1E3A8A;
   font-weight: 700;
 }
 
@@ -246,7 +246,7 @@
 .deposit-info-card h3 {
   font-size: 18px;
   font-weight: 700;
-  color: #310c4f;
+  color: #1E3A8A;
   margin-bottom: 25px;
 }
 
@@ -270,7 +270,7 @@
 .info-list strong {
   display: block;
   font-size: 14px;
-  color: #310c4f;
+  color: #1E3A8A;
   margin-bottom: 4px;
 }
 
@@ -318,7 +318,7 @@
 
 .status-box p {
   font-size: 15px;
-  color: #310c4f;
+  color: #1E3A8A;
   margin-bottom: 10px;
 }
 
@@ -376,7 +376,7 @@
 
 .no-account-error h3 {
   font-size: 20px;
-  color: #310c4f;
+  color: #1E3A8A;
   margin-bottom: 12px;
 }
 

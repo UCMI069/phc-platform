@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { neon as supabase } from '../lib/neon';
 import './Auth.css';
 import logo from '../assets/phc-logo.png';
 

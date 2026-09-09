@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { neon as supabase } from '../../lib/neon';
 import { useNotification } from '../../context/NotificationContext';
 import { 
   MessageCircle, 
@@ -198,7 +198,7 @@ const Support = () => {
                 <div className="contact-icon"><Mail size={20} /></div>
                 <div className="contact-info">
                   <strong>Email Support</strong>
-                  <p>support@gcuplatform.com</p>
+                  <p>support@phcplatform.org</p>
                   <span>Response within 24h</span>
                 </div>
               </div>

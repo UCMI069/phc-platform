@@ -1,7 +1,7 @@
 ﻿.investments-page { font-family: 'Open Sans', Arial, sans-serif; color: #1E3A8A; background-color: #f4f4f4; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-.investments-hero { background-color: #310c4f; color: #fff; padding: 80px 0; }
+.investments-hero { background-color: #1E3A8A; color: #fff; padding: 80px 0; }
 .investments-hero .container { display: flex; align-items: center; gap: 60px; }
 .investments-hero .hero-content { flex: 1; }
 .badge { display: inline-block; background-color: #ff6a00; color: #fff; padding: 4px 12px; border-radius: 4px; font-weight: 700; text-transform: uppercase; font-size: 12px; margin-bottom: 20px; }
@@ -41,7 +41,7 @@
 .account-card { background: #fff; border-radius: 16px; padding: 36px; display: flex; flex-direction: column; gap: 16px; border: 2px solid transparent; transition: transform 0.2s, box-shadow 0.2s; }
 .account-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(66,20,95,0.12); }
 .account-card.highlight { border-color: #ff6a00; box-shadow: 0 8px 24px rgba(255,106,0,0.12); transform: scale(1.03); }
-.account-card.dark { background-color: #310c4f; color: #fff; }
+.account-card.dark { background-color: #1E3A8A; color: #fff; }
 .account-header h3 { font-size: 20px; font-weight: 700; }
 .account-tag { display: inline-block; background-color: #ff6a00; color: #fff; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; }
 .account-desc { font-size: 14px; line-height: 1.6; opacity: 0.85; }
@@ -54,7 +54,7 @@
 
 /* Prize Banner */
 .investments-prize { padding: 60px 0; background-color: #fff; }
-.prize-banner { background: linear-gradient(135deg, #310c4f 0%, #1E3A8A 100%); border-radius: 16px; padding: 50px; display: flex; justify-content: space-between; align-items: center; gap: 40px; color: #fff; }
+.prize-banner { background: linear-gradient(135deg, #1E3A8A 0%, #1E3A8A 100%); border-radius: 16px; padding: 50px; display: flex; justify-content: space-between; align-items: center; gap: 40px; color: #fff; }
 .prize-tag { display: inline-block; background-color: #ff6a00; color: #fff; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 4px; margin-bottom: 16px; }
 .prize-content h2 { font-size: 28px; font-weight: 700; margin-bottom: 12px; max-width: 500px; }
 .prize-content p { font-size: 15px; line-height: 1.6; opacity: 0.85; margin-bottom: 24px; max-width: 480px; }
@@ -70,7 +70,7 @@
 .contact-item .label { font-size: 13px; opacity: 0.7; }
 .contact-item .value { font-size: 18px; font-weight: 700; }
 .btn-chat { background-color: #1E3A8A; color: #fff; border: none; padding: 14px 28px; border-radius: 25px; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 16px; transition: background-color 0.2s; }
-.btn-chat:hover { background-color: #310c4f; }
+.btn-chat:hover { background-color: #1E3A8A; }
 
 @media (max-width: 1024px) {
   .investments-hero .container { flex-direction: column; }

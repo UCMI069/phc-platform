@@ -15,7 +15,7 @@ const Header = () => {
   };
 
   return (
-    <header className="gcu-header">
+    <header className="phc-header">
       {/* Main Navigation Bar */}
       <div className="main-nav-bar">
         <div className="container">
@@ -45,13 +45,8 @@ const Header = () => {
                   <li className="mobile-only"><Link to="/" onClick={() => setIsMenuOpen(false)}>Home</Link></li>
                   <li className="mobile-only"><Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link></li>
                   <li className="mobile-only"><Link to="/register" onClick={() => setIsMenuOpen(false)}>Register</Link></li>
-                  <li className="mobile-only"><Link to="/about" onClick={() => setIsMenuOpen(false)}>About</Link></li>
-                  <li className="desktop-only"><Link to="/products">Products</Link></li>
-                  <li className="desktop-only"><Link to="/help">Help and support</Link></li>
-                  <li className="desktop-only"><Link to="/money">You and your money</Link></li>
-                  <li className="desktop-only"><Link to="/banking">Banking with us</Link></li>
-                  <li className="desktop-only"><Link to="/security">Security and fraud</Link></li>
-                  <li className="desktop-only"><Link to="/climate">Climate</Link></li>
+                  <li className="mobile-only"><Link to="/about" onClick={() => setIsMenuOpen(false)}>About Us</Link></li>
+                  
                 </>
               )}
             </ul>

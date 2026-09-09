@@ -1,8 +1,8 @@
-# GCU Banking Platform
+# PHC Platform
 
 A modern JavaScript-based banking application featuring account management, fund transfers, and transaction tracking. Built with cutting-edge web technologies for a secure and intuitive user experience.
 
-**Live Demo:** https://gcuplatform.com
+**Live Demo:** https://phcplatform.org
 
 ## Table of Contents
 
@@ -16,20 +16,20 @@ A modern JavaScript-based banking application featuring account management, fund
 
 ## Overview
 
-GCU Banking Platform is a comprehensive financial dashboard that allows users to manage accounts, transfer funds, view transaction history, and track financial activities. Built with responsive design to work seamlessly across all devices.
+PHC Platform is a comprehensive financial dashboard that allows users to manage accounts, transfer funds, view transaction history, and track financial activities. Built with responsive design to work seamlessly across all devices.
 
 ## Tech Stack
 
 - **Frontend:** JavaScript (62.9%), React, Vite
 - **Styling:** CSS (31.9%)
-- **Backend/Database:** Supabase (PostgreSQL)
+- **Backend/Database:** Neon (PostgreSQL)
 - **Deployment:** Vercel
 
 ## Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/GCU-platform/GCU-platform.git
+git clone https://github.com/davejohnsonwelch-blip/gcuplatform.git
 cd gcuplatform
 
 # Install dependencies
@@ -37,7 +37,7 @@ npm install
 
 # Set up environment variables
 cp .env.example .env
-# Edit .env with your Supabase project credentials
+# Edit .env with your Neon project credentials
 ```
 
 ## Usage

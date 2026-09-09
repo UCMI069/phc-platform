@@ -1,9 +1,10 @@
 ﻿import React from 'react';
+import { Link } from 'react-router-dom';
 import './Footer.css';
 
 const Footer = () => {
   return (
-    <footer className="gcu-footer">
+    <footer className="phc-footer">
       {/* Main Footer Content */}
       <div className="footer-main">
         <div className="container">
@@ -33,6 +34,7 @@ const Footer = () => {
                 <li>Struggling financially</li>
                 <li>Bereavement</li>
                 <li>Financial Health Check</li>
+                <li>You and your money</li>
                 <li>First time buyer guide</li>
                 <li>Travel Guide</li>
                 <li>Financial abuse</li>
@@ -48,6 +50,8 @@ const Footer = () => {
                 <li>Service status</li>
                 <li>PHC app</li>
                 <li>Online Banking</li>
+                <li>Banking with us</li>
+                <li>Security and fraud</li>
                 <li>Home Energy Hub</li>
               </ul>
             </div>
@@ -60,6 +64,7 @@ const Footer = () => {
                 <li>Access to cash</li>
                 <li>Modern Slavery Act (PDF 6MB)</li>
                 <li>FSCS.org.uk</li>
+                <li>Climate</li>
               </ul>
             </div>
           </div>
@@ -70,15 +75,14 @@ const Footer = () => {
       <div className="footer-bottom">
         <div className="container">
           <ul className="legal-links">
-            <li>Privacy & Cookies</li>
-            <li>Website T&Cs</li>
-            <li>Accessibility</li>
-            <li>Careers</li>
-            <li>Site Map</li>
+            <li><Link to="/privacy">Privacy Policy</Link></li>
+            <li><Link to="/terms">Terms & Conditions</Link></li>
+            <li><Link to="/accessibility">Accessibility</Link></li>
+            <li><Link to="/site-map">Site Map</Link></li>
           </ul>
           
           <div className="copyright-info">
-            <p>Copyright Â© PHC Platform 2026. All rights reserved.</p>
+            <p>Copyright © PHC Platform 2026. All rights reserved.</p>
           </div>
         </div>
       </div>

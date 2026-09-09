@@ -44,9 +44,9 @@ const TawkChat = () => {
   };
 
   return (
-    <button className="chat-cora-btn" onClick={handleChatClick}>
+    <button className="chat-support-btn" onClick={handleChatClick}>
       <MessageSquare className="chat-icon" size={20} />
-      <span>Chat to Cora</span>
+      <span>Chat to us</span>
     </button>
   );
 };

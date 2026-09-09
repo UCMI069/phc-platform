@@ -7,6 +7,7 @@ const Personal = () => {
     <div className="personal-page">
       <h1>Personal Banking</h1>
       <p>Welcome to PHC Personal Banking. Manage your accounts, apply for loans, and more.</p>
+      <p className="sub-text">Securely access your accounts, view transaction history, and manage your finances from anywhere.</p>
       <div className="personal-links">
         <Link to="/personal/accounts">Accounts</Link>
         <Link to="/personal/loans">Loans</Link>
@@ -14,6 +15,7 @@ const Personal = () => {
         <Link to="/personal/credit-cards">Credit Cards</Link>
         <Link to="/personal/investments">Investments</Link>
       </div>
+      <p className="disclaimer">Rates and terms apply. Please log in to view your personalized options.</p>
     </div>
   );
 };

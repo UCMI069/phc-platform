@@ -1,11 +1,10 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { neon as supabase } from '../../lib/neon';
 import { useAuth } from '../../context/AuthContext';
 import './Transactions.css';
 import { ArrowUpRight, ArrowDownLeft, Search, Filter, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import logo from '../../assets/PHC-logo.png';
 
 const Transactions = () => {
   const { user } = useAuth();
@@ -64,8 +63,8 @@ const Transactions = () => {
     const doc = new jsPDF();
     
     // Add Logo (if possible)
-    // Using a simpler approach: draw a purple rectangle for branding
-    doc.setFillColor(66, 20, 95); // #42145f
+    // Using a simpler approach: draw a blue rectangle for branding
+    doc.setFillColor(30, 58, 138); // #1E3A8A PHC blue
     doc.rect(0, 0, 210, 40, 'F');
     
     doc.setFontSize(24);

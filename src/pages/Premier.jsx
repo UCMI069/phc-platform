@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { ChevronRight, ArrowRight, Star, Shield, Smartphone, Headphones, MapPin, ExternalLink } from 'lucide-react';
+import { ChevronRight, ArrowRight, Star, Shield, Smartphone, Headphones, MapPin, ExternalLink, MessageCircle } from 'lucide-react';
 import './Premier.css';
 
 const Premier = () => {
@@ -11,8 +11,8 @@ const Premier = () => {
           <div className="hero-content">
             <span className="badge">Premier</span>
             <h1>The switch worth making</h1>
-            <p className="hero-lead">You could get up to Â£1,000 when you switch to PHC Premier.</p>
-            <p className="hero-detail">Thatâ€™s Â£250 for switching to a Premier account, plus Â£750 in interest if you deposit Â£100k into a new Flexible Saver account.</p>
+            <p className="hero-lead">You could get up to £1,000 when you switch to PHC Premier.</p>
+            <p className="hero-detail">That's £250 for switching to a Premier account, plus £750 in interest if you deposit £100k into a new Flexible Saver account.</p>
             <div className="hero-actions">
               <button className="btn-primary">View accounts</button>
             </div>
@@ -24,19 +24,19 @@ const Premier = () => {
       {/* Criteria Section */}
       <section className="premier-criteria">
         <div className="container">
-          <h2>To join Premier youâ€™ll need one or more of the following:</h2>
+          <h2>To join Premier you'll need one or more of the following:</h2>
           <div className="criteria-grid">
             <div className="criteria-card">
-              <div className="criteria-icon">ðŸ’°</div>
-              <p>Minimum of Â£100k sole income or Â£120k joint income paid into your PHC account.</p>
+              <div className="criteria-icon">💰</div>
+              <p>Minimum of £100k sole income or £120k joint income paid into your PHC account.</p>
             </div>
             <div className="criteria-card">
-              <div className="criteria-icon">ðŸ“ˆ</div>
-              <p>Minimum of Â£100k savings or investments held with PHC.</p>
+              <div className="criteria-icon">📈</div>
+              <p>Minimum of £100k savings or investments held with PHC.</p>
             </div>
             <div className="criteria-card">
-              <div className="criteria-icon">ðŸ </div>
-              <p>Minimum Â£500k mortgage with PHC.</p>
+              <div className="criteria-icon">🏠</div>
+              <p>Minimum £500k mortgage with PHC.</p>
             </div>
           </div>
         </div>
@@ -76,13 +76,13 @@ const Premier = () => {
           <div className="option-card featured">
             <div className="option-header">
               <h3>Premier Select</h3>
-              <span className="price">Â£0 <small>a month</small></span>
+              <span className="price">£0 <small>a month</small></span>
             </div>
             <p className="option-tag">Eligible for our Premier Switch offer. T&Cs apply.</p>
             <p>Get 24/7 support from Premier 24 and help to invest in your future.</p>
             <ul className="option-benefits">
               <li><ArrowRight size={16} /> No non-Sterling transaction fee when you make a payment outside the UK or in a foreign currency.</li>
-              <li><ArrowRight size={16} /> Arranged overdraft with Â£500 interest-free buffer available (subject to status).</li>
+              <li><ArrowRight size={16} /> Arranged overdraft with £500 interest-free buffer available (subject to status).</li>
             </ul>
             <button className="btn-outline">Go to Premier Select</button>
           </div>
@@ -90,13 +90,13 @@ const Premier = () => {
           <div className="option-card highlight">
             <div className="option-header">
               <h3>Premier Reward</h3>
-              <span className="price">Â£2 <small>a month</small></span>
+              <span className="price">£2 <small>a month</small></span>
             </div>
             <p className="option-tag">Eligible for our Premier Switch offer. T&Cs apply.</p>
             <p>Get 24/7 support from Premier 24 and help to invest in your future.</p>
             <ul className="option-benefits">
-              <li><ArrowRight size={16} /> Â£9 a month back in Rewards for 2 Direct Debits.</li>
-              <li><ArrowRight size={16} /> Â£1 a month in Rewards just for logging into our mobile app.</li>
+              <li><ArrowRight size={16} /> £9 a month back in Rewards for 2 Direct Debits.</li>
+              <li><ArrowRight size={16} /> £1 a month in Rewards just for logging into our mobile app.</li>
               <li><ArrowRight size={16} /> Earn at least 1% at partner retailers.</li>
             </ul>
             <button className="btn-primary">Go to Premier Reward</button>
@@ -105,7 +105,7 @@ const Premier = () => {
           <div className="option-card dark">
             <div className="option-header">
               <h3>Premier Reward Black</h3>
-              <span className="price">Â£36 <small>a month</small></span>
+              <span className="price">£36 <small>a month</small></span>
             </div>
             <p>All the features of our Select and Reward accounts plus exclusive travel and lifestyle benefits.</p>
             <ul className="option-benefits">

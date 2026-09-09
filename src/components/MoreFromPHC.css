@@ -1,11 +1,11 @@
-﻿.more-from-gcu {
+﻿.more-from-phc {
   padding: 80px 0;
   background-color: #fff;
   font-family: 'Open Sans', Arial, sans-serif;
   overflow: hidden; /* Fix for horizontal scroll/one-sided look */
 }
 
-.more-from-gcu .container {
+.more-from-phc .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
@@ -69,12 +69,12 @@
 
 /* Responsive Styles */
 @media (max-width: 1024px) {
-  .more-from-gcu {
+  .more-from-phc {
     padding: 40px 0;
     overflow: hidden;
   }
 
-  .more-from-gcu .container {
+  .more-from-phc .container {
     width: 100%;
     padding: 0 20px;
     display: flex;

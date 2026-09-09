@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { neon as supabase } from '../lib/neon';
 import { useNotification } from '../context/NotificationContext';
 import { Eye, EyeOff } from 'lucide-react';
 import './Auth.css';

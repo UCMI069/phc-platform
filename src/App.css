@@ -45,8 +45,8 @@ body {
   box-sizing: border-box;
 }
 
-/* Chat to Cora Floating Button */
-.chat-cora-btn {
+/* Chat Support Floating Button */
+.chat-support-btn {
   position: fixed;
   bottom: 30px;
   right: 30px;
@@ -66,8 +66,8 @@ body {
   transition: transform 0.2s, background-color 0.2s;
 }
 
-.chat-cora-btn:hover {
-  background-color: #5a1c82;
+.chat-support-btn:hover {
+  background-color: #2563EB;
   transform: translateY(-2px);
 }
 
@@ -77,7 +77,7 @@ body {
 
 /* Simplified Footer */
 .simple-footer {
-  background-color: #310c4f;
+  background-color: #1E3A8A;
   color: white;
   padding: 40px 0;
   text-align: center;

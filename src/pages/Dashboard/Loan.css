@@ -37,7 +37,7 @@
 
 .loan-card h3 {
   font-size: 20px;
-  color: #310c4f;
+  color: #1E3A8A;
   margin-bottom: 30px;
   font-weight: 700;
 }
@@ -57,7 +57,7 @@
 .form-group label {
   font-size: 14px;
   font-weight: 700;
-  color: #310c4f;
+  color: #1E3A8A;
 }
 
 .form-group select, .form-group input, .form-group textarea {
@@ -65,7 +65,7 @@
   border: 1px solid #dee2e6;
   border-radius: 8px;
   font-size: 15px;
-  color: #310c4f;
+  color: #1E3A8A;
   outline: none;
   transition: border-color 0.2s;
 }
@@ -78,7 +78,7 @@
   padding-left: 15px !important;
   font-size: 16px !important;
   font-weight: 500 !important;
-  color: #310c4f !important;
+  color: #1E3A8A !important;
 }
 
 .amount-input {
@@ -150,7 +150,7 @@
 
 .detail strong {
   font-size: 14px;
-  color: #310c4f;
+  color: #1E3A8A;
 }
 
 .loan-btn {
@@ -169,7 +169,7 @@
 }
 
 .loan-btn:hover {
-  background-color: #5a1c82;
+  background-color: #2563EB;
 }
 
 .security-notice {
@@ -270,7 +270,7 @@
 .loan-info-list strong {
   display: block;
   font-size: 14px;
-  color: #310c4f;
+  color: #1E3A8A;
   margin-bottom: 4px;
 }
 

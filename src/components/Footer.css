@@ -1,4 +1,4 @@
-﻿.gcu-footer {
+﻿.phc-footer {
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
@@ -47,7 +47,7 @@
 
 /* Bottom Legal Links & Copyright Style */
 .footer-bottom {
-  background-color: #2b0439; /* Darker Purple */
+  background-color: #1E3A8A;
   padding: 40px 0;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -72,6 +72,17 @@
   font-size: 13px;
   color: rgba(255, 255, 255, 0.8);
   white-space: nowrap;
+}
+
+.legal-links li a {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.legal-links li a:hover {
+  color: white;
+  text-decoration: underline;
 }
 
 .legal-links li:not(:last-child)::after {

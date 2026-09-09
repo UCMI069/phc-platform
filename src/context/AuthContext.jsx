@@ -1,7 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { neon as supabase } from '../lib/neon';
 
 const AuthContext = createContext();
+
+// Custom event bus for same-tab auth changes
+const authBus = new EventTarget();
+export const emitAuthChange = (session) => {
+  authBus.dispatchEvent(new CustomEvent('change', { detail: session }));
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -9,14 +15,19 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Get initial session
     const getInitialSession = async () => {
       try {
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
         if (error) throw error;
-        
+
         setSession(initialSession);
-        setUser(initialSession?.user || null);
+
+        if (initialSession?.user?.id) {
+          const { data: userData } = await supabase.auth.getUser();
+          setUser(userData?.user || initialSession.user);
+        } else {
+          setUser(null);
+        }
       } catch (err) {
         console.error('Error getting initial session:', err);
       } finally {
@@ -26,15 +37,29 @@ export const AuthProvider = ({ children }) => {
 
     getInitialSession();
 
-    // 2. Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
-      setSession(currentSession);
-      setUser(currentSession?.user || null);
+    // Listen for same-tab auth changes
+    const handleAuthChange = (e) => {
+      const s = e.detail;
+      setSession(s);
+      setUser(s?.user || null);
       setLoading(false);
-    });
+    };
+    authBus.addEventListener('change', handleAuthChange);
+
+    // Listen for cross-tab auth changes
+    const handleStorage = (e) => {
+      if (e.key === 'phc_session') {
+        const s = e.newValue ? JSON.parse(e.newValue) : null;
+        setSession(s);
+        setUser(s?.user || null);
+        setLoading(false);
+      }
+    };
+    window.addEventListener('storage', handleStorage);
 
     return () => {
-      subscription.unsubscribe();
+      authBus.removeEventListener('change', handleAuthChange);
+      window.removeEventListener('storage', handleStorage);
     };
   }, []);
 

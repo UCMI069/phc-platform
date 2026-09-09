@@ -19,9 +19,9 @@ import {
   Home as HomeIcon,
   Bell
 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { neon as supabase } from '../lib/neon';
 import { useAuth } from '../context/AuthContext';
-import logo from '../assets/gcu-logo.png';
+import logo from '../assets/phc-logo.png';
 import './DashboardLayout.css';
 
 const SIDEBAR_LINKS = [
@@ -69,21 +69,11 @@ const DashboardLayout = ({ children }) => {
     fetchProfile();
     fetchUnreadCount();
 
-    // Subscribe to new notifications
-    const channel = supabase
-      .channel('notifications_changes')
-      .on('postgres_changes', { 
-        event: 'INSERT', 
-        schema: 'public', 
-        table: 'notifications',
-        filter: `user_id=eq.${user.id}`
-      }, () => {
-        fetchUnreadCount();
-      })
-      .subscribe();
+    // Poll for new notifications every 10 seconds
+    const pollInterval = setInterval(fetchUnreadCount, 10000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(pollInterval);
     };
   }, [user]);
 
