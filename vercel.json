@@ -9,18 +9,45 @@
       "use": "@vercel/static-build"
     },
     {
-      "src": "api/**/*.js",
+      "src": "api/auth/signin.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/auth/signup.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/auth/user/[id].js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/query.js",
       "use": "@vercel/node"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "src": "/api/auth/signin",
+      "dest": "/api/auth/signin.js"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/api/auth/signup",
+      "dest": "/api/auth/signup.js"
+    },
+    {
+      "src": "/api/auth/user/(.*)",
+      "dest": "/api/auth/user/$1.js"
+    },
+    {
+      "src": "/api/query",
+      "dest": "/api/query.js"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
