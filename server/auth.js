@@ -3,6 +3,11 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import cors from 'cors';
 import pg from 'pg';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const { Pool } = pg;
 
@@ -216,6 +221,19 @@ app.put('/api/auth/user/:id', async (req, res) => {
   }
 });
 
+// ── Serve static files in production ──
+const distPath = join(__dirname, '..', 'dist');
+app.use(express.static(distPath));
+
+// SPA catch-all — serve index.html for all non-API routes
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(join(distPath, 'index.html'));
+  } else {
+    res.status(404).json({ error: 'Not found' });
+  }
+});
+
 app.listen(PORT, () => {
-  console.log(`Auth server running on http://localhost:${PORT}`);
+  console.log(`PHC Platform running on http://localhost:${PORT}`);
 });
