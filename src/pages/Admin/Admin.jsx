@@ -230,8 +230,8 @@ const Admin = () => {
       // Calculate Stats
       const totalUsers = allProfiles?.length || 0;
       const txList = allTxs || [];
-      const deposits = txList.filter(t => t.direction === 'credit' && t.status === 'posted').reduce((s, t) => s + (t.amount || 0), 0) || 0;
-      const withdrawals = txList.filter(t => t.direction === 'debit' && t.status === 'posted').reduce((s, t) => s + (t.amount || 0), 0) || 0;
+      const deposits = txList.filter(t => t.direction === 'credit' && t.status === 'posted').reduce((s, t) => s + (parseFloat(t.amount) || 0), 0) || 0;
+      const withdrawals = txList.filter(t => t.direction === 'debit' && t.status === 'posted').reduce((s, t) => s + (parseFloat(t.amount) || 0), 0) || 0;
 
       setStats({
         totalUsers,
@@ -254,7 +254,7 @@ const Admin = () => {
     setSubmitting(true);
     try {
       const newBalance = parseFloat(editBalance);
-      const currentBalance = selectedUser.accounts?.[0]?.balance || 0;
+      const currentBalance = parseFloat(selectedUser.accounts?.[0]?.balance) || 0;
       const currentType = selectedUser.accounts?.[0]?.type || '';
       const difference = newBalance - currentBalance;
 
@@ -339,7 +339,7 @@ const Admin = () => {
         if (tx.status === 'pending_admin' && tx.direction === 'credit') {
           // It's a deposit: add to balance
           const { data: acc } = await supabase.from('accounts').select('balance').eq('id', tx.account_id).single();
-          await supabase.from('accounts').update({ balance: (acc?.balance || 0) + tx.amount }).eq('id', tx.account_id);
+          await supabase.from('accounts').update({ balance: (parseFloat(acc?.balance) || 0) + parseFloat(tx.amount) }).eq('id', tx.account_id);
         }
         // If it's a transfer (debit), the balance was already deducted in Transfer.jsx
       }
@@ -348,7 +348,7 @@ const Admin = () => {
       if (newStatus === 'failed' && tx.status === 'pending_transfer' && tx.direction === 'debit') {
         // Refund the amount to the user's account
         const { data: acc } = await supabase.from('accounts').select('balance').eq('id', tx.account_id).single();
-        await supabase.from('accounts').update({ balance: (acc?.balance || 0) + tx.amount }).eq('id', tx.account_id);
+        await supabase.from('accounts').update({ balance: (parseFloat(acc?.balance) || 0) + parseFloat(tx.amount) }).eq('id', tx.account_id);
       }
       
       const { error } = await supabase

@@ -73,6 +73,7 @@ class QueryBuilder {
   gte(col, val) { this._filters.push({ col, op: '>=', val }); return this; }
   lte(col, val) { this._filters.push({ col, op: '<=', val }); return this; }
   like(col, val) { this._filters.push({ col, op: 'LIKE', val }); return this; }
+  in(col, values) { this._filters.push({ col, op: 'IN', val: values }); return this; }
 
   order(col, opts = {}) { this._orderCol = col; this._orderAsc = opts.ascending !== false; return this; }
   limit(n) { this._limitVal = n; return this; }
@@ -105,11 +106,18 @@ class QueryBuilder {
     for (const f of this._filters) {
       if (f.op === 'LIKE') {
         conditions.push(`"${f.col}" LIKE $${i}`);
+        params.push(f.val);
+        i++;
+      } else if (f.op === 'IN') {
+        const vals = Array.isArray(f.val) ? f.val : [f.val];
+        const placeholders = vals.map(() => `$${i++}`).join(', ');
+        conditions.push(`"${f.col}" IN (${placeholders})`);
+        params.push(...vals);
       } else {
         conditions.push(`"${f.col}" ${f.op} $${i}`);
+        params.push(f.val);
+        i++;
       }
-      params.push(f.val);
-      i++;
     }
     return { clause: `WHERE ${conditions.join(' AND ')}`, params };
   }
@@ -284,7 +292,7 @@ class AuthClient {
       if (!res.ok) return { data: { user: null, session: null }, error: { message: data.error || 'Sign in failed' } };
       const session = { user: data, access_token: data.id };
       setStoredSession(session);
-      try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(session); } catch (_e) {}
+      try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(session); } catch (_) { /* circular import */ }
       return { data: { user: data, session }, error: null };
     } catch (err) {
       return { data: { user: null, session: null }, error: { message: err.message || 'Sign in failed' } };
@@ -308,7 +316,7 @@ class AuthClient {
       if (!res.ok) return { data: { user: null, session: null }, error: { message: data.error || 'Sign up failed' } };
       const session = { user: data, access_token: data.id };
       setStoredSession(session);
-      try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(session); } catch (_e) {}
+      try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(session); } catch (_) { /* circular import */ }
       return { data: { user: data, session }, error: null };
     } catch (err) {
       return { data: { user: null, session: null }, error: { message: err.message || 'Sign up failed' } };
@@ -317,7 +325,7 @@ class AuthClient {
 
   async signOut() {
     setStoredSession(null);
-    try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(null); } catch (_e) {}
+    try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(null); } catch (_) { /* circular import */ }
     return { error: null };
   }
 
