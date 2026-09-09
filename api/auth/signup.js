@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import pool from '../db.js';
+import getPool from '../db.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,6 +13,7 @@ export default async function handler(req, res) {
   if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
   if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
+  const pool = getPool();
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

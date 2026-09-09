@@ -1,4 +1,4 @@
-import pool from '../db.js';
+import getPool from '../db.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,6 +11,7 @@ export default async function handler(req, res) {
   if (!query) return res.status(400).json({ error: 'Query is required' });
 
   try {
+    const pool = getPool();
     const result = await pool.query(query, params || []);
     res.json({ data: result.rows, error: null });
   } catch (err) {
