@@ -12,10 +12,13 @@ export default async function handler(req, res) {
 
   try {
     const pool = getPool();
+    console.log('Testing DB connection in query...');
+    await pool.query('SELECT 1');
+    console.log('DB connection OK in query');
     const result = await pool.query(query, params || []);
     res.json({ data: result.rows, error: null });
   } catch (err) {
-    console.error('Query error:', err.message);
-    res.status(400).json({ data: null, error: { message: err.message } });
+    console.error('Query error:', err.message, err.stack);
+    res.status(500).json({ data: null, error: { message: err.message } });
   }
 }
