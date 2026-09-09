@@ -14,6 +14,10 @@ export default async function handler(req, res) {
 
   try {
     const pool = getPool();
+    console.log('Testing DB connection...');
+    await pool.query('SELECT 1');
+    console.log('DB connection OK');
+
     const userResult = await pool.query(
       'SELECT id, email, password_hash, created_at FROM users WHERE email = $1',
       [email.toLowerCase()]
@@ -43,7 +47,7 @@ export default async function handler(req, res) {
       createdAt: user.created_at,
     });
   } catch (err) {
-    console.error('Signin error:', err);
-    res.status(500).json({ error: 'Login failed. Please try again.' });
+    console.error('Signin error:', err.message, err.stack);
+    res.status(500).json({ error: err.message || 'Login failed. Please try again.' });
   }
 }
