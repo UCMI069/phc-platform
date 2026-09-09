@@ -22,6 +22,20 @@ app.get('/api/health', (_req, res) => {
   res.json({ ok: true });
 });
 
+// ── Generic query endpoint (server-side only) ──
+app.post('/api/query', async (req, res) => {
+  const { query, params } = req.body;
+  if (!query) return res.status(400).json({ error: 'Query is required' });
+
+  try {
+    const result = await pool.query(query, params || []);
+    res.json({ data: result.rows, error: null });
+  } catch (err) {
+    console.error('Query error:', err.message);
+    res.status(400).json({ data: null, error: { message: err.message } });
+  }
+});
+
 // ── Signup ──
 app.post('/api/auth/signup', async (req, res) => {
   const { email, password, firstName, lastName, accountType } = req.body;

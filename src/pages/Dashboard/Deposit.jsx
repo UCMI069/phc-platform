@@ -123,7 +123,6 @@ const Deposit = () => {
         user_id: user.id,
         account_id: formData.toAccount,
         amount: parseFloat(formData.amount),
-        type: 'credit', 
         direction: 'credit',
         description: depositDescription,
         status: 'pending'

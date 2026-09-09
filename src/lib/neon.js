@@ -1,15 +1,7 @@
 // ── Neon Database Client ──
-// Uses @neondatabase/serverless for direct PostgreSQL queries via WebSocket
+// All queries go through the server-side /api/query endpoint
+// No database credentials are exposed to the browser
 
-import { neon } from '@neondatabase/serverless';
-
-const DATABASE_URL = import.meta.env.VITE_NEON_DATABASE_URL;
-
-if (!DATABASE_URL) {
-  console.error('Neon database URL not configured. Check your .env file.');
-}
-
-const sql = neon(DATABASE_URL);
 const AUTH_SERVER = ''; // Proxied through Vite — same origin
 
 // ── Session management ──
@@ -30,6 +22,18 @@ function setStoredSession(session) {
   }
 }
 
+// ── Server-side query helper ──
+async function serverQuery(query, params = []) {
+  const res = await fetch(`${AUTH_SERVER}/api/query`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, params }),
+  });
+  const result = await res.json();
+  if (result.error) throw new Error(result.error.message);
+  return result.data;
+}
+
 // ── Query Builder ──
 class QueryBuilder {
   constructor(table) {
@@ -43,6 +47,7 @@ class QueryBuilder {
     this._single = false;
     this._maybeSingle = false;
     this._countOnly = false;
+    this._headOnly = false;
     this._insertData = null;
     this._updateData = null;
     this._deleteMode = false;
@@ -115,10 +120,9 @@ class QueryBuilder {
     let count = null;
 
     if (this._countOnly && this._headOnly) {
-      // head: true — only return count, no rows
       query = `SELECT COUNT(*) as count FROM "${this._table}" ${clause}`;
-      const result = await sql(query, params);
-      count = parseInt(result[0]?.count || '0');
+      const data = await serverQuery(query, params);
+      count = parseInt(data[0]?.count || '0');
       return { data: null, error: null, count };
     }
 
@@ -126,7 +130,7 @@ class QueryBuilder {
 
     if (this._countOnly) {
       const countQuery = `SELECT COUNT(*) as count FROM "${this._table}" ${clause}`;
-      const countResult = await sql(countQuery, params);
+      const countResult = await serverQuery(countQuery, params);
       count = parseInt(countResult[0]?.count || '0');
     }
 
@@ -140,7 +144,7 @@ class QueryBuilder {
       query += ` OFFSET ${this._offsetVal}`;
     }
 
-    const data = await sql(query, params);
+    const data = await serverQuery(query, params);
 
     if (this._single) {
       if (!data || data.length === 0) return { data: null, error: { message: 'Row not found' }, count };
@@ -173,7 +177,7 @@ class QueryBuilder {
         query = `INSERT INTO "${this._table}" (${cols.join(',')}) VALUES (${placeholders.join(',')}) RETURNING *`;
       }
 
-      const result = await sql(query, values);
+      const result = await serverQuery(query, values);
       results.push(result[0]);
     }
 
@@ -188,7 +192,7 @@ class QueryBuilder {
     const allParams = [...values, ...params];
 
     const query = `UPDATE "${this._table}" SET ${setClauses.join(', ')} ${clause.replace(/\$\d+/g, (m) => `$${parseInt(m.slice(1)) + keys.length}`)} RETURNING *`;
-    const data = await sql(query, allParams);
+    const data = await serverQuery(query, allParams);
 
     return { data, error: null };
   }
@@ -196,12 +200,12 @@ class QueryBuilder {
   async _execDelete() {
     const { clause, params } = this._buildWhere();
     const query = `DELETE FROM "${this._table}" ${clause} RETURNING *`;
-    const data = await sql(query, params);
+    const data = await serverQuery(query, params);
     return { data, error: null };
   }
 }
 
-// ── Storage helper ──
+// ── Storage helper (presigned URLs are short-lived, keys still needed client-side for upload) ──
 class StorageClient {
   from(bucket) {
     return {
@@ -280,8 +284,7 @@ class AuthClient {
       if (!res.ok) return { data: { user: null, session: null }, error: { message: data.error || 'Sign in failed' } };
       const session = { user: data, access_token: data.id };
       setStoredSession(session);
-      // Emit same-tab auth change
-      try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(session); } catch (_e) { /* circular import — safe to ignore */ }
+      try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(session); } catch (_e) {}
       return { data: { user: data, session }, error: null };
     } catch (err) {
       return { data: { user: null, session: null }, error: { message: err.message || 'Sign in failed' } };
@@ -305,8 +308,7 @@ class AuthClient {
       if (!res.ok) return { data: { user: null, session: null }, error: { message: data.error || 'Sign up failed' } };
       const session = { user: data, access_token: data.id };
       setStoredSession(session);
-      // Emit same-tab auth change
-      try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(session); } catch (_e) { /* circular import — safe to ignore */ }
+      try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(session); } catch (_e) {}
       return { data: { user: data, session }, error: null };
     } catch (err) {
       return { data: { user: null, session: null }, error: { message: err.message || 'Sign up failed' } };
@@ -315,8 +317,7 @@ class AuthClient {
 
   async signOut() {
     setStoredSession(null);
-    // Emit same-tab auth change
-    try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(null); } catch (_e) { /* circular import — safe to ignore */ }
+    try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(null); } catch (_e) {}
     return { error: null };
   }
 
@@ -406,6 +407,4 @@ class NeonClient {
 }
 
 export const neonClient = new NeonClient();
-
-// Keep backward compat — files import as `import { neon as supabase } from '../lib/neon'`
 export { neonClient as neon };
