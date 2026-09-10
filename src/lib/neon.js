@@ -22,6 +22,18 @@ function setStoredSession(session) {
   }
 }
 
+// Recursively pull an array of rows out of any server response shape.
+function extractRows(data) {
+  if (Array.isArray(data)) return data;
+  if (data && typeof data === 'object') {
+    if (Array.isArray(data.rows)) return data.rows;
+    if (data.rows && typeof data.rows === 'object') return extractRows(data.rows);
+    const values = Object.values(data);
+    if (values.length > 0 && Array.isArray(values[0])) return values[0];
+  }
+  return [];
+}
+
 // ── Server-side query helper ──
 async function serverQuery(query, params = []) {
   const url = `${AUTH_SERVER}/api/query`;
@@ -35,12 +47,11 @@ async function serverQuery(query, params = []) {
   const result = await res.json();
   console.log('[neon] serverQuery result:', result);
   if (result.error) throw new Error(result.error.message);
-  // Normalize: server may return { data: [rows...] } or { data: { rows: [...] } }
-  let rows = result.data ?? [];
-  if (rows && !Array.isArray(rows) && typeof rows === 'object') {
-    rows = rows.rows ?? [];
-  }
-  if (!Array.isArray(rows)) rows = [];
+  // Recursively unwrap regardless of server response shape:
+  //   { data: [...rows] }
+  //   { data: { rows: [...] } }
+  //   { data: { rows: { rows: [...] } } }
+  const rows = extractRows(result.data);
   console.log('[neon] extracted rows:', rows);
   return rows;
 }

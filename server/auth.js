@@ -226,7 +226,8 @@ const distPath = join(__dirname, '..', 'dist');
 app.use(express.static(distPath));
 
 // SPA catch-all — serve index.html for all non-API routes
-app.get('*', (req, res) => {
+// Note: Express 5 / path-to-regexp v8 no longer supports bare '*' — use '/*splat'
+app.get('/*splat', (req, res) => {
   if (!req.path.startsWith('/api')) {
     res.sendFile(join(distPath, 'index.html'));
   } else {
