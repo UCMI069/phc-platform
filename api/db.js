@@ -1,20 +1,10 @@
-import pg from 'pg';
+import { neon } from '@neondatabase/serverless';
 
-const { Pool } = pg;
+let sql;
 
-let pool;
-
-function getPool() {
-  if (!pool) {
-    pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
-      max: 1,
-      idleTimeoutMillis: 0,
-      connectionTimeoutMillis: 10000,
-    });
+export default function getSql() {
+  if (!sql) {
+    sql = neon(process.env.DATABASE_URL);
   }
-  return pool;
+  return sql;
 }
-
-export default getPool;

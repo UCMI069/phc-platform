@@ -1,4 +1,4 @@
-import getPool from '../../db.js';
+import getSql from '../../db.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -7,19 +7,19 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const { id } = req.query;
-  const pool = getPool();
+  const sql = getSql();
 
   if (req.method === 'GET') {
     try {
-      const userResult = await pool.query('SELECT id, email, created_at FROM users WHERE id = $1', [id]);
-      if (userResult.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+      const userResult = await sql`SELECT id, email, created_at FROM users WHERE id = ${id}`;
+      if (userResult.length === 0) return res.status(404).json({ error: 'User not found' });
 
-      const user = userResult.rows[0];
-      const profResult = await pool.query(
-        'SELECT first_name, last_name, phone, country, avatar_url, is_admin, blocked, account_level, currency FROM profiles WHERE id = $1',
-        [user.id]
-      );
-      const profile = profResult.rows[0] || {};
+      const user = userResult[0];
+      const profResult = await sql`
+        SELECT first_name, last_name, phone, country, avatar_url, is_admin, blocked, account_level, currency 
+        FROM profiles WHERE id = ${user.id}
+      `;
+      const profile = profResult[0] || {};
 
       res.json({
         id: user.id,
@@ -36,28 +36,31 @@ export default async function handler(req, res) {
         createdAt: user.created_at,
       });
     } catch (err) {
-      console.error('Get user error:', err);
+      console.error('Get user error:', err.message, err.stack);
       res.status(500).json({ error: 'Failed to get user' });
     }
   } else if (req.method === 'PUT') {
     try {
       const { firstName, lastName, phone, country } = req.body;
-      const fields = [];
-      const values = [];
-      let i = 1;
+      
+      const updates = [];
+      if (firstName !== undefined) updates.push({ col: 'first_name', val: firstName });
+      if (lastName !== undefined) updates.push({ col: 'last_name', val: lastName });
+      if (phone !== undefined) updates.push({ col: 'phone', val: phone });
+      if (country !== undefined) updates.push({ col: 'country', val: country });
 
-      if (firstName !== undefined) { fields.push(`first_name = $${i++}`); values.push(firstName); }
-      if (lastName !== undefined) { fields.push(`last_name = $${i++}`); values.push(lastName); }
-      if (phone !== undefined) { fields.push(`phone = $${i++}`); values.push(phone); }
-      if (country !== undefined) { fields.push(`country = $${i++}`); values.push(country); }
+      if (updates.length === 0) return res.status(400).json({ error: 'No fields to update' });
 
-      if (fields.length === 0) return res.status(400).json({ error: 'No fields to update' });
-
+      // Build dynamic query with parameterized values
+      const setClauses = updates.map((u, i) => `"${u.col}" = $${i + 1}`).join(', ');
+      const values = updates.map(u => u.val);
       values.push(id);
-      await pool.query(`UPDATE profiles SET ${fields.join(', ')} WHERE id = $${i}`, values);
+
+      const query = `UPDATE profiles SET ${setClauses} WHERE id = $${values.length}`;
+      await sql(query, values);
       res.json({ success: true });
     } catch (err) {
-      console.error('Update user error:', err);
+      console.error('Update user error:', err.message, err.stack);
       res.status(500).json({ error: 'Update failed' });
     }
   } else {

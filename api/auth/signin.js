@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import getPool from '../db.js';
+import getSql from '../db.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,27 +13,25 @@ export default async function handler(req, res) {
   if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
 
   try {
-    const pool = getPool();
+    const sql = getSql();
     console.log('Testing DB connection...');
-    await pool.query('SELECT 1');
+    await sql`SELECT 1`;
     console.log('DB connection OK');
 
-    const userResult = await pool.query(
-      'SELECT id, email, password_hash, created_at FROM users WHERE email = $1',
-      [email.toLowerCase()]
-    );
+    const userResult = await sql`
+      SELECT id, email, password_hash, created_at FROM users WHERE email = ${email.toLowerCase()}
+    `;
 
-    if (userResult.rows.length === 0) return res.status(401).json({ error: 'Invalid email or password' });
+    if (userResult.length === 0) return res.status(401).json({ error: 'Invalid email or password' });
 
-    const user = userResult.rows[0];
+    const user = userResult[0];
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) return res.status(401).json({ error: 'Invalid email or password' });
 
-    const profResult = await pool.query(
-      'SELECT first_name, last_name, is_admin, blocked, account_level, currency FROM profiles WHERE id = $1',
-      [user.id]
-    );
-    const profile = profResult.rows[0] || {};
+    const profResult = await sql`
+      SELECT first_name, last_name, is_admin, blocked, account_level, currency FROM profiles WHERE id = ${user.id}
+    `;
+    const profile = profResult[0] || {};
 
     res.json({
       id: user.id,
