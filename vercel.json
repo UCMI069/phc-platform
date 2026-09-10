@@ -21,7 +21,7 @@
       "use": "@vercel/node"
     },
     {
-      "src": "api/query.js",
+      "src": "api/health.js",
       "use": "@vercel/node"
     }
   ],
@@ -41,6 +41,10 @@
     {
       "src": "/api/query",
       "dest": "/api/query.js"
+    },
+    {
+      "src": "/api/health",
+      "dest": "/api/health.js"
     },
     {
       "handle": "filesystem"
