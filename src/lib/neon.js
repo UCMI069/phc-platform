@@ -38,13 +38,33 @@ function extractRows(data) {
 async function serverQuery(query, params = []) {
   const url = `${AUTH_SERVER}/api/query`;
   console.log('[neon] serverQuery calling:', url, { query: query.substring(0, 100), params });
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, params }),
-  });
+  let res;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, params }),
+    });
+  } catch (err) {
+    console.error('[neon] serverQuery network error:', url, err);
+    throw new Error(`Network error contacting ${url}: ${err.message}`);
+  }
   console.log('[neon] serverQuery response status:', res.status);
-  const result = await res.json();
+  console.log('[neon] serverQuery content-type:', res.headers.get('content-type'));
+  const raw = await res.text();
+  console.log('[neon] serverQuery raw body (first 400):', raw.slice(0, 400));
+  if (!res.ok) {
+    let msg = `Server error (${res.status})`;
+    try { const j = JSON.parse(raw); msg = j.error?.message || j.error || msg; } catch (_) {}
+    throw new Error(msg);
+  }
+  let result;
+  try {
+    result = JSON.parse(raw);
+  } catch (err) {
+    // Non-JSON body (e.g. SPA index.html served instead of the API function)
+    throw new Error(`Expected JSON from ${url} but got a non-JSON response (${raw.slice(0, 80) || 'empty'}). Is the API deployed on Vercel?`);
+  }
   console.log('[neon] serverQuery result:', result);
   if (result.error) throw new Error(result.error.message);
   // Recursively unwrap regardless of server response shape:
