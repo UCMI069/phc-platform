@@ -20,7 +20,8 @@ export default async function handler(req, res) {
     const result = params && params.length > 0 
       ? await sql.query(query, params) 
       : await sql.query(query);
-    res.json({ data: result, error: null });
+    // Wrap in { rows: [...] } for compatibility with frontend neon client
+    res.json({ data: { rows: result }, error: null });
   } catch (err) {
     console.error('Query error:', err.message, err.stack);
     res.status(500).json({ data: null, error: { message: err.message } });
