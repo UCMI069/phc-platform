@@ -12,7 +12,7 @@ import {
   CreditCard,
   User
 } from 'lucide-react';
-import { neon as supabase } from '../../lib/neon';
+import { neon as supabase, proxiedStorageUrl } from '../../lib/neon';
 import './Overview.css';
 
 const Overview = () => {
@@ -124,7 +124,7 @@ const Overview = () => {
       <div className="user-welcome-header">
         <div className="profile-ring">
           {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="Profile" className="user-avatar" />
+            <img src={proxiedStorageUrl(profile.avatar_url)} alt="Profile" className="user-avatar" />
           ) : (
             <div className="user-avatar-placeholder">
               <User size={32} />
