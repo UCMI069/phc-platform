@@ -31,7 +31,7 @@ async function serverQuery(query, params = []) {
   });
   const result = await res.json();
   if (result.error) throw new Error(result.error.message);
-  return result.data;
+  return result.data?.rows ?? result.data ?? [];
 }
 
 // ── Query Builder ──
