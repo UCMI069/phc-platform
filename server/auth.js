@@ -154,72 +154,86 @@ app.post('/api/auth/signin', async (req, res) => {
   }
 });
 
-// ── Get user by ID ──
-app.get('/api/auth/user/:id', async (req, res) => {
+// ── Get user by ID (supports both /:id path and ?id= query) ──
+async function getUserById(id) {
+  if (!id) return null;
+  const userResult = await pool.query(
+    'SELECT id, email, created_at FROM users WHERE id = $1',
+    [id]
+  );
+
+  if (userResult.rows.length === 0) return null;
+
+  const user = userResult.rows[0];
+
+  const profResult = await pool.query(
+    'SELECT first_name, last_name, phone, country, avatar_url, is_admin, blocked, account_level, currency FROM profiles WHERE id = $1',
+    [user.id]
+  );
+  const profile = profResult.rows[0] || {};
+
+  return {
+    id: user.id,
+    email: user.email,
+    firstName: profile.first_name || '',
+    lastName: profile.last_name || '',
+    phone: profile.phone || '',
+    country: profile.country || '',
+    avatarUrl: profile.avatar_url || '',
+    isAdmin: profile.is_admin || false,
+    blocked: profile.blocked || false,
+    accountLevel: profile.account_level || 'starter',
+    currency: profile.currency || 'GBP',
+    createdAt: user.created_at,
+  };
+}
+
+async function updateUserProfile(id, body) {
+  if (!id) throw new Error('User id is required');
+  const { firstName, lastName, phone, country } = body;
+  const fields = [];
+  const values = [];
+  let i = 1;
+
+  if (firstName !== undefined) { fields.push(`first_name = $${i++}`); values.push(firstName); }
+  if (lastName !== undefined) { fields.push(`last_name = $${i++}`); values.push(lastName); }
+  if (phone !== undefined) { fields.push(`phone = $${i++}`); values.push(phone); }
+  if (country !== undefined) { fields.push(`country = $${i++}`); values.push(country); }
+
+  if (fields.length === 0) throw new Error('No fields to update');
+
+  values.push(id);
+  await pool.query(`UPDATE profiles SET ${fields.join(', ')} WHERE id = $${i}`, values);
+  return { success: true };
+}
+
+const handleGetUser = async (req, res) => {
   try {
-    const userResult = await pool.query(
-      'SELECT id, email, created_at FROM users WHERE id = $1',
-      [req.params.id]
-    );
-
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const user = userResult.rows[0];
-
-    const profResult = await pool.query(
-      'SELECT first_name, last_name, phone, country, avatar_url, is_admin, blocked, account_level, currency FROM profiles WHERE id = $1',
-      [user.id]
-    );
-    const profile = profResult.rows[0] || {};
-
-    res.json({
-      id: user.id,
-      email: user.email,
-      firstName: profile.first_name || '',
-      lastName: profile.last_name || '',
-      phone: profile.phone || '',
-      country: profile.country || '',
-      avatarUrl: profile.avatar_url || '',
-      isAdmin: profile.is_admin || false,
-      blocked: profile.blocked || false,
-      accountLevel: profile.account_level || 'starter',
-      currency: profile.currency || 'GBP',
-      createdAt: user.created_at,
-    });
+    const id = req.params?.id || req.query?.id;
+    const user = await getUserById(id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
   } catch (err) {
     console.error('Get user error:', err);
     res.status(500).json({ error: 'Failed to get user' });
   }
-});
+};
 
-// ── Update profile ──
-app.put('/api/auth/user/:id', async (req, res) => {
+const handlePutUser = async (req, res) => {
   try {
-    const { firstName, lastName, phone, country } = req.body;
-    const fields = [];
-    const values = [];
-    let i = 1;
-
-    if (firstName !== undefined) { fields.push(`first_name = $${i++}`); values.push(firstName); }
-    if (lastName !== undefined) { fields.push(`last_name = $${i++}`); values.push(lastName); }
-    if (phone !== undefined) { fields.push(`phone = $${i++}`); values.push(phone); }
-    if (country !== undefined) { fields.push(`country = $${i++}`); values.push(country); }
-
-    if (fields.length === 0) {
-      return res.status(400).json({ error: 'No fields to update' });
-    }
-
-    values.push(req.params.id);
-    await pool.query(`UPDATE profiles SET ${fields.join(', ')} WHERE id = $${i}`, values);
-
-    res.json({ success: true });
+    const id = req.params?.id || req.query?.id || req.body?.id;
+    const result = await updateUserProfile(id, req.body);
+    res.json(result);
   } catch (err) {
     console.error('Update user error:', err);
-    res.status(500).json({ error: 'Update failed' });
+    res.status(500).json({ error: err.message || 'Update failed' });
   }
-});
+};
+
+app.get('/api/auth/user/:id', handleGetUser);
+app.get('/api/auth/user', handleGetUser);
+app.put('/api/auth/user/:id', handlePutUser);
+app.put('/api/auth/user', handlePutUser);
 
 // ── Serve static files in production ──
 const distPath = join(__dirname, '..', 'dist');

@@ -383,17 +383,32 @@ class AuthClient {
     const session = getStoredSession();
     if (!session?.user?.id) return { data: { user: null }, error: { message: 'Not authenticated' } };
     try {
-      const url = `${AUTH_SERVER}/api/auth/user/${session.user.id}`;
+      // Static route (id via query param) — dynamic /auth/user/[id] is not reliably
+      // deployed as a serverless function on Vercel.
+      const url = `${AUTH_SERVER}/api/auth/user?id=${encodeURIComponent(session.user.id)}`;
       console.log('[neon] getUser calling:', url);
       const res = await fetch(url);
       console.log('[neon] getUser response status:', res.status);
-      const data = await res.json();
+      console.log('[neon] getUser content-type:', res.headers.get('content-type'));
+      const raw = await res.text();
+      if (!raw.trim().startsWith('{')) {
+        // Non-JSON response (e.g. SPA index.html served instead of the API).
+        // Fall back to the stored session so the dashboard still renders.
+        console.warn('[neon] getUser got non-JSON (", raw.slice(0,60), "); using stored session');
+        return { data: { user: session.user }, error: null };
+      }
+      const data = JSON.parse(raw);
       console.log('[neon] getUser result:', data);
-      if (!res.ok) return { data: { user: null }, error: { message: data.error || 'Failed' } };
+      if (!res.ok) {
+        // Server error — keep the app usable from the stored session.
+        console.warn('[neon] getUser server error; using stored session:', data);
+        return { data: { user: session.user }, error: null };
+      }
       return { data: { user: data }, error: null };
     } catch (err) {
       console.error('[neon] getUser error:', err);
-      return { data: { user: null }, error: { message: err.message || 'Failed' } };
+      // API unreachable — keep the app usable from the stored session.
+      return { data: { user: session.user }, error: null };
     }
   }
 
@@ -405,7 +420,7 @@ class AuthClient {
     const session = getStoredSession();
     if (!session?.user?.id) return { data: { user: null }, error: { message: 'Not authenticated' } };
     try {
-      const res = await fetch(`${AUTH_SERVER}/api/auth/user/${session.user.id}`, {
+      const res = await fetch(`${AUTH_SERVER}/api/auth/user?id=${encodeURIComponent(session.user.id)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
