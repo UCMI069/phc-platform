@@ -257,41 +257,35 @@ class QueryBuilder {
   }
 }
 
-// ── Storage helper (presigned URLs are short-lived, keys still needed client-side for upload) ──
+// ── Storage helper (uploads go through the server to avoid browser CORS preflight) ──
+function arrayBufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
 class StorageClient {
   from(bucket) {
     return {
       upload: async (path, file) => {
         try {
-          const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3');
-          const { getSignedUrl } = await import('@aws-sdk/s3-request-presigner');
-
-          const client = new S3Client({
-            region: import.meta.env.VITE_NEON_S3_REGION || 'us-east-2',
-            endpoint: import.meta.env.VITE_NEON_S3_ENDPOINT,
-            credentials: {
-              accessKeyId: import.meta.env.VITE_NEON_S3_ACCESS_KEY,
-              secretAccessKey: import.meta.env.VITE_NEON_S3_SECRET_KEY,
-            },
-            forcePathStyle: true,
+          const contentType = file.type || 'application/octet-stream';
+          const buffer = await file.arrayBuffer();
+          const base64 = arrayBufferToBase64(buffer);
+          const res = await fetch(`${AUTH_SERVER}/api/upload`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bucket, path, contentType, data: base64 }),
           });
-
-          const command = new PutObjectCommand({
-            Bucket: bucket,
-            Key: path,
-            ContentType: file.type || 'application/octet-stream',
-          });
-
-          const presignedUrl = await getSignedUrl(client, command, { expiresIn: 60 });
-
-          const res = await fetch(presignedUrl, {
-            method: 'PUT',
-            headers: { 'Content-Type': file.type || 'application/octet-stream' },
-            body: file,
-          });
-
-          if (!res.ok) throw new Error(`Upload failed: ${res.statusText}`);
-          return { data: { path }, error: null };
+          const result = await res.json();
+          if (!res.ok || result.error) {
+            throw new Error(result.error?.message || `Upload failed (${res.status})`);
+          }
+          return { data: { path: result.path || path }, error: null };
         } catch (err) {
           return { data: null, error: err };
         }
@@ -301,18 +295,14 @@ class StorageClient {
       }),
       remove: async (paths) => {
         try {
-          const { S3Client, DeleteObjectCommand } = await import('@aws-sdk/client-s3');
-          const client = new S3Client({
-            region: import.meta.env.VITE_NEON_S3_REGION || 'us-east-2',
-            endpoint: import.meta.env.VITE_NEON_S3_ENDPOINT,
-            credentials: {
-              accessKeyId: import.meta.env.VITE_NEON_S3_ACCESS_KEY,
-              secretAccessKey: import.meta.env.VITE_NEON_S3_SECRET_KEY,
-            },
-            forcePathStyle: true,
+          const res = await fetch(`${AUTH_SERVER}/api/storage-delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bucket, paths: Array.isArray(paths) ? paths : [paths] }),
           });
-          for (const p of (Array.isArray(paths) ? paths : [paths])) {
-            await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: p }));
+          const result = await res.json();
+          if (!res.ok || result.error) {
+            throw new Error(result.error?.message || `Delete failed (${res.status})`);
           }
           return { data: null, error: null };
         } catch (err) {
