@@ -37,7 +37,6 @@ function extractRows(data) {
 // ── Server-side query helper ──
 async function serverQuery(query, params = []) {
   const url = `${AUTH_SERVER}/api/query`;
-  console.log('[neon] serverQuery calling:', url, { query: query.substring(0, 100), params });
   let res;
   try {
     res = await fetch(url, {
@@ -49,10 +48,7 @@ async function serverQuery(query, params = []) {
     console.error('[neon] serverQuery network error:', url, err);
     throw new Error(`Network error contacting ${url}: ${err.message}`);
   }
-  console.log('[neon] serverQuery response status:', res.status);
-  console.log('[neon] serverQuery content-type:', res.headers.get('content-type'));
   const raw = await res.text();
-  console.log('[neon] serverQuery raw body (first 400):', raw.slice(0, 400));
   if (!res.ok) {
     let msg = `Server error (${res.status})`;
     try { const j = JSON.parse(raw); msg = j.error?.message || j.error || msg; } catch (_) {}
@@ -65,15 +61,12 @@ async function serverQuery(query, params = []) {
     // Non-JSON body (e.g. SPA index.html served instead of the API function)
     throw new Error(`Expected JSON from ${url} but got a non-JSON response (${raw.slice(0, 80) || 'empty'}). Is the API deployed on Vercel?`);
   }
-  console.log('[neon] serverQuery result:', result);
   if (result.error) throw new Error(result.error.message);
   // Recursively unwrap regardless of server response shape:
   //   { data: [...rows] }
   //   { data: { rows: [...] } }
   //   { data: { rows: { rows: [...] } } }
-  const rows = extractRows(result.data);
-  console.log('[neon] extracted rows:', rows);
-  return rows;
+  return extractRows(result.data);
 }
 
 // ── Query Builder ──
@@ -194,9 +187,7 @@ class QueryBuilder {
       query += ` OFFSET ${this._offsetVal}`;
     }
 
-    console.log('[neon] QueryBuilder executing:', query, params);
     const data = await serverQuery(query, params);
-    console.log('[neon] QueryBuilder got data:', data);
 
     if (this._single) {
       if (!data || data.length === 0) return { data: null, error: { message: 'Row not found' }, count };
@@ -257,7 +248,25 @@ class QueryBuilder {
   }
 }
 
-// ── Storage helper (uploads go through the server to avoid browser CORS preflight) ──
+// ── Storage helper (uploads/go through the server to avoid browser CORS; this S3
+//    backend has no public-read support, so reads are proxied via /api/storage) ──
+function storageProxyUrl(bucket, path) {
+  return `${AUTH_SERVER}/api/storage?bucket=${encodeURIComponent(bucket)}&key=${encodeURIComponent(path)}`;
+}
+
+// Rewrite any legacy stored URL that points straight at the S3 endpoint to the proxy,
+// so old avatar_url / qr_image_url values already saved in the DB still render.
+function proxiedStorageUrl(url) {
+  if (typeof url !== 'string' || !url) return url;
+  const ep = import.meta.env.VITE_NEON_S3_ENDPOINT;
+  if (ep && url.startsWith(ep)) {
+    const rel = url.slice(ep.length + 1); // e.g. "avatars/xxx.png" or "avatars/sub/xxx.png"
+    const slash = rel.indexOf('/');
+    if (slash > 0) return storageProxyUrl(rel.slice(0, slash), rel.slice(slash + 1));
+  }
+  return url;
+}
+
 function arrayBufferToBase64(buffer) {
   let binary = '';
   const bytes = new Uint8Array(buffer);
@@ -291,7 +300,7 @@ class StorageClient {
         }
       },
       getPublicUrl: (path) => ({
-        data: { publicUrl: `${import.meta.env.VITE_NEON_S3_ENDPOINT}/${bucket}/${path}` },
+        data: { publicUrl: storageProxyUrl(bucket, path) },
       }),
       remove: async (paths) => {
         try {
@@ -376,10 +385,7 @@ class AuthClient {
       // Static route (id via query param) — dynamic /auth/user/[id] is not reliably
       // deployed as a serverless function on Vercel.
       const url = `${AUTH_SERVER}/api/auth/user?id=${encodeURIComponent(session.user.id)}`;
-      console.log('[neon] getUser calling:', url);
       const res = await fetch(url);
-      console.log('[neon] getUser response status:', res.status);
-      console.log('[neon] getUser content-type:', res.headers.get('content-type'));
       const raw = await res.text();
       if (!raw.trim().startsWith('{')) {
         // Non-JSON response (e.g. SPA index.html served instead of the API).
@@ -388,7 +394,6 @@ class AuthClient {
         return { data: { user: session.user }, error: null };
       }
       const data = JSON.parse(raw);
-      console.log('[neon] getUser result:', data);
       if (!res.ok) {
         // Server error — keep the app usable from the stored session.
         console.warn('[neon] getUser server error; using stored session:', data);
@@ -467,6 +472,7 @@ class NeonClient {
   }
   removeChannel() {}
 }
-
 export const neonClient = new NeonClient();
+
 export { neonClient as neon };
+export { proxiedStorageUrl };

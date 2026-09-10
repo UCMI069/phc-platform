@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { neon as supabase } from '../../lib/neon';
+import { neon as supabase, proxiedStorageUrl } from '../../lib/neon';
 import { useNotification } from '../../context/NotificationContext';
 import { 
   Users, 
@@ -1345,7 +1345,7 @@ const Admin = () => {
                 />
                 {cryptoForm.qrImageUrl && (
                   <div className="crypto-qr-preview">
-                    <img src={cryptoForm.qrImageUrl} alt="QR Preview" />
+                    <img src={proxiedStorageUrl(cryptoForm.qrImageUrl)} alt="QR Preview" />
                   </div>
                 )}
               </div>

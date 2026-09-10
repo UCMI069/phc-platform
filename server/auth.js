@@ -5,6 +5,7 @@ import cors from 'cors';
 import pg from 'pg';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -17,6 +18,16 @@ const PORT = process.env.PORT || 3001;
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
+});
+
+const s3Client = new S3Client({
+  region: process.env.NEON_S3_REGION || process.env.VITE_NEON_S3_REGION || 'us-east-2',
+  endpoint: process.env.NEON_S3_ENDPOINT || process.env.VITE_NEON_S3_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.NEON_S3_ACCESS_KEY || process.env.VITE_NEON_S3_ACCESS_KEY,
+    secretAccessKey: process.env.NEON_S3_SECRET_KEY || process.env.VITE_NEON_S3_SECRET_KEY,
+  },
+  forcePathStyle: true,
 });
 
 app.use(cors());
@@ -234,6 +245,23 @@ app.get('/api/auth/user/:id', handleGetUser);
 app.get('/api/auth/user', handleGetUser);
 app.put('/api/auth/user/:id', handlePutUser);
 app.put('/api/auth/user', handlePutUser);
+
+// ── Storage proxy (S3-compatible storage has no public-read support) ──
+app.get('/api/storage', async (req, res) => {
+  const { bucket, key } = req.query || {};
+  if (!bucket || !key) return res.status(400).json({ error: 'bucket and key query params are required' });
+  try {
+    const obj = await s3Client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+    res.setHeader('Content-Type', obj.ContentType || 'application/octet-stream');
+    if (obj.ContentLength) res.setHeader('Content-Length', obj.ContentLength);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    obj.Body.pipe(res);
+  } catch (err) {
+    console.error('Storage GET error:', err);
+    const status = err.$metadata?.httpStatusCode || 500;
+    res.status(status === 404 ? 404 : 500).json({ error: status === 404 ? 'Not found' : err.message });
+  }
+});
 
 // ── Serve static files in production ──
 const distPath = join(__dirname, '..', 'dist');

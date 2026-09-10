@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { neon as supabase } from '../../lib/neon';
+import { neon as supabase, proxiedStorageUrl } from '../../lib/neon';
 import { User, Mail, Phone, MapPin, Globe, Camera, Save, AlertCircle, CheckCircle2 } from 'lucide-react';
 import './Settings.css';
 
@@ -163,7 +163,7 @@ const Settings = () => {
           <div className="avatar-section">
             <div className="avatar-wrapper">
               {formData.avatarUrl ? (
-                <img src={formData.avatarUrl} alt="Profile" className="profile-avatar" />
+                <img src={proxiedStorageUrl(formData.avatarUrl)} alt="Profile" className="profile-avatar" />
               ) : (
                 <div className="profile-avatar-placeholder">
                   {formData.firstName?.[0]}{formData.lastName?.[0]}
