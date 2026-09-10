@@ -35,7 +35,12 @@ async function serverQuery(query, params = []) {
   const result = await res.json();
   console.log('[neon] serverQuery result:', result);
   if (result.error) throw new Error(result.error.message);
-  const rows = result.data?.rows ?? result.data ?? [];
+  // Normalize: server may return { data: [rows...] } or { data: { rows: [...] } }
+  let rows = result.data ?? [];
+  if (rows && !Array.isArray(rows) && typeof rows === 'object') {
+    rows = rows.rows ?? [];
+  }
+  if (!Array.isArray(rows)) rows = [];
   console.log('[neon] extracted rows:', rows);
   return rows;
 }
