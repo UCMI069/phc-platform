@@ -31,7 +31,10 @@ async function serverQuery(query, params = []) {
   });
   const result = await res.json();
   if (result.error) throw new Error(result.error.message);
-  return result.data?.rows ?? result.data ?? [];
+  console.log('[neon] serverQuery result:', result);
+  const rows = result.data?.rows ?? result.data ?? [];
+  console.log('[neon] extracted rows:', rows);
+  return rows;
 }
 
 // ── Query Builder ──
