@@ -24,14 +24,17 @@ function setStoredSession(session) {
 
 // ── Server-side query helper ──
 async function serverQuery(query, params = []) {
-  const res = await fetch(`${AUTH_SERVER}/api/query`, {
+  const url = `${AUTH_SERVER}/api/query`;
+  console.log('[neon] serverQuery calling:', url, { query: query.substring(0, 100), params });
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ query, params }),
   });
+  console.log('[neon] serverQuery response status:', res.status);
   const result = await res.json();
-  if (result.error) throw new Error(result.error.message);
   console.log('[neon] serverQuery result:', result);
+  if (result.error) throw new Error(result.error.message);
   const rows = result.data?.rows ?? result.data ?? [];
   console.log('[neon] extracted rows:', rows);
   return rows;
@@ -155,7 +158,9 @@ class QueryBuilder {
       query += ` OFFSET ${this._offsetVal}`;
     }
 
+    console.log('[neon] QueryBuilder executing:', query, params);
     const data = await serverQuery(query, params);
+    console.log('[neon] QueryBuilder got data:', data);
 
     if (this._single) {
       if (!data || data.length === 0) return { data: null, error: { message: 'Row not found' }, count };
@@ -342,11 +347,16 @@ class AuthClient {
     const session = getStoredSession();
     if (!session?.user?.id) return { data: { user: null }, error: { message: 'Not authenticated' } };
     try {
-      const res = await fetch(`${AUTH_SERVER}/api/auth/user/${session.user.id}`);
+      const url = `${AUTH_SERVER}/api/auth/user/${session.user.id}`;
+      console.log('[neon] getUser calling:', url);
+      const res = await fetch(url);
+      console.log('[neon] getUser response status:', res.status);
       const data = await res.json();
+      console.log('[neon] getUser result:', data);
       if (!res.ok) return { data: { user: null }, error: { message: data.error || 'Failed' } };
       return { data: { user: data }, error: null };
     } catch (err) {
+      console.error('[neon] getUser error:', err);
       return { data: { user: null }, error: { message: err.message || 'Failed' } };
     }
   }
