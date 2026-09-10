@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import getPool from '../db.js';
+import getSql from '../db.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,36 +13,34 @@ export default async function handler(req, res) {
   if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
   if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
-  const pool = getPool();
-  const client = await pool.connect();
+  const sql = getSql();
   try {
-    await client.query('BEGIN');
+    console.log('Testing DB connection...');
+    await sql`SELECT 1`;
+    console.log('DB connection OK');
 
-    const existing = await client.query('SELECT id FROM users WHERE email = $1', [email.toLowerCase()]);
-    if (existing.rows.length > 0) {
-      await client.query('ROLLBACK');
+    const existing = await sql`SELECT id FROM users WHERE email = ${email.toLowerCase()}`;
+    if (existing.length > 0) {
       return res.status(409).json({ error: 'An account with this email already exists' });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const userResult = await client.query(
-      'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, created_at',
-      [email.toLowerCase(), passwordHash]
-    );
-    const user = userResult.rows[0];
+    const userResult = await sql`
+      INSERT INTO users (email, password_hash) VALUES (${email.toLowerCase()}, ${passwordHash})
+      RETURNING id, email, created_at
+    `;
+    const user = userResult[0];
 
-    await client.query(
-      'INSERT INTO profiles (id, first_name, last_name, username, currency) VALUES ($1, $2, $3, $4, $5)',
-      [user.id, firstName || 'New', lastName || 'User', email.toLowerCase(), 'GBP']
-    );
+    await sql`
+      INSERT INTO profiles (id, first_name, last_name, username, currency) 
+      VALUES (${user.id}, ${firstName || 'New'}, ${lastName || 'User'}, ${email.toLowerCase()}, 'GBP')
+    `;
 
-    await client.query(
-      'INSERT INTO accounts (user_id, type, balance, active, tier) VALUES ($1, $2, 0.00, true, $3)',
-      [user.id, accountType || 'checkings', 'Standard']
-    );
-
-    await client.query('COMMIT');
+    await sql`
+      INSERT INTO accounts (user_id, type, balance, active, tier) 
+      VALUES (${user.id}, ${accountType || 'checkings'}, 0.00, true, 'Standard')
+    `;
 
     res.status(201).json({
       id: user.id,
@@ -52,10 +50,7 @@ export default async function handler(req, res) {
       createdAt: user.created_at,
     });
   } catch (err) {
-    await client.query('ROLLBACK');
-    console.error('Signup error:', err);
+    console.error('Signup error:', err.message, err.stack);
     res.status(500).json({ error: 'Registration failed. Please try again.' });
-  } finally {
-    client.release();
   }
 }
