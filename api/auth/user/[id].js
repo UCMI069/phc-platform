@@ -57,7 +57,7 @@ export default async function handler(req, res) {
       values.push(id);
 
       const query = `UPDATE profiles SET ${setClauses} WHERE id = $${values.length}`;
-      await sql(query, values);
+      await sql.query(query, values);
       res.json({ success: true });
     } catch (err) {
       console.error('Update user error:', err.message, err.stack);
