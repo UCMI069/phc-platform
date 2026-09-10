@@ -20,8 +20,11 @@ export default async function handler(req, res) {
     const result = params && params.length > 0 
       ? await sql.query(query, params) 
       : await sql.query(query);
-    // Wrap in { rows: [...] } for compatibility with frontend neon client
-    res.json({ data: { rows: result }, error: null });
+    // Neon's sql.query() returns rows as an array directly, but some driver
+    // versions wrap them in { rows: [...] } — normalize to a flat array to
+    // match the Express server format ({ data: [rows...], error: null }).
+    const rows = Array.isArray(result) ? result : (result?.rows ?? []);
+    res.json({ data: rows, error: null });
   } catch (err) {
     console.error('Query error:', err.message, err.stack);
     res.status(500).json({ data: null, error: { message: err.message } });
