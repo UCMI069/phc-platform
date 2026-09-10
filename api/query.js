@@ -16,10 +16,10 @@ export default async function handler(req, res) {
     await sql`SELECT 1`;
     console.log('DB connection OK in query');
     
-    // Execute query with params
+    // Use sql.query for parameterized queries with $1, $2 placeholders
     const result = params && params.length > 0 
-      ? await sql(query, params) 
-      : await sql(query);
+      ? await sql.query(query, params) 
+      : await sql.query(query);
     res.json({ data: result, error: null });
   } catch (err) {
     console.error('Query error:', err.message, err.stack);
