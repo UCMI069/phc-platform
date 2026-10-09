@@ -250,19 +250,27 @@ const Admin = () => {
   };
 
   const handleUpdateAccountDetails = async (userId, accountId) => {
-    if (!editBalance && !editAccountType && !editBankDetails.bankName) return;
+    const hasBalance = editBalance !== '' && editBalance !== null && editBalance !== undefined;
+    if (!hasBalance && !editAccountType && !editBankDetails.bankName) return;
     setSubmitting(true);
     try {
       const newBalance = parseFloat(editBalance);
-      const currentBalance = parseFloat(selectedUser.accounts?.[0]?.balance) || 0;
+      const { data: freshAcc, error: accError } = await supabase
+        .from('accounts')
+        .select('balance')
+        .eq('id', accountId)
+        .single();
+
+      if (accError) throw accError;
+
+      const currentBalance = parseFloat(freshAcc?.balance) || 0;
       const currentType = selectedUser.accounts?.[0]?.type || '';
       const difference = newBalance - currentBalance;
 
-      // Update account details
-      const updates = { 
-        balance: newBalance,
-        type: editAccountType
-      };
+      const updates = { balance: newBalance };
+      if (editAccountType) {
+        updates.type = editAccountType;
+      }
       
       const { error: updateError } = await supabase
         .from('accounts')
@@ -304,7 +312,7 @@ const Admin = () => {
         await supabase.from('notifications').insert({
           user_id: userId,
           title: description,
-          message: `Your account has been ${direction === 'credit' ? 'credited with' : 'debited by'} ${formatCurrency(absAmount, selectedUser.currency)}.`,
+           message: `Your account has been ${direction === 'credit' ? 'credited with' : 'debited by'} ${formatCurrency(absAmount, selectedUser?.currency || 'GBP')}.`,
           type: direction === 'credit' ? 'deposit' : 'debit'
         });
       }
@@ -1528,7 +1536,7 @@ const Admin = () => {
               <div className="admin-modal-divider">Account Balance</div>
 
               <div className="form-group">
-                <label>Current Balance: {formatCurrency(selectedUser.accounts?.[0]?.balance || 0, selectedUser.currency)}</label>
+                <label>Current Balance ({selectedUser?.currency || 'GBP'}): {formatCurrency(selectedUser.accounts?.[0]?.balance || 0, selectedUser?.currency || 'GBP')}</label>
                 <input 
                   type="number" 
                   step="0.01" 

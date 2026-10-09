@@ -84,7 +84,7 @@ const Overview = () => {
     return amount * rate;
   };
 
-  const formatCurrency = (amount, currencyCode, shouldConvert = true) => {
+  const formatCurrency = (amount, currencyCode, shouldConvert = false) => {
     const currency = currencyCode || profile?.currency || 'GBP';
     const convertedAmount = shouldConvert ? convertAmount(amount, currency) : amount;
     
@@ -180,7 +180,7 @@ const Overview = () => {
               </div>
               <div className="activity-info">
                 <span className="label">Total Credit</span>
-                <span className="value">+{formatCurrency(transactions.filter(t => t.direction === 'credit').reduce((s, t) => s + (parseFloat(t.amount) || 0), 0))}</span>
+                 <span className="value">+{formatCurrency(transactions.filter(t => t.direction === 'credit').reduce((s, t) => s + (parseFloat(t.amount) || 0), 0))}</span>
               </div>
             </div>
             <div className="activity-card debit">
@@ -189,7 +189,7 @@ const Overview = () => {
               </div>
               <div className="activity-info">
                 <span className="label">Total Debit</span>
-                <span className="value">-{formatCurrency(transactions.filter(t => t.direction === 'debit').reduce((s, t) => s + (parseFloat(t.amount) || 0), 0))}</span>
+                 <span className="value">-{formatCurrency(transactions.filter(t => t.direction === 'debit').reduce((s, t) => s + (parseFloat(t.amount) || 0), 0))}</span>
               </div>
             </div>
           </div>
@@ -203,7 +203,7 @@ const Overview = () => {
                 </div>
                 <div className="tx-side">
                   <span className={`tx-amt ${tx.direction}`}>
-                    {tx.direction === 'credit' ? '+' : '-'}{formatCurrency(tx.amount)}
+                     {tx.direction === 'credit' ? '+' : '-'}{formatCurrency(tx.amount)}
                   </span>
                   {tx.status === 'pending' && <span className="mini-status">Incoming</span>}
                 </div>
