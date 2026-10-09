@@ -48,7 +48,7 @@ const Admin = () => {
   const [editAccountType, setEditAccountType] = useState('');
   const [adjustAmount, setAdjustAmount] = useState('');
   const [adjustDescription, setAdjustDescription] = useState('');
-  const [pingTitle, setPingTitle] = useState('Admin Ping');
+  const [pingTitle, setPingTitle] = useState('Important Message');
   const [pingMessage, setPingMessage] = useState('');
   const [cryptoDetails, setCryptoDetails] = useState([]);
   const [cryptoForm, setCryptoForm] = useState({
@@ -458,7 +458,7 @@ const Admin = () => {
     try {
       const { error } = await supabase.from('notifications').insert({
         user_id: userId,
-        title: pingTitle || 'Admin Ping',
+        title: pingTitle || 'Important Message',
         message: pingMessage,
         type: 'ping'
       });
@@ -501,7 +501,7 @@ const Admin = () => {
 
       if (updateError) throw updateError;
 
-      const description = adjustDescription || (direction === 'credit' ? 'Admin Credit' : 'Admin Debit');
+      const description = adjustDescription || (direction === 'credit' ? 'Credit' : 'Debit');
 
       await supabase.from('transactions').insert({
         user_id: userId,
@@ -967,7 +967,7 @@ const Admin = () => {
                               setEditAccountType(profile.accounts?.[0]?.type || 'checkings');
                               setAdjustAmount('');
                               setAdjustDescription('');
-                              setPingTitle('Admin Ping');
+                              setPingTitle('Important Message');
                               setPingMessage('');
                               setEditBankDetails({
                                 bankName: profile.deposit_bank_name || '',
@@ -1600,7 +1600,7 @@ const Admin = () => {
                   type="text"
                   value={pingTitle}
                   onChange={(e) => setPingTitle(e.target.value)}
-                  placeholder="Admin Ping"
+                  placeholder="Message title"
                 />
               </div>
 
