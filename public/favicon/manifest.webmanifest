@@ -1,12 +1,14 @@
 {
-  "name": "Global Credit Union Platform (GCU)",
-  "short_name": "GCU",
-  "description": "Global Credit Union Platform (GCU)",
+  "name": "PHC Platform",
+  "short_name": "PHC",
+  "description": "Global Credit Union Platform — banking, transfers, and financial management.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls"],
+  "orientation": "portrait-primary",
   "background_color": "#ffffff",
-  "theme_color": "#42145f",
+  "theme_color": "#1E3A8A",
   "icons": [
     {
       "src": "/favicon/web-app-manifest-192x192.png",
@@ -19,6 +21,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "/favicon/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ]
 }
