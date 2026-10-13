@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { Download, Share2 } from 'lucide-react';
+import './PWAInstallButton.css';
 
 const PWAInstallButton = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+  const [canInstall, setCanInstall] = useState(false);
 
   useEffect(() => {
     if (window.matchMedia('(display-mode: standalone)').matches) {
@@ -16,6 +19,7 @@ const PWAInstallButton = () => {
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      setCanInstall(true);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
@@ -23,6 +27,7 @@ const PWAInstallButton = () => {
     window.addEventListener('appinstalled', () => {
       setIsInstalled(true);
       setDeferredPrompt(null);
+      setCanInstall(false);
     });
 
     return () => {
@@ -47,7 +52,7 @@ const PWAInstallButton = () => {
   if (isIOS) {
     return (
       <button
-        className="pwa-install-btn"
+        className="pwa-install-btn mobile"
         onClick={() => {
           const msg = 'Tap the Share button below, then "Add to Home Screen".';
           if (navigator.share) {
@@ -56,15 +61,14 @@ const PWAInstallButton = () => {
             alert(msg + ' Then tap "Add to Home Screen" in the share sheet.');
           }
         }}
-        title="Install PHC Platform on your device"
       >
-        <span style={{ fontSize: '14px' }}>📱</span>
+        <Share2 size={16} />
         <span>Add to Home Screen</span>
       </button>
     );
   }
 
-  if (!deferredPrompt) {
+  if (!canInstall) {
     return null;
   }
 
@@ -72,9 +76,9 @@ const PWAInstallButton = () => {
     <button
       className="pwa-install-btn"
       onClick={handleInstall}
-      title="Install PHC Platform"
+      title="Install PHC Platform as a web app"
     >
-      <span style={{ fontSize: '14px' }}>⬇️</span>
+      <Download size={16} />
       <span>Install App</span>
     </button>
   );
