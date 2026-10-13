@@ -69,10 +69,6 @@ const Deposit = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (profile?.is_inactive) {
-      setError('Your account is inactive. Deposits are disabled.');
-      return;
-    }
     if (formData.method === 'crypto') {
       const selected = cryptoDepositDetails.find((d) => d.id === formData.cryptoDetailId);
       if (!selected) {
@@ -89,11 +85,6 @@ const Deposit = () => {
   };
 
   const handleConfirmDeposit = async () => {
-    if (profile?.is_inactive) {
-      setError('Your account is inactive. Deposits are disabled.');
-      return;
-    }
-
     if (formData.method === 'crypto') {
       const selected = cryptoDepositDetails.find((d) => d.id === formData.cryptoDetailId);
       if (!selected) {
@@ -162,11 +153,6 @@ const Deposit = () => {
 
       <div className="deposit-grid">
         <div className="deposit-form-card">
-          {profile?.is_inactive && (
-            <div className="error-message">
-              <AlertCircle size={16} /> Your account is inactive. You can view your dashboard, but you cannot perform deposits.
-            </div>
-          )}
           {step === 1 && (
             <form onSubmit={handleSubmit} className="deposit-form">
               <div className="form-group">
@@ -260,7 +246,7 @@ const Deposit = () => {
 
               {error && <div className="error-message"><AlertCircle size={16} /> {error}</div>}
 
-              <button type="submit" className="deposit-btn" disabled={profile?.is_inactive}>
+              <button type="submit" className="deposit-btn">
                 Generate Deposit Details
               </button>
             </form>
@@ -314,7 +300,6 @@ const Deposit = () => {
                     <button 
                       onClick={handleConfirmDeposit} 
                       className="deposit-btn"
-                      disabled={submitting || profile?.is_inactive}
                     >
                       {submitting ? 'Processing...' : 'Confirm Deposit'}
                     </button>
@@ -397,7 +382,6 @@ const Deposit = () => {
                         <button
                           onClick={handleConfirmDeposit}
                           className="deposit-btn"
-                          disabled={submitting || profile?.is_inactive}
                         >
                           {submitting ? 'Processing...' : 'Confirm Deposit'}
                         </button>
