@@ -1,0 +1,51 @@
+.pwa-install-btn {
+  background-color: #1E3A8A;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.pwa-install-btn:hover {
+  background-color: #2563EB;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
+}
+
+/* Mobile dropdown variant — appears as a full-width menu item */
+.pwa-install-btn.mobile {
+  width: 100%;
+  justify-content: flex-start;
+  background-color: #1E3A8A;
+  color: white;
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 0;
+  margin: 0;
+  transform: none;
+  box-shadow: none;
+}
+
+.pwa-install-btn.mobile:hover {
+  background-color: #2563EB;
+}
+
+@media (max-width: 768px) {
+  .pwa-install-btn {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+
+  .pwa-install-btn.mobile {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+}

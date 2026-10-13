@@ -133,35 +133,6 @@
   box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
 }
 
-.pwa-install-btn {
-  background-color: #10B981;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.pwa-install-btn:hover {
-  background-color: #059669;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
-}
-
-@media (max-width: 768px) {
-  .pwa-install-btn {
-    font-size: 13px;
-    padding: 6px 12px;
-  }
-}
-
 .search-container {
   display: flex;
   align-items: center;

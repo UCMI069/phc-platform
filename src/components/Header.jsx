@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Lock, Search, Menu, X } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Header.css';
+import './PWAInstallButton.css';
 import logo from '../assets/phc-logo.png';
 import PWAInstallButton from './PWAInstallButton';
 
@@ -47,7 +48,9 @@ const Header = () => {
                   <li className="mobile-only"><Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link></li>
                   <li className="mobile-only"><Link to="/register" onClick={() => setIsMenuOpen(false)}>Register</Link></li>
                   <li className="mobile-only"><Link to="/about" onClick={() => setIsMenuOpen(false)}>About Us</Link></li>
-                  
+                  <li className="mobile-only">
+                    <PWAInstallButton />
+                  </li>
                 </>
               )}
             </ul>
