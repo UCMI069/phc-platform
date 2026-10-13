@@ -3,6 +3,7 @@ import { Lock, Search, Menu, X } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Header.css';
 import logo from '../assets/phc-logo.png';
+import PWAInstallButton from './PWAInstallButton';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -63,6 +64,8 @@ const Header = () => {
             <button className="login-btn-header" onClick={handleLoginClick}>
               <Lock size={16} className="lock-icon" /> <span>Log in</span>
             </button>
+
+            <PWAInstallButton />
 
             <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
