@@ -4,10 +4,6 @@ const API_CACHE = 'phc-platform-api-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/src/main.jsx',
-  '/src/App.jsx',
-  '/src/App.css',
-  '/src/index.css',
   '/favicon/favicon.ico',
   '/favicon/favicon.svg',
   '/favicon/favicon-96x96.png',
@@ -22,7 +18,11 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    }).catch((err) => {
+      console.warn('SW install: some assets failed to cache, installing anyway', err);
+    })
   );
 });
 
@@ -54,7 +54,6 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (url.pathname.startsWith('/assets/') ||
-      url.pathname.startsWith('/src/') ||
       url.pathname.startsWith('/favicon/') ||
       url.pathname.startsWith('/images/') ||
       url.pathname.startsWith('/public/')) {
