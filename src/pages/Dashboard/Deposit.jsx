@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { neon as supabase } from '../../lib/neon';
-import { ArrowDownCircle, ShieldCheck, Wallet, History, AlertCircle, CheckCircle2, Bitcoin } from 'lucide-react';
+import { ArrowDownCircle, ShieldCheck, Wallet, History, AlertCircle, CheckCircle2, Bitcoin, Copy, Check } from 'lucide-react';
 import './Deposit.css';
 
 const Deposit = () => {
@@ -17,6 +17,13 @@ const Deposit = () => {
   const [step, setStep] = useState(1);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [copiedField, setCopiedField] = useState(null);
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(text);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
 
   useEffect(() => {
     fetchAccounts();
@@ -275,14 +282,38 @@ const Deposit = () => {
                     <div className="detail-item">
                       <span>Account Number</span>
                       <strong>{profile.deposit_account_number}</strong>
+                      <button
+                        type="button"
+                        className="copy-btn"
+                        onClick={() => copyToClipboard(profile.deposit_account_number)}
+                        title="Copy account number"
+                      >
+                        {copiedField === profile.deposit_account_number ? <Check size={14} /> : <Copy size={14} />}
+                      </button>
                     </div>
                     <div className="detail-item">
                       <span>Sort Code</span>
                       <strong>{profile.deposit_sort_code}</strong>
+                      <button
+                        type="button"
+                        className="copy-btn"
+                        onClick={() => copyToClipboard(profile.deposit_sort_code)}
+                        title="Copy sort code"
+                      >
+                        {copiedField === profile.deposit_sort_code ? <Check size={14} /> : <Copy size={14} />}
+                      </button>
                     </div>
                     <div className="detail-item highlight">
                       <span>Reference (Required)</span>
                       <strong>DEP-{formData.toAccount.slice(0, 8).toUpperCase()}</strong>
+                      <button
+                        type="button"
+                        className="copy-btn"
+                        onClick={() => copyToClipboard(`DEP-${formData.toAccount.slice(0, 8).toUpperCase()}`)}
+                        title="Copy reference"
+                      >
+                        {copiedField === `DEP-${formData.toAccount.slice(0, 8).toUpperCase()}` ? <Check size={14} /> : <Copy size={14} />}
+                      </button>
                     </div>
                   </div>
 
@@ -350,7 +381,15 @@ const Deposit = () => {
                         </div>
                         <div className="detail-item">
                           <span>Wallet Address</span>
-                          <strong style={{ wordBreak: 'break-all' }}>{selected.wallet_address}</strong>
+                          <strong style={{ wordBreak: 'break-all', display: 'block', paddingRight: '30px' }}>{selected.wallet_address}</strong>
+                          <button
+                            type="button"
+                            className="copy-btn"
+                            onClick={() => copyToClipboard(selected.wallet_address)}
+                            title="Copy wallet address"
+                          >
+                            {copiedField === selected.wallet_address ? <Check size={14} /> : <Copy size={14} />}
+                          </button>
                         </div>
                         {selected.qr_image_url && (
                           <div className="detail-item highlight">
