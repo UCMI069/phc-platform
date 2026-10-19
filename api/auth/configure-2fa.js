@@ -20,20 +20,14 @@ export default async function handler(req, res) {
       let storedSecret = secret;
       if (!storedSecret) {
         const profResult = await sql`SELECT totp_secret FROM profiles WHERE id = ${userId}`;
-        console.log('[configure-2fa] profResult:', JSON.stringify(profResult));
         if (profResult.length === 0) return res.status(404).json({ error: 'Profile not found' });
 
         storedSecret = profResult[0].totp_secret;
       }
-      console.log('[configure-2fa] storedSecret type:', typeof storedSecret, 'value:', storedSecret);
       if (!storedSecret) return res.status(400).json({ error: '2FA setup incomplete. Generate a secret first.' });
 
-      console.log('[configure-2fa] Verifying TOTP:', { userId, tokenLength: token?.length, secretLength: storedSecret?.length, storedSecretPrefix: storedSecret?.slice(0, 4) });
-      const expectedToken = speakeasy.totp({ secret: storedSecret, window: 2 });
-      console.log('[configure-2fa] Expected token (current):', expectedToken, 'User entered:', token);
-      const verified = speakeasy.totp.verify({ secret: storedSecret, token, window: 2 });
-      console.log('[configure-2fa] Verification result:', verified);
-      if (!verified) return res.status(401).json({ error: 'Invalid verification code', expected: expectedToken });
+      const verified = speakeasy.totp.verify({ secret: storedSecret, token, encoding: 'base32', window: 2 });
+      if (!verified) return res.status(401).json({ error: 'Invalid verification code' });
 
       await sql`UPDATE profiles SET is_2fa_enabled = true, totp_verified = true WHERE id = ${userId}`;
       res.json({ success: true, message: '2FA enabled successfully' });

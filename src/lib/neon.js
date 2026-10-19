@@ -415,7 +415,7 @@ class AuthClient {
         body: JSON.stringify({ userId, enable, token, secret }),
       });
       const data = await res.json();
-      if (!res.ok) return { data: null, error: { message: data.error || 'Configuration failed', ...(data.expected ? { expected: data.expected } : {}) } };
+      if (!res.ok) return { data: null, error: { message: data.error || 'Configuration failed' } };
       return { data, error: null };
     } catch (err) {
       return { data: null, error: { message: err.message || 'Configuration failed' } };
