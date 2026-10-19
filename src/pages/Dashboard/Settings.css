@@ -1,5 +1,8 @@
 ﻿.settings-container {
   padding-bottom: 40px;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .settings-header {
@@ -257,6 +260,26 @@
 @media (max-width: 576px) {
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .settings-card {
+    padding: 20px;
+  }
+
+  .qr-code {
+    width: 160px;
+    height: 160px;
+  }
+
+  .enable-2fa-btn,
+  .disable-2fa-btn,
+  .confirm-2fa-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .settings-header {
+    padding: 20px;
   }
 }
 
