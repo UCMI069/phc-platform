@@ -23,6 +23,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     deposit_account_number TEXT,
     deposit_sort_code TEXT,
     deposit_recipient_name TEXT,
+    is_2fa_enabled BOOLEAN DEFAULT FALSE,
+    totp_secret TEXT,
+    totp_verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );

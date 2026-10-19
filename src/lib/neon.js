@@ -51,7 +51,7 @@ async function serverQuery(query, params = []) {
   const raw = await res.text();
   if (!res.ok) {
     let msg = `Server error (${res.status})`;
-    try { const j = JSON.parse(raw); msg = j.error?.message || j.error || msg; } catch (_) {}
+    try { const j = JSON.parse(raw); msg = j.error?.message || j.error || msg; } catch (_) { /* not JSON, use default msg */ }
     throw new Error(msg);
   }
   let result;
@@ -333,6 +333,11 @@ class AuthClient {
       });
       const data = await res.json();
       if (!res.ok) return { data: { user: null, session: null }, error: { message: data.error || 'Sign in failed' } };
+
+      if (data.requires2FA) {
+        return { data: { user: data, session: null, requires2FA: true }, error: null };
+      }
+
       const session = { user: data, access_token: data.id };
       setStoredSession(session);
       try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(session); } catch (_) { /* circular import */ }
@@ -370,6 +375,51 @@ class AuthClient {
     setStoredSession(null);
     try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(null); } catch (_) { /* circular import */ }
     return { error: null };
+  }
+
+  async verifyTOTP({ userId, token, purpose = 'auth' }) {
+    try {
+      const res = await fetch(`${AUTH_SERVER}/api/auth/verify-totp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, token, purpose }),
+      });
+      const data = await res.json();
+      if (!res.ok) return { data: null, error: { message: data.error || 'TOTP verification failed' } };
+      return { data, error: null };
+    } catch (err) {
+      return { data: null, error: { message: err.message || 'TOTP verification failed' } };
+    }
+  }
+
+  async setup2FA(userId) {
+    try {
+      const res = await fetch(`${AUTH_SERVER}/api/auth/setup-2fa`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      const data = await res.json();
+      if (!res.ok) return { data: null, error: { message: data.error || '2FA setup failed' } };
+      return { data, error: null };
+    } catch (err) {
+      return { data: null, error: { message: err.message || '2FA setup failed' } };
+    }
+  }
+
+  async configure2FA({ userId, enable, token }) {
+    try {
+      const res = await fetch(`${AUTH_SERVER}/api/auth/configure-2fa`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, enable, token }),
+      });
+      const data = await res.json();
+      if (!res.ok) return { data: null, error: { message: data.error || 'Configuration failed' } };
+      return { data, error: null };
+    } catch (err) {
+      return { data: null, error: { message: err.message || 'Configuration failed' } };
+    }
   }
 
   async getSession() {

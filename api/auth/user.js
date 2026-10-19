@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
       const user = userResult[0];
       const profResult = await sql`
-        SELECT first_name, last_name, phone, country, avatar_url, is_admin, blocked, account_level, currency 
+        SELECT first_name, last_name, phone, country, avatar_url, is_admin, blocked, account_level, currency, is_2fa_enabled, totp_verified 
         FROM profiles WHERE id = ${user.id}
       `;
       const profile = profResult[0] || {};
@@ -38,6 +38,8 @@ export default async function handler(req, res) {
         accountLevel: profile.account_level || 'starter',
         currency: profile.currency || 'GBP',
         createdAt: user.created_at,
+        is2FAEnabled: profile.is_2fa_enabled || false,
+        totpVerified: profile.totp_verified || false,
       });
     } catch (err) {
       console.error('Get user error:', err.message, err.stack);

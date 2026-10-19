@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { neon as supabase } from '../../lib/neon';
 import { Send, Search, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import TOTPModal from '../../components/TOTPModal';
 import './Transfer.css';
 
 const Transfer = () => {
@@ -20,6 +21,8 @@ const Transfer = () => {
   const [step, setStep] = useState(1);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [show2FAModal, setShow2FAModal] = useState(false);
+  const [pendingTransfer, setPendingTransfer] = useState(null);
 
   useEffect(() => {
     fetchAccounts();
@@ -83,39 +86,59 @@ const Transfer = () => {
       setError('Your account is inactive. Transfers are disabled.');
       return;
     }
-    setSubmitting(true);
     setError(null);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
-      // 1. Create debit transaction with recipient details
+
+      const { data: profData } = await supabase
+        .from('profiles')
+        .select('is_2fa_enabled')
+        .eq('id', user.id)
+        .single();
+
+      if (profData?.is_2fa_enabled) {
+        setPendingTransfer({ user, formData: { ...formData } });
+        setShow2FAModal(true);
+        return;
+      }
+
+      await executeTransfer(user, formData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const executeTransfer = async (user, transferData) => {
+    setSubmitting(true);
+    try {
       const { error: txError } = await supabase
         .from('transactions')
         .insert({
           user_id: user.id,
-          account_id: formData.fromAccount,
-          amount: parseFloat(formData.amount),
+          account_id: transferData.fromAccount,
+          amount: parseFloat(transferData.amount),
           direction: 'debit',
-          description: `Transfer to ${formData.accountName}`,
+          description: `Transfer to ${transferData.accountName}`,
           status: 'pending_transfer',
-          recipient_name: formData.accountName,
-          recipient_account: formData.toAccount,
-          recipient_bank: formData.bankName,
-          recipient_reference: formData.reference
+          recipient_name: transferData.accountName,
+          recipient_account: transferData.toAccount,
+          recipient_bank: transferData.bankName,
+          recipient_reference: transferData.reference
         });
 
       if (txError) throw txError;
 
-      // 2. Update account balance immediately (Standard banking practice)
-      const sourceAccount = accounts.find(a => a.id === formData.fromAccount);
+      const sourceAccount = accounts.find(a => a.id === transferData.fromAccount);
       if (!sourceAccount) throw new Error('Source account not found');
-      const newBalance = sourceAccount.balance - parseFloat(formData.amount);
+      const newBalance = sourceAccount.balance - parseFloat(transferData.amount);
       
       const { error: accError } = await supabase
         .from('accounts')
         .update({ balance: newBalance })
-        .eq('id', formData.fromAccount);
+        .eq('id', transferData.fromAccount);
 
       if (accError) throw accError;
 
@@ -124,6 +147,27 @@ const Transfer = () => {
       setError(err.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleVerifyTOTP = async (userId, token) => {
+    try {
+      const { data, error: totpError } = await supabase.auth.verifyTOTP({
+        userId,
+        token,
+        purpose: 'transfer',
+      });
+
+      if (totpError) throw totpError;
+      if (!data?.verified) throw new Error('Invalid verification code');
+
+      setShow2FAModal(false);
+      if (pendingTransfer) {
+        await executeTransfer(pendingTransfer.user, pendingTransfer.formData);
+        setPendingTransfer(null);
+      }
+    } catch (err) {
+      return { error: err.message };
     }
   };
 
@@ -292,6 +336,16 @@ const Transfer = () => {
               View Transactions
             </button>
           </div>
+        )}
+
+        {pendingTransfer && (
+          <TOTPModal
+            isOpen={show2FAModal}
+            onClose={() => setShow2FAModal(false)}
+            onVerify={(userId, token) => handleVerifyTOTP(userId, token)}
+            userId={pendingTransfer.user.id}
+            title="Confirm Transfer"
+          />
         )}
       </div>
     </div>
