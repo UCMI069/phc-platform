@@ -382,8 +382,44 @@
   word-break: break-all;
   letter-spacing: 1px;
   color: #334159;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   font-weight: 500;
+  flex: 1;
+  min-width: 0;
+}
+
+.manual-secret-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.copy-secret-btn {
+  background: none;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.copy-secret-btn:hover {
+  background-color: #f1f5f9;
+  color: #1E3A8A;
+  border-color: #94a3b8;
+}
+
+.copy-secret-btn.copied {
+  color: #10B981;
+  border-color: #10B981;
+  background-color: #f0fdf4;
 }
 
 .twofa-verify-form .form-group input {
