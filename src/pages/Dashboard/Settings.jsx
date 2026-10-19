@@ -372,7 +372,7 @@ const Settings = () => {
               <div className="twofa-setup">
                 <h4>Scan QR Code with Google Authenticator</h4>
                 <img src={twoFactor.qrCode} alt="2FA QR Code" className="qr-code" />
-                <p className="setup-help">Or enter this code manually in your app: <strong>{twoFactor.secret}</strong></p>
+                <p className="setup-help">Enter this code manually in your authenticator app:</p><div className="manual-secret" title="{twoFactor.secret}">{twoFactor.secret}</div>
 
                 <form onSubmit={handleEnable2FA} className="twofa-verify-form">
                   <div className="form-group">
