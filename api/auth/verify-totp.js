@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     const verified = speakeasy.totp.verify({
       secret,
       token,
-      window: 1,
+      window: 2,
     });
 
     if (!verified) {

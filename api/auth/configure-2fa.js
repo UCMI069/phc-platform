@@ -23,7 +23,11 @@ export default async function handler(req, res) {
       const storedSecret = profResult[0].totp_secret;
       if (!storedSecret) return res.status(400).json({ error: '2FA setup incomplete. Generate a secret first.' });
 
-      const verified = speakeasy.totp.verify({ secret: storedSecret, token, window: 1 });
+       console.log('[configure-2fa] Verifying TOTP:', { userId, tokenLength: token?.length, secretLength: storedSecret?.length, storedSecretPrefix: storedSecret?.slice(0, 4) });
+      const expectedToken = speakeasy.totp({ secret: storedSecret, window: 2 });
+      console.log('[configure-2fa] Expected token (current):', expectedToken, 'User entered:', token);
+      const verified = speakeasy.totp.verify({ secret: storedSecret, token, window: 2 });
+      console.log('[configure-2fa] Verification result:', verified);
       if (!verified) return res.status(401).json({ error: 'Invalid verification code' });
 
       await sql`UPDATE profiles SET is_2fa_enabled = true, totp_verified = true WHERE id = ${userId}`;

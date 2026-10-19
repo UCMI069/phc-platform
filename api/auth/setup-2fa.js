@@ -25,6 +25,7 @@ export default async function handler(req, res) {
     });
 
     await sql`UPDATE profiles SET totp_secret = ${secret.base32} WHERE id = ${userId}`;
+    console.log('[setup-2fa] Stored TOTP secret for user:', userId, 'base32 prefix:', secret.base32.slice(0, 4));
 
     const otpauthUrl = secret.otpauth_url;
     const qrCode = await QRCode.toDataURL(otpauthUrl);
