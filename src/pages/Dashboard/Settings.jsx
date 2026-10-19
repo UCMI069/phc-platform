@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { neon as supabase, proxiedStorageUrl } from '../../lib/neon';
-import { User, Mail, Phone, MapPin, Globe, Camera, Save, AlertCircle, CheckCircle2, Shield, QrCode, Key, Trash2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Globe, Camera, Save, AlertCircle, CheckCircle2, Shield, QrCode, Key, Trash2, Copy, Check } from 'lucide-react';
 import './Settings.css';
 
 const CURRENCIES = [
@@ -38,6 +38,7 @@ const Settings = () => {
     verificationCode: '',
     setupLoading: false,
   });
+  const [copiedSecret, setCopiedSecret] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -153,6 +154,12 @@ const Settings = () => {
       setSubmitting(false);
     }
   };
+  const copySecret = () => {
+    navigator.clipboard.writeText(twoFactor.secret);
+    setCopiedSecret(true);
+    setTimeout(() => setCopiedSecret(false), 2000);
+  };
+
 
   const handleSetup2FA = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -372,7 +379,7 @@ const Settings = () => {
               <div className="twofa-setup">
                 <h4>Scan QR Code with Google Authenticator</h4>
                 <img src={twoFactor.qrCode} alt="2FA QR Code" className="qr-code" />
-                <p className="setup-help">Enter this code manually in your authenticator app:</p><div className="manual-secret" title="{twoFactor.secret}">{twoFactor.secret}</div>
+                <p className="setup-help">Enter this code manually in your authenticator app:</p><div className="manual-secret-wrapper"><div className="manual-secret" title="{twoFactor.secret}">{twoFactor.secret}</div><button type="button" className="copy-secret-btn" onClick={copySecret} title="Copy secret"><span>{copiedSecret ? <Check size={14} /> : <Copy size={14} />}</span></button></div>
 
                 <form onSubmit={handleEnable2FA} className="twofa-verify-form">
                   <div className="form-group">
@@ -403,3 +410,5 @@ const Settings = () => {
 };
 
 export default Settings;
+
+

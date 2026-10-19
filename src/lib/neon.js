@@ -2,7 +2,7 @@
 // All queries go through the server-side /api/query endpoint
 // No database credentials are exposed to the browser
 
-const AUTH_SERVER = ''; // Proxied through Vite — same origin
+const AUTH_SERVER = ''; // Same-origin — Vite proxy in dev, Vercel API routes in prod
 
 // ── Session management ──
 const SESSION_KEY = 'phc_session';

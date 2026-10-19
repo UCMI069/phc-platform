@@ -194,7 +194,7 @@ app.post('/api/auth/verify-totp', async (req, res) => {
     const verified = speakeasy.totp.verify({
       secret,
       token,
-      window: 1,
+      window: 2,
     });
 
     if (!verified) {
@@ -280,7 +280,7 @@ app.post('/api/auth/configure-2fa', async (req, res) => {
       const verified = speakeasy.totp.verify({
         secret: storedSecret,
         token,
-        window: 1,
+        window: 2,
       });
 
       if (!verified) {
