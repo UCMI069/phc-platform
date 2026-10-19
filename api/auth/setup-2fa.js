@@ -24,8 +24,11 @@ export default async function handler(req, res) {
       issuer: 'PHC Platform',
     });
 
-    await sql`UPDATE profiles SET totp_secret = ${secret.base32} WHERE id = ${userId}`;
-    console.log('[setup-2fa] Stored TOTP secret for user:', userId, 'base32 prefix:', secret.base32.slice(0, 4));
+    const updateResult = await sql`UPDATE profiles SET totp_secret = ${secret.base32} WHERE id = ${userId}`;
+    console.log('[setup-2fa] UPDATE result:', JSON.stringify(updateResult), 'secret prefix:', secret.base32.slice(0, 8), 'length:', secret.base32.length);
+    // Verify it was stored correctly
+    const verifyResult = await sql`SELECT totp_secret FROM profiles WHERE id = ${userId}`;
+    console.log('[setup-2fa] Verification query result:', verifyResult.length > 0 ? `found, secret prefix: ${verifyResult[0].totp_secret?.slice(0, 8)}` : 'no rows');
 
     const otpauthUrl = secret.otpauth_url;
     const qrCode = await QRCode.toDataURL(otpauthUrl);
