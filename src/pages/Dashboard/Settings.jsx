@@ -196,8 +196,9 @@ const Settings = () => {
         userId: user.id,
         enable: true,
         token: twoFactor.verificationCode,
+        secret: twoFactor.secret,
       });
-      if (enableError) throw enableError;
+       if (enableError) throw enableError;
 
       setSuccess('Two-factor authentication enabled successfully!');
       setTwoFactor({
@@ -206,7 +207,11 @@ const Settings = () => {
       });
       fetchProfile();
     } catch (err) {
-      setError(err.message);
+      if (err.expected) {
+        setError(`Invalid verification code. Expected: ${err.expected}. Entered: ${twoFactor.verificationCode}. Please ensure your phone's clock is correct and try again.`);
+      } else {
+        setError(err.message);
+      }
     } finally {
       setTwoFactor(prev => ({ ...prev, setupLoading: false }));
     }

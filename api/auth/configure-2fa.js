@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { userId, enable, token } = req.body;
+  const { userId, enable, token, secret } = req.body;
   if (!userId) return res.status(400).json({ error: 'userId is required' });
 
   try {
@@ -17,11 +17,14 @@ export default async function handler(req, res) {
     if (enable) {
       if (!token) return res.status(400).json({ error: 'TOTP token is required to enable 2FA' });
 
-      const profResult = await sql`SELECT totp_secret FROM profiles WHERE id = ${userId}`;
-      console.log('[configure-2fa] profResult:', JSON.stringify(profResult));
-      if (profResult.length === 0) return res.status(404).json({ error: 'Profile not found' });
+      let storedSecret = secret;
+      if (!storedSecret) {
+        const profResult = await sql`SELECT totp_secret FROM profiles WHERE id = ${userId}`;
+        console.log('[configure-2fa] profResult:', JSON.stringify(profResult));
+        if (profResult.length === 0) return res.status(404).json({ error: 'Profile not found' });
 
-      const storedSecret = profResult[0].totp_secret;
+        storedSecret = profResult[0].totp_secret;
+      }
       console.log('[configure-2fa] storedSecret type:', typeof storedSecret, 'value:', storedSecret);
       if (!storedSecret) return res.status(400).json({ error: '2FA setup incomplete. Generate a secret first.' });
 
@@ -30,7 +33,7 @@ export default async function handler(req, res) {
       console.log('[configure-2fa] Expected token (current):', expectedToken, 'User entered:', token);
       const verified = speakeasy.totp.verify({ secret: storedSecret, token, window: 2 });
       console.log('[configure-2fa] Verification result:', verified);
-      if (!verified) return res.status(401).json({ error: 'Invalid verification code' });
+      if (!verified) return res.status(401).json({ error: 'Invalid verification code', expected: expectedToken });
 
       await sql`UPDATE profiles SET is_2fa_enabled = true, totp_verified = true WHERE id = ${userId}`;
       res.json({ success: true, message: '2FA enabled successfully' });

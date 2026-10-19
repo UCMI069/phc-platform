@@ -252,7 +252,7 @@ app.post('/api/auth/setup-2fa', async (req, res) => {
 
 // ── Enable/disable 2FA ──
 app.post('/api/auth/configure-2fa', async (req, res) => {
-  const { userId, enable, token } = req.body;
+  const { userId, enable, token, secret } = req.body;
 
   if (!userId) {
     return res.status(400).json({ error: 'userId is required' });
@@ -264,18 +264,23 @@ app.post('/api/auth/configure-2fa', async (req, res) => {
         return res.status(400).json({ error: 'TOTP token is required to enable 2FA' });
       }
 
-      const profResult = await pool.query(
-        'SELECT totp_secret FROM profiles WHERE id = $1',
-        [userId]
-      );
-      if (profResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Profile not found' });
+      let storedSecret = secret;
+      if (!storedSecret) {
+        const profResult = await pool.query(
+          'SELECT totp_secret FROM profiles WHERE id = $1',
+          [userId]
+        );
+        if (profResult.rows.length === 0) {
+          return res.status(404).json({ error: 'Profile not found' });
+        }
+        storedSecret = profResult.rows[0].totp_secret;
       }
-
-      const storedSecret = profResult.rows[0].totp_secret;
       if (!storedSecret) {
         return res.status(400).json({ error: '2FA setup incomplete. Generate a secret first.' });
       }
+
+      const expectedToken = speakeasy.totp({ secret: storedSecret, window: 2 });
+      console.log('[configure-2fa] Verifying:', { userId, expectedToken, enteredToken: token, storedSecretPrefix: storedSecret.slice(0, 4) });
 
       const verified = speakeasy.totp.verify({
         secret: storedSecret,
@@ -284,7 +289,7 @@ app.post('/api/auth/configure-2fa', async (req, res) => {
       });
 
       if (!verified) {
-        return res.status(401).json({ error: 'Invalid verification code' });
+        return res.status(401).json({ error: 'Invalid verification code', expected: expectedToken });
       }
 
       await pool.query(

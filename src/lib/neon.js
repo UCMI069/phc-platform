@@ -407,15 +407,15 @@ class AuthClient {
     }
   }
 
-  async configure2FA({ userId, enable, token }) {
+  async configure2FA({ userId, enable, token, secret }) {
     try {
       const res = await fetch(`${AUTH_SERVER}/api/auth/configure-2fa`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, enable, token }),
+        body: JSON.stringify({ userId, enable, token, secret }),
       });
       const data = await res.json();
-      if (!res.ok) return { data: null, error: { message: data.error || 'Configuration failed' } };
+      if (!res.ok) return { data: null, error: { message: data.error || 'Configuration failed', ...(data.expected ? { expected: data.expected } : {}) } };
       return { data, error: null };
     } catch (err) {
       return { data: null, error: { message: err.message || 'Configuration failed' } };
