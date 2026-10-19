@@ -91,9 +91,9 @@ const Login = () => {
       if (!data?.verified) throw new Error('Invalid verification code');
 
       setShow2FAModal(false);
-      setPendingUser(null);
 
       if (pendingUser?.user?.id) {
+        const session = { user: pendingUser.user, access_token: pendingUser.user.id };
         const { data: prof } = await supabase
           .from('profiles')
           .select('blocked')
@@ -102,9 +102,13 @@ const Login = () => {
 
         if (prof?.blocked) {
           await supabase.auth.signOut();
+          setPendingUser(null);
           setError('Your account has been locked. Please contact support.');
           return;
         }
+
+        await supabase.auth.setSession(session);
+        setPendingUser(null);
       }
 
       navigate('/dashboard');

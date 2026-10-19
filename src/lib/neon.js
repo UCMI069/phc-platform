@@ -422,6 +422,12 @@ class AuthClient {
     }
   }
 
+  async setSession(session) {
+    setStoredSession(session);
+    try { const { emitAuthChange } = await import('../context/AuthContext'); emitAuthChange(session); } catch (_) { void 0; }
+    return { data: { session }, error: null };
+  }
+
   async getSession() {
     const session = getStoredSession();
     if (!session?.user?.id) return { data: { session: null }, error: null };
