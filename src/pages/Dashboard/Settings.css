@@ -271,6 +271,12 @@
     height: 160px;
   }
 
+  .manual-secret {
+    font-size: 11px;
+    padding: 10px;
+    letter-spacing: 0;
+  }
+
   .enable-2fa-btn,
   .disable-2fa-btn,
   .confirm-2fa-btn {
@@ -363,7 +369,21 @@
 .setup-help {
   font-size: 13px;
   color: #64748b;
+  margin-bottom: 8px;
+}
+
+.manual-secret {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  background-color: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 12px;
+  word-break: break-all;
+  letter-spacing: 1px;
+  color: #334159;
   margin-bottom: 16px;
+  font-weight: 500;
 }
 
 .twofa-verify-form .form-group input {
