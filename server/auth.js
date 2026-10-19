@@ -3,6 +3,7 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import cors from 'cors';
 import pg from 'pg';
+import speakeasy from 'speakeasy';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
@@ -143,7 +144,7 @@ app.post('/api/auth/signin', async (req, res) => {
 
     // Get profile
     const profResult = await pool.query(
-      'SELECT first_name, last_name, is_admin, blocked, account_level, currency FROM profiles WHERE id = $1',
+      'SELECT first_name, last_name, is_admin, blocked, account_level, currency, is_2fa_enabled FROM profiles WHERE id = $1',
       [user.id]
     );
     const profile = profResult.rows[0] || {};
@@ -158,10 +159,51 @@ app.post('/api/auth/signin', async (req, res) => {
       accountLevel: profile.account_level || 'starter',
       currency: profile.currency || 'GBP',
       createdAt: user.created_at,
+      is2FAEnabled: profile.is_2fa_enabled || false,
+      requires2FA: profile.is_2fa_enabled || false,
     });
   } catch (err) {
     console.error('Signin error:', err);
     res.status(500).json({ error: 'Login failed. Please try again.' });
+  }
+});
+
+app.post('/api/auth/verify-totp', async (req, res) => {
+  const { userId, token, purpose } = req.body;
+
+  if (!userId || !token) {
+    return res.status(400).json({ error: 'userId and token are required' });
+  }
+
+  try {
+    const profResult = await pool.query(
+      'SELECT totp_secret FROM profiles WHERE id = $1 AND is_2fa_enabled = true',
+      [userId]
+    );
+
+    if (profResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found or 2FA not enabled' });
+    }
+
+    const secret = profResult.rows[0].totp_secret;
+    if (!secret) {
+      return res.status(400).json({ error: 'TOTP secret not set' });
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret,
+      token,
+      window: 1,
+    });
+
+    if (!verified) {
+      return res.status(401).json({ error: 'Invalid verification code' });
+    }
+
+    res.json({ verified: true, purpose: purpose || 'auth' });
+  } catch (err) {
+    console.error('TOTP verify error:', err);
+    res.status(500).json({ error: 'Verification failed' });
   }
 });
 
@@ -178,7 +220,7 @@ async function getUserById(id) {
   const user = userResult.rows[0];
 
   const profResult = await pool.query(
-    'SELECT first_name, last_name, phone, country, avatar_url, is_admin, blocked, account_level, currency FROM profiles WHERE id = $1',
+    'SELECT first_name, last_name, phone, country, avatar_url, is_admin, blocked, account_level, currency, is_2fa_enabled, totp_verified FROM profiles WHERE id = $1',
     [user.id]
   );
   const profile = profResult.rows[0] || {};
@@ -196,6 +238,8 @@ async function getUserById(id) {
     accountLevel: profile.account_level || 'starter',
     currency: profile.currency || 'GBP',
     createdAt: user.created_at,
+    is2FAEnabled: profile.is_2fa_enabled || false,
+    totpVerified: profile.totp_verified || false,
   };
 }
 

@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     if (!valid) return res.status(401).json({ error: 'Invalid email or password' });
 
     const profResult = await sql`
-      SELECT first_name, last_name, is_admin, blocked, account_level, currency FROM profiles WHERE id = ${user.id}
+      SELECT first_name, last_name, is_admin, blocked, account_level, currency, is_2fa_enabled FROM profiles WHERE id = ${user.id}
     `;
     const profile = profResult[0] || {};
 
@@ -43,6 +43,8 @@ export default async function handler(req, res) {
       accountLevel: profile.account_level || 'starter',
       currency: profile.currency || 'GBP',
       createdAt: user.created_at,
+      is2FAEnabled: profile.is_2fa_enabled || false,
+      requires2FA: profile.is_2fa_enabled || false,
     });
   } catch (err) {
     console.error('Signin error:', err.message, err.stack);
