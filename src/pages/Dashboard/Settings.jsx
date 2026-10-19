@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { neon as supabase, proxiedStorageUrl } from '../../lib/neon';
-import { User, Mail, Phone, MapPin, Globe, Camera, Save, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Globe, Camera, Save, AlertCircle, CheckCircle2, Shield, QrCode, Key, Trash2 } from 'lucide-react';
 import './Settings.css';
 
 const CURRENCIES = [
@@ -20,7 +20,7 @@ const Settings = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -28,6 +28,15 @@ const Settings = () => {
     country: '',
     currency: 'GBP',
     avatarUrl: ''
+  });
+
+  const [twoFactor, setTwoFactor] = useState({
+    enabled: false,
+    settingUp: false,
+    secret: null,
+    qrCode: null,
+    verificationCode: '',
+    setupLoading: false,
   });
 
   useEffect(() => {
@@ -41,11 +50,13 @@ const Settings = () => {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, is_2fa_enabled')
         .eq('id', user.id)
         .single();
 
       if (data) {
+        setProfile(data);
+        setTwoFactor(prev => ({ ...prev, enabled: data.is_2fa_enabled || false }));
         setProfile(data);
         setFormData({
           firstName: data.first_name || '',
@@ -140,6 +151,83 @@ const Settings = () => {
       setError(err.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleSetup2FA = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    setTwoFactor(prev => ({ ...prev, setupLoading: true, settingUp: true }));
+    try {
+      const { data, error: setupError } = await supabase.auth.setup2FA(user.id);
+      if (setupError) throw setupError;
+      setTwoFactor(prev => ({
+        ...prev,
+        secret: data.secret,
+        qrCode: data.qrCode,
+        verificationCode: '',
+      }));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setTwoFactor(prev => ({ ...prev, setupLoading: false }));
+    }
+  };
+
+  const handleEnable2FA = async (e) => {
+    e.preventDefault();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    setTwoFactor(prev => ({ ...prev, setupLoading: true }));
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const { data, error: enableError } = await supabase.auth.configure2FA({
+        userId: user.id,
+        enable: true,
+        token: twoFactor.verificationCode,
+      });
+      if (enableError) throw enableError;
+
+      setSuccess('Two-factor authentication enabled successfully!');
+      setTwoFactor({
+        enabled: true, settingUp: false, secret: null, qrCode: null,
+        verificationCode: '', setupLoading: false,
+      });
+      fetchProfile();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setTwoFactor(prev => ({ ...prev, setupLoading: false }));
+    }
+  };
+
+  const handleDisable2FA = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    if (!window.confirm('Are you sure you want to disable two-factor authentication?')) return;
+
+    setError(null);
+    setSuccess(null);
+    try {
+      const { data, error: disableError } = await supabase.auth.configure2FA({
+        userId: user.id,
+        enable: false,
+      });
+      if (disableError) throw disableError;
+
+      setSuccess('Two-factor authentication disabled.');
+      setTwoFactor({
+        enabled: false, settingUp: false, secret: null, qrCode: null,
+        verificationCode: '', setupLoading: false,
+      });
+      fetchProfile();
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -255,23 +343,58 @@ const Settings = () => {
         <div className="settings-sidebar">
           <div className="settings-card info-card">
             <h3>Security & Privacy</h3>
-            <ul className="settings-info-list">
-              <li>
-                <div className="info-icon-box"><Save size={16} /></div>
-                <div>
-                  <strong>Two-Factor Auth</strong>
-                  <p>Enhance your security by enabling 2FA.</p>
+
+            {twoFactor.enabled ? (
+              <div className="twofa-status enabled">
+                <div className="twofa-status-row">
+                  <Shield size={16} />
+                  <span>Two-Factor Authentication: <strong>Enabled</strong></span>
                 </div>
-              </li>
-              <li>
-                <div className="info-icon-box"><Globe size={16} /></div>
-                <div>
-                  <strong>Session Management</strong>
-                  <p>View and manage your active login sessions.</p>
+                <p>Requires a 6-digit code from your authenticator app for login and transfers.</p>
+                <button className="disable-2fa-btn" onClick={handleDisable2FA}>
+                  <Trash2 size={14} /> Disable 2FA
+                </button>
+              </div>
+            ) : (
+              <div className="twofa-status">
+                <div className="twofa-status-row">
+                  <Shield size={16} />
+                  <span>Two-Factor Authentication: <strong>Disabled</strong></span>
                 </div>
-              </li>
-            </ul>
-            <button className="secondary-btn">Manage Security</button>
+                <p>Add an extra layer of security to your account by enabling 2FA with Google Authenticator.</p>
+                <button className="enable-2fa-btn" onClick={handleSetup2FA} disabled={twoFactor.setupLoading}>
+                  <Key size={14} /> {twoFactor.setupLoading ? 'Setting up...' : 'Set Up 2FA'}
+                </button>
+              </div>
+            )}
+
+            {twoFactor.settingUp && twoFactor.qrCode && (
+              <div className="twofa-setup">
+                <h4>Scan QR Code with Google Authenticator</h4>
+                <img src={twoFactor.qrCode} alt="2FA QR Code" className="qr-code" />
+                <p className="setup-help">Or enter this code manually in your app: <strong>{twoFactor.secret}</strong></p>
+
+                <form onSubmit={handleEnable2FA} className="twofa-verify-form">
+                  <div className="form-group">
+                    <label htmlFor="verificationCode">Verification Code</label>
+                    <input
+                      type="text"
+                      id="verificationCode"
+                      inputMode="numeric"
+                      pattern="[0-9]{6}"
+                      maxLength={6}
+                      placeholder="------"
+                      value={twoFactor.verificationCode}
+                      onChange={(e) => setTwoFactor(prev => ({ ...prev, verificationCode: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="confirm-2fa-btn" disabled={twoFactor.setupLoading || twoFactor.verificationCode.length < 6}>
+                    {twoFactor.setupLoading ? 'Verifying...' : 'Confirm & Enable'}
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
         </div>
       </div>

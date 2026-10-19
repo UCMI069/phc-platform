@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import cors from 'cors';
 import pg from 'pg';
 import speakeasy from 'speakeasy';
+import QRCode from 'qrcode';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
@@ -204,6 +205,104 @@ app.post('/api/auth/verify-totp', async (req, res) => {
   } catch (err) {
     console.error('TOTP verify error:', err);
     res.status(500).json({ error: 'Verification failed' });
+  }
+});
+
+// ── Setup 2FA: generate secret + QR code ──
+app.post('/api/auth/setup-2fa', async (req, res) => {
+  const { userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'userId is required' });
+  }
+
+  try {
+    const userResult = await pool.query(
+      'SELECT email FROM users WHERE id = $1',
+      [userId]
+    );
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const user = userResult.rows[0];
+
+    const secret = speakeasy.generateSecret({
+      name: `PHC Platform (${user.email})`,
+      issuer: 'PHC Platform',
+    });
+
+    await pool.query(
+      'UPDATE profiles SET totp_secret = $1 WHERE id = $2',
+      [secret.base32, userId]
+    );
+
+    const otpauthUrl = secret.otpauth_url;
+    const qrCode = await QRCode.toDataURL(otpauthUrl);
+
+    res.json({
+      secret: secret.base32,
+      qrCode,
+      otpauthUrl,
+    });
+  } catch (err) {
+    console.error('2FA setup error:', err);
+    res.status(500).json({ error: 'Failed to set up 2FA' });
+  }
+});
+
+// ── Enable/disable 2FA ──
+app.post('/api/auth/configure-2fa', async (req, res) => {
+  const { userId, enable, token } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'userId is required' });
+  }
+
+  try {
+    if (enable) {
+      if (!token) {
+        return res.status(400).json({ error: 'TOTP token is required to enable 2FA' });
+      }
+
+      const profResult = await pool.query(
+        'SELECT totp_secret FROM profiles WHERE id = $1',
+        [userId]
+      );
+      if (profResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Profile not found' });
+      }
+
+      const storedSecret = profResult.rows[0].totp_secret;
+      if (!storedSecret) {
+        return res.status(400).json({ error: '2FA setup incomplete. Generate a secret first.' });
+      }
+
+      const verified = speakeasy.totp.verify({
+        secret: storedSecret,
+        token,
+        window: 1,
+      });
+
+      if (!verified) {
+        return res.status(401).json({ error: 'Invalid verification code' });
+      }
+
+      await pool.query(
+        'UPDATE profiles SET is_2fa_enabled = true, totp_verified = true WHERE id = $1',
+        [userId]
+      );
+
+      res.json({ success: true, message: '2FA enabled successfully' });
+    } else {
+      await pool.query(
+        'UPDATE profiles SET is_2fa_enabled = false, totp_secret = NULL, totp_verified = false WHERE id = $1',
+        [userId]
+      );
+      res.json({ success: true, message: '2FA disabled successfully' });
+    }
+  } catch (err) {
+    console.error('Configure 2FA error:', err);
+    res.status(500).json({ error: 'Failed to configure 2FA' });
   }
 });
 

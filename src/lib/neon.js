@@ -392,6 +392,36 @@ class AuthClient {
     }
   }
 
+  async setup2FA(userId) {
+    try {
+      const res = await fetch(`${AUTH_SERVER}/api/auth/setup-2fa`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      const data = await res.json();
+      if (!res.ok) return { data: null, error: { message: data.error || '2FA setup failed' } };
+      return { data, error: null };
+    } catch (err) {
+      return { data: null, error: { message: err.message || '2FA setup failed' } };
+    }
+  }
+
+  async configure2FA({ userId, enable, token }) {
+    try {
+      const res = await fetch(`${AUTH_SERVER}/api/auth/configure-2fa`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, enable, token }),
+      });
+      const data = await res.json();
+      if (!res.ok) return { data: null, error: { message: data.error || 'Configuration failed' } };
+      return { data, error: null };
+    } catch (err) {
+      return { data: null, error: { message: err.message || 'Configuration failed' } };
+    }
+  }
+
   async getSession() {
     const session = getStoredSession();
     if (!session?.user?.id) return { data: { session: null }, error: null };
