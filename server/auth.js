@@ -194,6 +194,7 @@ app.post('/api/auth/verify-totp', async (req, res) => {
     const verified = speakeasy.totp.verify({
       secret,
       token,
+      encoding: 'base32',
       window: 2,
     });
 
@@ -279,17 +280,15 @@ app.post('/api/auth/configure-2fa', async (req, res) => {
         return res.status(400).json({ error: '2FA setup incomplete. Generate a secret first.' });
       }
 
-      const expectedToken = speakeasy.totp({ secret: storedSecret, window: 2 });
-      console.log('[configure-2fa] Verifying:', { userId, expectedToken, enteredToken: token, storedSecretPrefix: storedSecret.slice(0, 4) });
-
       const verified = speakeasy.totp.verify({
         secret: storedSecret,
         token,
+        encoding: 'base32',
         window: 2,
       });
 
       if (!verified) {
-        return res.status(401).json({ error: 'Invalid verification code', expected: expectedToken });
+        return res.status(401).json({ error: 'Invalid verification code' });
       }
 
       await pool.query(

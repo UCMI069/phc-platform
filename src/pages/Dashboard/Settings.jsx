@@ -207,11 +207,7 @@ const Settings = () => {
       });
       fetchProfile();
     } catch (err) {
-      if (err.expected) {
-        setError(`Invalid verification code. Expected: ${err.expected}. Entered: ${twoFactor.verificationCode}. Please ensure your phone's clock is correct and try again.`);
-      } else {
-        setError(err.message);
-      }
+      setError(err.message);
     } finally {
       setTwoFactor(prev => ({ ...prev, setupLoading: false }));
     }
