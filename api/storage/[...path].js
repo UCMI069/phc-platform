@@ -20,29 +20,20 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   // Parse path from Vercel catch-all or fallback to req.url
-  const pathSegments = req.query.path || [];
-  let fullPath = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
-  
-  // Fallback: parse from req.url if query.path is empty
-  if (!fullPath || fullPath === '/') {
-    try {
-      const url = new URL(req.url, `https://${req.headers.host}`);
-      fullPath = url.pathname;
-      const prefix = '/api/storage';
-      if (fullPath.startsWith(prefix)) {
-        fullPath = fullPath.slice(prefix.length);
-      }
-    } catch (e) {
-      // fallback to original fullPath
+  let path = req.url;
+  try {
+    const url = new URL(req.url, `https://${req.headers.host}`);
+    path = url.pathname;
+    // Remove /api/storage prefix
+    if (path.startsWith('/api/storage/')) {
+      path = path.slice(8); // Remove '/api/storage'
+    } else if (path.startsWith('/api/storage')) {
+      path = '/';
     }
+  } catch (e) {
+    // fallback
   }
-  
-  // Strip /storage/ prefix if present
-  if (fullPath.startsWith('/storage/')) {
-    fullPath = fullPath.slice(8);
-  }
-  if (!fullPath.startsWith('/')) fullPath = '/' + fullPath;
-  const path = fullPath;
+  if (!path.startsWith('/')) path = '/' + path;
   const method = req.method;
 
   // GET /api/storage - Get object
@@ -64,7 +55,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  // POST /api/storage/delete - Delete objects
+  // POST /api/storage - Delete objects
   if (path === '/delete' && method === 'POST') {
     const { bucket, paths } = req.body || {};
     if (!bucket || !Array.isArray(paths) || paths.length === 0) {

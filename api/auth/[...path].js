@@ -12,44 +12,35 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   // Parse path from Vercel catch-all or fallback to req.url
-  const pathSegments = req.query.path || [];
-  let fullPath = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
-  
-  // Fallback: parse from req.url if query.path is empty
-  if (!fullPath || fullPath === '/') {
-    try {
-      const url = new URL(req.url, `https://${req.headers.host}`);
-      fullPath = url.pathname;
-      const prefix = '/api/auth';
-      if (fullPath.startsWith(prefix)) {
-        fullPath = fullPath.slice(prefix.length);
-      }
-    } catch (e) {
-      // fallback to original fullPath
+  let path = req.url;
+  try {
+    const url = new URL(req.url, `https://${req.headers.host}`);
+    path = url.pathname;
+    // Remove /api/auth prefix
+    if (path.startsWith('/api/auth/')) {
+      path = path.slice(9); // Remove '/api/auth'
+    } else if (path.startsWith('/api/auth')) {
+      path = '/';
     }
+  } catch (e) {
+    // fallback
   }
-  
-  // Strip /auth/ prefix if present
-  if (fullPath.startsWith('/auth/')) {
-    fullPath = fullPath.slice(5);
-  }
-  if (!fullPath.startsWith('/')) fullPath = '/' + fullPath;
-  const path = fullPath;
+  if (!path.startsWith('/')) path = '/' + path;
   const method = req.method;
 
   // ===== AUTH ENDPOINTS =====
-  if (path === 'signin' && method === 'POST') {
+  if (path === '/signin' && method === 'POST') {
     return handleSignin(req, res);
   }
-  if (path === 'signup' && method === 'POST') {
+  if (path === '/signup' && method === 'POST') {
     return handleSignup(req, res);
   }
-  if (path === 'user' && method === 'GET') {
+  if (path === '/user' && method === 'GET') {
     return handleGetUser(req, res);
   }
 
   // ===== TOTP/2FA ENDPOINTS =====
-  if (path === 'totp/setup' && method === 'POST') {
+  if (path === '/totp/setup' && method === 'POST') {
     return handleSetup2FA(req, res);
   }
   if (path === 'totp/configure' && method === 'POST') {
