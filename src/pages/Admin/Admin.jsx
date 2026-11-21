@@ -333,9 +333,9 @@ const handleKYCAction = async (requestId, action) => {
                           <Edit size={16} />
                         </button>
                       </td>
-                    </tr>
-                  ))}
-                </tbody>
+</tr>
+                    ))}
+                  </tbody>
               </table>
             </div>
           </div>
