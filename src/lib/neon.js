@@ -379,7 +379,7 @@ class AuthClient {
 
   async verifyTOTP({ userId, token, purpose = 'auth' }) {
     try {
-      const res = await fetch(`${AUTH_SERVER}/api/kyc/verify-totp`, {
+      const res = await fetch(`${AUTH_SERVER}/api/auth/totp/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, token, purpose }),
@@ -394,7 +394,7 @@ class AuthClient {
 
   async setup2FA(userId) {
     try {
-      const res = await fetch(`${AUTH_SERVER}/api/kyc/setup-2fa`, {
+      const res = await fetch(`${AUTH_SERVER}/api/auth/totp/setup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId }),
@@ -409,7 +409,7 @@ class AuthClient {
 
   async configure2FA({ userId, enable, token, secret }) {
     try {
-      const res = await fetch(`${AUTH_SERVER}/api/kyc/configure-2fa`, {
+      const res = await fetch(`${AUTH_SERVER}/api/auth/totp/configure`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, enable, token, secret }),
