@@ -228,7 +228,7 @@ async function handleSignup(req, res) {
 }
 
 async function handleGetUser(req, res) {
-  const userId = req.headers['x-user-id'] || req.query.user_id;
+  const userId = req.headers['x-user-id'] || req.query.user_id || req.query.id;
   if (!userId) return res.status(400).json({ error: 'userId required' });
 
   try {
@@ -402,7 +402,7 @@ async function handlePostPrice(req, res) {
 
 async function handleGetRequests(req, res) {
   try {
-    const userId = req.headers['x-user-id'] || req.query.user_id;
+    const userId = req.headers['x-user-id'] || req.query.user_id || req.query.id;
     const isAdmin = req.headers['x-is-admin'] === 'true';
     const sql = neon(process.env.DATABASE_URL);
 
@@ -502,7 +502,7 @@ async function handleRequestDecision(req, res) {
 
 async function handleGetKYC(req, res) {
   try {
-    const userId = req.headers['x-user-id'] || req.query.user_id;
+    const userId = req.headers['x-user-id'] || req.query.user_id || req.query.id;
     const isAdmin = req.headers['x-is-admin'] === 'true';
 
     if (isAdmin) {
