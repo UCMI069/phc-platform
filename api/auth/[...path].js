@@ -3,16 +3,38 @@ import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
 import { neon } from '@neondatabase/serverless';
 
+const sql = neon(process.env.DATABASE_URL);
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Parse path from Vercel catch-all
+  // Parse path from Vercel catch-all or fallback to req.url
   const pathSegments = req.query.path || [];
-  const fullPath = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
-  const path = fullPath.startsWith('/auth/') ? fullPath.slice(5) : fullPath; // strip /auth/
+  let fullPath = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
+  
+  // Fallback: parse from req.url if query.path is empty
+  if (!fullPath || fullPath === '/') {
+    try {
+      const url = new URL(req.url, `https://${req.headers.host}`);
+      fullPath = url.pathname;
+      const prefix = '/api/auth';
+      if (fullPath.startsWith(prefix)) {
+        fullPath = fullPath.slice(prefix.length);
+      }
+    } catch (e) {
+      // fallback to original fullPath
+    }
+  }
+  
+  // Strip /auth/ prefix if present
+  if (fullPath.startsWith('/auth/')) {
+    fullPath = fullPath.slice(5);
+  }
+  if (!fullPath.startsWith('/')) fullPath = '/' + fullPath;
+  const path = fullPath;
   const method = req.method;
 
   // ===== AUTH ENDPOINTS =====
@@ -86,8 +108,8 @@ async function handleSignup(req, res) {
   if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
   if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
-  const sql = neon(process.env.DATABASE_URL);
   try {
+    const sql = neon(process.env.DATABASE_URL);
     await sql`SELECT 1`;
     const existing = await sql`SELECT id FROM users WHERE email = ${email.toLowerCase()}`;
     if (existing.length > 0) {

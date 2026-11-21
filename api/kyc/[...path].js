@@ -21,16 +21,42 @@ function setCORS(res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
+function parsePath(req, prefix) {
+  // Parse path from Vercel catch-all or fallback to req.url
+  const pathSegments = req.query.path || [];
+  let fullPath = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
+  
+  // Fallback: parse from req.url if query.path is empty
+  if (!pathSegments.length || fullPath === '/') {
+    try {
+      const url = new URL(req.url, `https://${req.headers.host}`);
+      fullPath = url.pathname;
+      // Strip the prefix (e.g., /api/kyc, /api/auth, /api/storage)
+      const prefix = `/api/${prefix}`;
+      if (fullPath.startsWith(prefix)) {
+        fullPath = fullPath.slice(prefix.length);
+      }
+    } catch (e) {
+      // fallback to original fullPath
+    }
+  }
+  
+  // Strip prefix if present
+  const prefixPath = `/${prefix}`;
+  if (fullPath.startsWith(prefixPath)) {
+    fullPath = fullPath.slice(prefixPath.length);
+  }
+  if (!fullPath.startsWith('/')) fullPath = '/' + fullPath;
+  return fullPath;
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Parse path from Vercel catch-all
-  const pathSegments = req.query.path || [];
-  const fullPath = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
-  const path = fullPath.startsWith('/kyc/') ? fullPath.slice(5) : fullPath;
+  const path = parsePath(req, 'kyc');
   const method = req.method;
 
   // ===== CARD PRICES =====
