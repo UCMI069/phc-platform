@@ -38,8 +38,16 @@ export default async function handler(req, res) {
 
   // Parse path from Vercel catch-all or fallback to req.url
   let path = '';
-  const pathSegments = req.query.path || [];
-  if (Array.isArray(pathSegments) && pathSegments.length > 0) {
+  const rawPathSegments = req.query.path || [];
+  let pathSegments;
+  if (Array.isArray(rawPathSegments)) {
+    pathSegments = rawPathSegments;
+  } else if (typeof rawPathSegments === 'string' && rawPathSegments.length > 0) {
+    pathSegments = rawPathSegments.split('/').filter(Boolean);
+  } else {
+    pathSegments = [];
+  }
+  if (pathSegments.length > 0) {
     path = '/' + pathSegments.join('/');
   } else {
     try {
