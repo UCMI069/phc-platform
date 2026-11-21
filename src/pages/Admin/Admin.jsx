@@ -245,20 +245,34 @@ const Admin = () => {
       }
 
       // Fetch Credit Card Requests (Admin)
-      const { data: cardRows, error: cardError } = await fetch('/api/kyc/admin/requests')
-        .then(r => r.json())
-        .catch(err => { console.error('Card fetch error:', err); return { requests: [] }; });
-      if (!cardError) {
-        setCardRequests(cardRows?.requests || []);
+      let cardRows = [];
+      try {
+        const cardRes = await fetch('/api/kyc/admin/requests');
+        if (cardRes.ok) {
+          const cardData = await cardRes.json();
+          cardRows = cardData?.requests || [];
+        } else {
+          console.error('Card fetch error:', cardRes.status, await cardRes.text());
+        }
+      } catch (err) {
+        console.error('Card fetch error:', err);
       }
+      setCardRequests(cardRows);
 
       // Fetch KYC Requests (Admin)
-      const { data: kycRows, error: kycError } = await fetch('/api/kyc/admin/kyc')
-        .then(r => r.json())
-        .catch(err => { console.error('KYC fetch error:', err); return { requests: [] }; });
-      if (!kycError) {
-        setKycRequests(kycRows?.requests || []);
+      let kycRows = [];
+      try {
+        const kycRes = await fetch('/api/kyc/admin/kyc');
+        if (kycRes.ok) {
+          const kycData = await kycRes.json();
+          kycRows = kycData?.requests || [];
+        } else {
+          console.error('KYC fetch error:', kycRes.status, await kycRes.text());
+        }
+      } catch (err) {
+        console.error('KYC fetch error:', err);
       }
+      setKycRequests(kycRows);
 
       // Calculate Stats
       const totalUsers = allProfiles?.length || 0;
