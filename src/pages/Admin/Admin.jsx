@@ -1050,7 +1050,7 @@ const Admin = () => {
                 </div>
               </div>
               <div className="admin-table-wrapper">
-                <table className="admin-table users-table">
+                <table className="admin-table">
                   <thead>
                     <tr>
                       <th>User</th>
@@ -1358,7 +1358,7 @@ const Admin = () => {
             </div>
 
               <div className="admin-table-wrapper">
-                <table className="admin-table crypto-table">
+                <table className="admin-table">
                   <thead>
                     <tr>
                       <th>Currency</th>
@@ -1556,7 +1556,7 @@ const Admin = () => {
               <h3>All Global Transactions</h3>
             </div>
             <div className="admin-table-wrapper">
-<table className="admin-table transactions-table">
+<table className="admin-table">
                   <thead>
                     <tr>
                       <th>Date</th>

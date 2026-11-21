@@ -201,7 +201,7 @@
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
+  min-width: 700px;
 }
 
 .admin-table th {
@@ -214,7 +214,6 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-bottom: 1px solid var(--admin-border);
-  overflow-wrap: break-word;
 }
 
 .admin-table td {
@@ -223,7 +222,6 @@
   font-size: 13px;
   color: var(--admin-text-main);
   vertical-align: middle;
-  overflow-wrap: break-word;
 }
 
 .admin-table tr:last-child td {
@@ -1070,14 +1068,14 @@
 }
 
 .action-group button {
-  padding: 4px 8px;
+  padding: 6px 12px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   border: none;
-  white-space: nowrap;
+  min-width: 70px;
 }
 
 .action-group button:hover {
@@ -1171,41 +1169,4 @@
     grid-template-columns: 1fr;
   }
 }
-
-/* ===== TABLE COLUMN WIDTHS ===== */
-/* Users table: User 30%, Balance 20%, Status 15%, Actions 25% */
-.admin-table.users-table th:nth-child(1),
-.admin-table.users-table td:nth-child(1) { width: 30%; }
-.admin-table.users-table th:nth-child(2),
-.admin-table.users-table td:nth-child(2) { width: 20%; }
-.admin-table.users-table th:nth-child(3),
-.admin-table.users-table td:nth-child(3) { width: 15%; }
-.admin-table.users-table th:nth-child(4),
-.admin-table.users-table td:nth-child(4) { width: 35%; }
-
-/* Crypto table: Currency 10%, Network 15%, Wallet 40%, QR 15%, Actions 20% */
-.admin-table.crypto-table th:nth-child(1),
-.admin-table.crypto-table td:nth-child(1) { width: 10%; }
-.admin-table.crypto-table th:nth-child(2),
-.admin-table.crypto-table td:nth-child(2) { width: 15%; }
-.admin-table.crypto-table th:nth-child(3),
-.admin-table.crypto-table td:nth-child(3) { width: 40%; }
-.admin-table.crypto-table th:nth-child(4),
-.admin-table.crypto-table td:nth-child(4) { width: 15%; }
-.admin-table.crypto-table th:nth-child(5),
-.admin-table.crypto-table td:nth-child(5) { width: 20%; }
-
-/* Transactions table: Date 15%, User 25%, Description 30%, Amount 15%, Status 15% */
-.admin-table.transactions-table th:nth-child(1),
-.admin-table.transactions-table td:nth-child(1) { width: 15%; }
-.admin-table.transactions-table th:nth-child(2),
-.admin-table.transactions-table td:nth-child(2) { width: 25%; }
-.admin-table.transactions-table th:nth-child(3),
-.admin-table.transactions-table td:nth-child(3) { width: 30%; }
-.admin-table.transactions-table th:nth-child(4),
-.admin-table.transactions-table td:nth-child(4) { width: 15%; }
-.admin-table.transactions-table th:nth-child(5),
-.admin-table.transactions-table td:nth-child(5) { width: 15%; }
-
-/* ===== END TABLE COLUMN WIDTHS ===== */
 
