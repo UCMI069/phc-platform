@@ -45,6 +45,7 @@ const Loan = lazy(() => import('./pages/Dashboard/Loan'));
 const Support = lazy(() => import('./pages/Dashboard/Support'));
 const Notifications = lazy(() => import('./pages/Dashboard/Notifications'));
 const Upgrade = lazy(() => import('./pages/Dashboard/Upgrade'));
+const CreditCardRequest = lazy(() => import('./pages/Dashboard/CreditCardRequest'));
 
 // Admin Pages — lazy loaded
 const Admin = lazy(() => import('./pages/Admin/Admin'));
@@ -55,7 +56,7 @@ const DashboardRoutes = () => (
       <Routes>
         <Route path="/" element={<Overview />} />
         <Route path="/transactions" element={<Transactions />} />
-        <Route path="/cards" element={<div>Cards Page (Coming Soon)</div>} />
+        <Route path="/cards" element={<CreditCardRequest />} />
         <Route path="/withdraw" element={<Transfer />} />
         <Route path="/deposit" element={<Deposit />} />
         <Route path="/loans" element={<Loan />} />
