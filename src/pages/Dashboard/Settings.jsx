@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { neon as supabase, proxiedStorageUrl } from '../../lib/neon';
-import { User, Mail, Phone, MapPin, Globe, Camera, Save, AlertCircle, CheckCircle2, Shield, QrCode, Key, Trash2, Copy, Check, FileText, Upload, CheckCircle2 as CheckCircle2Icon, XCircle, Eye, Loader2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Globe, Camera, Save, AlertCircle, CheckCircle2, Shield, QrCode, Key, Trash2, Copy, Check, FileText, Upload, CheckCircle2 as CheckCircle2Icon, XCircle, Eye, Loader2, X } from 'lucide-react';
 import './Settings.css';
 
 const CURRENCIES = [
