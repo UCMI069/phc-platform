@@ -6,7 +6,13 @@ import {
   ArrowUpRight, 
   ArrowDownLeft, 
   Search, 
-  ShieldCheck, 
+  ShieldCheck,
+  CreditCard,
+  FileText,
+  UserCheck,
+  UserX,
+  Shield,
+  Trash2,
   Crown,
   Bell,
   Bitcoin,
@@ -21,7 +27,9 @@ import {
   Save,
   Clock,
   MessageCircle,
-  Mail
+  Mail,
+  Sliders,
+  Scale
 } from 'lucide-react';
 import './Admin.css';
 
@@ -59,6 +67,14 @@ const Admin = () => {
     qrImageUrl: '',
     instructions: ''
   });
+  const [cardRequests, setCardRequests] = useState([]);
+  const [kycRequests, setKycRequests] = useState([]);
+  const [cardDecisionDraft, setCardDecisionDraft] = useState({});
+  const [kycDecisionDraft, setKycDecisionDraft] = useState({});
+  const [cardNoteDraft, setCardNoteDraft] = useState({});
+  const [kycNoteDraft, setKycNoteDraft] = useState({});
+  const [selectedCardRequest, setSelectedCardRequest] = useState(null);
+  const [selectedKycRequest, setSelectedKycRequest] = useState(null);
   const [cryptoUploading, setCryptoUploading] = useState(false);
   const [editBankDetails, setEditBankDetails] = useState({
     bankName: '',
@@ -67,14 +83,15 @@ const Admin = () => {
     recipientName: ''
   });
   const [submitting, setSubmitting] = useState(false);
-  const [view, setView] = useState('users'); // 'users', 'deposits', 'upgrades', 'crypto', 'transactions', 'support'
+  const [view, setView] = useState('users'); // 'users', 'deposits', 'upgrades', 'crypto', 'transactions', 'support', 'cards', 'kyc'
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalDeposits: 0,
     totalWithdrawals: 0,
     pendingKYC: 0,
     pendingSupport: 0,
-    pendingUpgrades: 0
+    pendingUpgrades: 0,
+    pendingCards: 0
   });
 
   useEffect(() => {
@@ -227,6 +244,22 @@ const Admin = () => {
         setCryptoDetails(cryptoRows || []);
       }
 
+      // Fetch Credit Card Requests (Admin)
+      const { data: cardRows, error: cardError } = await fetch('/api/kyc/admin/requests')
+        .then(r => r.json())
+        .catch(err => { console.error('Card fetch error:', err); return { requests: [] }; });
+      if (!cardError) {
+        setCardRequests(cardRows?.requests || []);
+      }
+
+      // Fetch KYC Requests (Admin)
+      const { data: kycRows, error: kycError } = await fetch('/api/kyc/admin/kyc')
+        .then(r => r.json())
+        .catch(err => { console.error('KYC fetch error:', err); return { requests: [] }; });
+      if (!kycError) {
+        setKycRequests(kycRows?.requests || []);
+      }
+
       // Calculate Stats
       const totalUsers = allProfiles?.length || 0;
       const txList = allTxs || [];
@@ -237,9 +270,10 @@ const Admin = () => {
         totalUsers,
         totalDeposits: deposits,
         totalWithdrawals: withdrawals,
-        pendingKYC: txList.filter(tx => tx.status === 'pending_admin').length || 0,
+        pendingKYC: (kycRows?.requests || []).filter((r) => r.status === 'pending').length || 0,
         pendingSupport: allSupport?.filter(s => s.status === 'pending').length || 0,
-        pendingUpgrades: (reqRows || []).filter((r) => r.status === 'pending').length || 0
+        pendingUpgrades: (reqRows || []).filter((r) => r.status === 'pending').length || 0,
+        pendingCards: (cardRows?.requests || []).filter((r) => r.status === 'pending').length || 0
       });
 
     } catch (error) {
@@ -605,6 +639,62 @@ const Admin = () => {
     }
   };
 
+  const handleCardDecision = async (req, decision) => {
+    setSubmitting(true);
+    try {
+      const { data: authData } = await supabase.auth.getUser();
+      const adminUser = authData?.user;
+      if (!adminUser) throw new Error('Not authenticated');
+
+      const draft = cardDecisionDraft[req.id] || {};
+      const adminNote = draft.note || null;
+
+      const res = await fetch(`/api/kyc/requests/${req.id}/decision`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-is-admin': 'true' },
+        body: JSON.stringify({ action: decision, admin_note: adminNote, admin_id: adminUser.id })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Card decision failed');
+
+      addNotification(`Credit card request ${decision}d successfully`, 'success');
+      fetchAdminData();
+    } catch (err) {
+      addNotification(err.message, 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleKYCDecision = async (req, decision) => {
+    setSubmitting(true);
+    try {
+      const { data: authData } = await supabase.auth.getUser();
+      const adminUser = authData?.user;
+      if (!adminUser) throw new Error('Not authenticated');
+
+      const draft = kycDecisionDraft[req.id] || {};
+      const adminNote = draft.note || null;
+
+      const res = await fetch(`/api/kyc/kyc/${req.id}/decision`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-is-admin': 'true' },
+        body: JSON.stringify({ action: decision, admin_note: adminNote, admin_id: adminUser.id })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'KYC decision failed');
+
+      addNotification(`KYC verification ${decision}d successfully`, 'success');
+      fetchAdminData();
+    } catch (err) {
+      addNotification(err.message, 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const resetCryptoForm = () => {
     setCryptoForm({
       id: null,
@@ -877,6 +967,12 @@ const Admin = () => {
           <button className={view === 'support' ? 'active' : ''} onClick={() => setView('support')}>
             <MessageCircle size={16} /> Support {stats.pendingSupport > 0 && <span className="badge">{stats.pendingSupport}</span>}
           </button>
+          <button className={view === 'cards' ? 'active' : ''} onClick={() => setView('cards')}>
+            <CreditCard size={16} /> Cards {stats.pendingCards > 0 && <span className="badge">{stats.pendingCards}</span>}
+          </button>
+          <button className={view === 'kyc' ? 'active' : ''} onClick={() => setView('kyc')}>
+            <ShieldCheck size={16} /> KYC {stats.pendingKYC > 0 && <span className="badge">{stats.pendingKYC}</span>}
+          </button>
         </div>
       </div>
 
@@ -908,6 +1004,13 @@ const Admin = () => {
           <div className="stat-info">
             <h3>Pending Actions</h3>
             <div className="stat-value">{pendingActions.length}</div>
+          </div>
+        </div>
+        <div className="admin-stat-card">
+          <div className="stat-icon cards"><CreditCard size={20} /></div>
+          <div className="stat-info">
+            <h3>Pending Cards</h3>
+            <div className="stat-value">{stats.pendingCards}</div>
           </div>
         </div>
       </div>
@@ -1466,7 +1569,308 @@ const Admin = () => {
             </div>
           </section>
         )}
+
+        {view === 'cards' && (
+          <section className="admin-section full-width">
+            <div className="section-header">
+              <div className="title-group">
+                <h3>Credit Card Requests</h3>
+                <p className="form-help">Review and approve or decline credit card applications.</p>
+              </div>
+            </div>
+            <div className="admin-table-wrapper">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Tier</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Requested</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cardRequests.map((req) => (
+                    <tr key={req.id}>
+                      <td data-label="User">
+                        <div className="user-profile-cell">
+                          <div className="user-avatar">
+                            {req.first_name?.[0]}{req.last_name?.[0]}
+                          </div>
+                          <div className="user-details">
+                            <span className="user-name">{req.first_name} {req.last_name}</span>
+                            <span className="user-email">{req.email || 'No email'}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td data-label="Tier">
+                        <span className={`tier-badge ${req.card_tier}`}>
+                          {String(req.card_tier).toUpperCase()}
+                        </span>
+                      </td>
+                      <td data-label="Price">
+                        ${Number(req.tier_price || 0).toLocaleString()}
+                      </td>
+                      <td data-label="Status">
+                        <span className={`status-badge ${req.status}`}>{req.status}</span>
+                      </td>
+                      <td data-label="Requested">
+                        {req.created_at ? new Date(req.created_at).toLocaleDateString() : '-'}
+                      </td>
+                      <td data-label="Actions">
+                        <div className="action-group">
+                          {req.status === 'pending' ? (
+                            <>
+                              <button
+                                className="btn-icon btn-approve"
+                                onClick={() => {
+                                  setCardDecisionDraft((prev) => ({ ...prev, [req.id]: { action: 'approve', note: cardNoteDraft[req.id] || '' } }));
+                                  setSelectedCardRequest(req);
+                                }}
+                                title="Approve"
+                              >
+                                <CheckCircle2 size={16} />
+                              </button>
+                              <button
+                                className="btn-icon btn-reject"
+                                onClick={() => {
+                                  setCardDecisionDraft((prev) => ({ ...prev, [req.id]: { action: 'reject', note: cardNoteDraft[req.id] || '' } }));
+                                  setSelectedCardRequest(req);
+                                }}
+                                title="Reject"
+                              >
+                                <XCircle size={16} />
+                              </button>
+                            </>
+                          ) : (
+                            <span className="text-muted">{req.status}</span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {cardRequests.length === 0 && (
+                    <tr>
+                      <td colSpan="6" className="empty-cell">
+                        <div className="empty-state">
+                          <CreditCard size={48} style={{ opacity: 0.2, marginBottom: 16 }} />
+                          <p>No credit card requests found.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {view === 'kyc' && (
+          <section className="admin-section full-width">
+            <div className="section-header">
+              <div className="title-group">
+                <h3>KYC Verification Requests</h3>
+                <p className="form-help">Review identity documents and approve or decline KYC applications.</p>
+              </div>
+            </div>
+            <div className="admin-table-wrapper">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Documents</th>
+                    <th>Status</th>
+                    <th>Requested</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {kycRequests.map((req) => (
+                    <tr key={req.id}>
+                      <td data-label="User">
+                        <div className="user-profile-cell">
+                          <div className="user-avatar">
+                            {req.first_name?.[0]}{req.last_name?.[0]}
+                          </div>
+                          <div className="user-details">
+                            <span className="user-name">{req.first_name} {req.last_name}</span>
+                            <span className="user-email">{req.email || 'No email'}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td data-label="Documents">
+                        <div className="doc-status">
+                          <span className={`doc-badge ${req.document_front_url ? '' : 'missing'}`}>Front</span>
+                          <span className={`doc-badge ${req.document_back_url ? '' : 'missing'}`}>Back</span>
+                        </div>
+                      </td>
+                      <td data-label="Status">
+                        <span className={`status-badge ${req.status}`}>{req.status}</span>
+                      </td>
+                      <td data-label="Requested">
+                        {req.created_at ? new Date(req.created_at).toLocaleDateString() : '-'}
+                      </td>
+                      <td data-label="Actions">
+                        <div className="action-group">
+                          {req.status === 'pending' ? (
+                            <>
+                              <button
+                                className="btn-icon btn-approve"
+                                onClick={() => {
+                                  setKycDecisionDraft((prev) => ({ ...prev, [req.id]: { action: 'approve', note: kycNoteDraft[req.id] || '' } }));
+                                  setSelectedKycRequest(req);
+                                }}
+                                title="Approve"
+                              >
+                                <CheckCircle2 size={16} />
+                              </button>
+                              <button
+                                className="btn-icon btn-reject"
+                                onClick={() => {
+                                  setKycDecisionDraft((prev) => ({ ...prev, [req.id]: { action: 'reject', note: kycNoteDraft[req.id] || '' } }));
+                                  setSelectedKycRequest(req);
+                                }}
+                                title="Reject"
+                              >
+                                <XCircle size={16} />
+                              </button>
+                            </>
+                          ) : (
+                            <span className="text-muted">{req.status}</span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {kycRequests.length === 0 && (
+                    <tr>
+                      <td colSpan="6" className="empty-cell">
+                        <div className="empty-state">
+                          <ShieldCheck size={48} style={{ opacity: 0.2, marginBottom: 16 }} />
+                          <p>No KYC requests found.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
       </div>
+
+      {/* Card Decision Modal */}
+      {selectedCardRequest && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal modal-content">
+            <div className="modal-header">
+              <h3>Credit Card Decision</h3>
+              <button onClick={() => setSelectedCardRequest(null)}><XCircle size={20} /></button>
+            </div>
+            <div className="modal-body">
+              <p>
+                <strong>{selectedCardRequest.first_name} {selectedCardRequest.last_name}</strong>
+                - {String(selectedCardRequest.card_tier).toUpperCase()} Card
+              </p>
+              <div className="decision-actions">
+                <button
+                  className={`decision-btn approve ${cardDecisionDraft[selectedCardRequest.id]?.action === 'approve' ? 'selected' : ''}`}
+                  onClick={() => setCardDecisionDraft((prev) => ({ ...prev, [selectedCardRequest.id]: { action: 'approve', note: cardNoteDraft[selectedCardRequest.id] || '' } }))}
+                >
+                  Approve
+                </button>
+                <button
+                  className={`decision-btn reject ${cardDecisionDraft[selectedCardRequest.id]?.action === 'reject' ? 'selected' : ''}`}
+                  onClick={() => setCardDecisionDraft((prev) => ({ ...prev, [selectedCardRequest.id]: { action: 'reject', note: cardNoteDraft[selectedCardRequest.id] || '' } }))}
+                >
+                  Reject
+                </button>
+              </div>
+              <div className="note-field">
+                <label>Admin Note (Optional)</label>
+                <textarea
+                  rows="3"
+                  value={cardNoteDraft[selectedCardRequest.id] || ''}
+                  onChange={(e) => setCardNoteDraft((prev) => ({ ...prev, [selectedCardRequest.id]: e.target.value }))}
+                  placeholder="Add a note for the user..."
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', resize: 'vertical' }}
+                ></textarea>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setSelectedCardRequest(null)}>Cancel</button>
+              <button
+                className="btn-primary"
+                onClick={() => {
+                  if (!cardDecisionDraft[selectedCardRequest.id]?.action) return;
+                  handleCardDecision(selectedCardRequest, cardDecisionDraft[selectedCardRequest.id].action);
+                  setSelectedCardRequest(null);
+                }}
+                disabled={submitting}
+              >
+                {submitting ? 'Processing...' : 'Confirm Decision'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* KYC Decision Modal */}
+      {selectedKycRequest && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal modal-content">
+            <div className="modal-header">
+              <h3>KYC Decision</h3>
+              <button onClick={() => setSelectedKycRequest(null)}><XCircle size={20} /></button>
+            </div>
+            <div className="modal-body">
+              <p>
+                <strong>{selectedKycRequest.first_name} {selectedKycRequest.last_name}</strong>
+                - Identity Verification
+              </p>
+              <div className="decision-actions">
+                <button
+                  className={`decision-btn approve ${kycDecisionDraft[selectedKycRequest.id]?.action === 'approve' ? 'selected' : ''}`}
+                  onClick={() => setKycDecisionDraft((prev) => ({ ...prev, [selectedKycRequest.id]: { action: 'approve', note: kycNoteDraft[selectedKycRequest.id] || '' } }))}
+                >
+                  Approve
+                </button>
+                <button
+                  className={`decision-btn reject ${kycDecisionDraft[selectedKycRequest.id]?.action === 'reject' ? 'selected' : ''}`}
+                  onClick={() => setKycDecisionDraft((prev) => ({ ...prev, [selectedKycRequest.id]: { action: 'reject', note: kycNoteDraft[selectedKycRequest.id] || '' } }))}
+                >
+                  Reject
+                </button>
+              </div>
+              <div className="note-field">
+                <label>Admin Note (Optional)</label>
+                <textarea
+                  rows="3"
+                  value={kycNoteDraft[selectedKycRequest.id] || ''}
+                  onChange={(e) => setKycNoteDraft((prev) => ({ ...prev, [selectedKycRequest.id]: e.target.value }))}
+                  placeholder="Add a note for the user..."
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', resize: 'vertical' }}
+                ></textarea>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setSelectedKycRequest(null)}>Cancel</button>
+              <button
+                className="btn-primary"
+                onClick={() => {
+                  if (!kycDecisionDraft[selectedKycRequest.id]?.action) return;
+                  handleKYCDecision(selectedKycRequest, kycDecisionDraft[selectedKycRequest.id].action);
+                  setSelectedKycRequest(null);
+                }}
+                disabled={submitting}
+              >
+                {submitting ? 'Processing...' : 'Confirm Decision'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Balance Modal */}
       {selectedUser && (
