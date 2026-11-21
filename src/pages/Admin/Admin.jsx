@@ -334,7 +334,7 @@ const handleKYCAction = async (requestId, action) => {
                         </button>
                       </td>
 </tr>
-                    ))}
+                    )))}
                   </tbody>
               </table>
             </div>
@@ -409,9 +409,8 @@ const handleKYCAction = async (requestId, action) => {
                           {req.status !== 'pending' && <span className="text-muted">Processed</span>}
                         </td>
                       </tr>
-                    ))}
-                  )}
-                </tbody>
+                    )))}
+                  </tbody>
               </table>
             </div>
           </div>
