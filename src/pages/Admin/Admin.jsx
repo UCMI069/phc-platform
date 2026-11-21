@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { neon as supabase } from '../../lib/neon';
 import { 
   CreditCard, Users, FileText, Settings, 
@@ -477,8 +477,8 @@ const handleKYCAction = async (requestId, action) => {
                         <td>{formatDate(req.created_at)}</td>
                         <td>
                           <div className="doc-status">
-                            {req.document_front_url && <span className="doc-badge">Front ✓</span>}
-                            {req.document_back_url && <span className="doc-badge">Back ✓</span>}
+                            {req.document_front_url && <span className="doc-badge">Front âœ“</span>}
+                            {req.document_back_url && <span className="doc-badge">Back âœ“</span>}
                             {!req.document_front_url && <span className="doc-badge missing">Missing</span>}
                           </div>
                         </td>
@@ -499,7 +499,6 @@ const handleKYCAction = async (requestId, action) => {
                         </td>
 </tr>
                     )))}
-                  )}
                 </tbody>
               </table>
             </div>
