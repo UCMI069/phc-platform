@@ -112,15 +112,16 @@ function setCORS(res) {
 
 // ===== AUTH HANDLERS =====
 async function handleAuth(path, method, req, res) {
-  const subPath = path.slice(5); // Remove '/auth'
+  // Remove '/auth' prefix
+  const subPath = path.startsWith('/auth/') ? path.slice(5) : path;
   const method = req.method;
 
-  if (path === '/signin' && method === 'POST') return handleSignin(req, res);
-  if (path === '/signup' && method === 'POST') return handleSignup(req, res);
-  if (path === '/user' && method === 'GET') return handleGetUser(req, res);
-  if (path === '/totp/setup' && method === 'POST') return handleSetup2FA(req, res);
-  if (path === '/totp/configure' && method === 'POST') return handleConfigure2FA(req, res);
-  if (path === '/totp/verify' && method === 'POST') return handleVerifyTOTP(req, res);
+  if (subPath === '/signin' && method === 'POST') return handleSignin(req, res);
+  if (subPath === '/signup' && method === 'POST') return handleSignup(req, res);
+  if (subPath === '/user' && method === 'GET') return handleGetUser(req, res);
+  if (subPath === '/totp/setup' && method === 'POST') return handleSetup2FA(req, res);
+  if (subPath === '/totp/configure' && method === 'POST') return handleConfigure2FA(req, res);
+  if (subPath === '/totp/verify' && method === 'POST') return handleVerifyTOTP(req, res);
 
   return jsonError(res, 404, 'Not found');
 }
@@ -313,25 +314,26 @@ async function handleVerifyTOTP(req, res) {
 
 // ===== KYC/CARD HANDLERS =====
 async function handleKYC(path, method, req, res) {
-  const subPath = path.slice(4); // Remove '/kyc'
+  // Remove '/kyc' prefix
+  const subPath = path.startsWith('/kyc/') ? path.slice(4) : path;
   const method = req.method;
 
-  if (path === '/prices' && method === 'GET') return handleGetPrices(req, res);
-  if (path === '/prices' && method === 'POST') return handlePostPrice(req, res);
+  if (subPath === '/prices' && method === 'GET') return handleGetPrices(req, res);
+  if (subPath === '/prices' && method === 'POST') return handlePostPrice(req, res);
 
-  if (path === '/requests' && method === 'GET') return handleGetRequests(req, res);
-  if (path === '/requests' && method === 'POST') return handleCreateRequest(req, res);
-  if (path.match(/^\/requests\/[^\/]+\/decision$/) && method === 'POST') return handleRequestDecision(req, res);
+  if (subPath === '/requests' && method === 'GET') return handleGetRequests(req, res);
+  if (subPath === '/requests' && method === 'POST') return handleCreateRequest(req, res);
+  if (subPath.match(/^\/requests\/[^\/]+\/decision$/) && method === 'POST') return handleRequestDecision(req, res);
 
-  if (path === '/kyc' && method === 'GET') return handleGetKYC(req, res);
-  if (path === '/kyc' && method === 'POST') return handleCreateKYC(req, res);
-  if (path.match(/^\/kyc\/[^\/]+\/decision$/) && method === 'POST') return handleKYCDecision(req, res);
+  if (subPath === '/kyc' && method === 'GET') return handleGetKYC(req, res);
+  if (subPath === '/kyc' && method === 'POST') return handleCreateKYC(req, res);
+  if (subPath.match(/^\/kyc\/[^\/]+\/decision$/) && method === 'POST') return handleKYCDecision(req, res);
 
-  if (path === '/upload' && method === 'POST') return handleUpload(req, res);
+  if (subPath === '/upload' && method === 'POST') return handleUpload(req, res);
 
-  if (path === '/admin/requests' && method === 'GET') return handleAdminGetRequests(req, res);
-  if (path === '/admin/kyc' && method === 'GET') return handleAdminGetKYC(req, res);
-  if (path.match(/^\/kyc\/[^\/]+\/decision$/) && method === 'POST') return handleKYCDecision(req, res);
+  if (subPath === '/admin/requests' && method === 'GET') return handleAdminGetRequests(req, res);
+  if (subPath === '/admin/kyc' && method === 'GET') return handleAdminGetKYC(req, res);
+  if (subPath.match(/^\/kyc\/[^\/]+\/decision$/) && method === 'POST') return handleKYCDecision(req, res);
 
   return jsonError(res, 404, 'Not found');
 }
