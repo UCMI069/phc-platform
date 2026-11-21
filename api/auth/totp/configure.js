@@ -1,5 +1,5 @@
 import speakeasy from 'speakeasy';
-import { neon } from '@neondatabase/serverless';
+import getSql from '../../db.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   if (!userId) return res.status(400).json({ error: 'userId is required' });
 
   try {
-    const sql = neon(process.env.DATABASE_URL);
+    const sql = getSql();
 
     if (enable) {
       if (!token) return res.status(400).json({ error: 'TOTP token is required to enable 2FA' });
@@ -31,7 +31,7 @@ export default async function handler(req, res) {
       await sql`UPDATE profiles SET is_2fa_enabled = true, totp_verified = true WHERE id = ${userId}`;
       res.json({ success: true, message: '2FA enabled successfully' });
     } else {
-      await neon(process.env.DATABASE_URL)`UPDATE profiles SET is_2fa_enabled = false, totp_secret = NULL, totp_verified = false WHERE id = ${userId}`;
+      await sql`UPDATE profiles SET is_2fa_enabled = false, totp_secret = NULL, totp_verified = false WHERE id = ${userId}`;
       res.json({ success: true, message: '2FA disabled successfully' });
     }
   } catch (err) {
