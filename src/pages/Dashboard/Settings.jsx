@@ -236,7 +236,13 @@ const Settings = () => {
             data: dataUrl
           })
         });
-        const data = await response.json();
+        let data;
+        try {
+          data = await response.json();
+        } catch (e) {
+          data = { error: `Server error: ${response.status} ${response.statusText}` };
+        }
+        if (!response.ok) throw new Error(data.error || 'Upload failed');
         return data.url;
       };
 
@@ -254,7 +260,12 @@ const Settings = () => {
         })
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        data = { error: `Server error: ${res.status} ${res.statusText}` };
+      }
       if (!res.ok) throw new Error(data.error || 'Failed to submit KYC');
 
       setKyc(prev => ({ 

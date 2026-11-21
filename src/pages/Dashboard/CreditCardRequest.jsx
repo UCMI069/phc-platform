@@ -79,7 +79,13 @@ const CreditCardRequest = () => {
   const fetchCards = async () => {
     try {
       const res = await fetch('/api/kyc/prices');
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        data = { error: `Server error: ${res.status} ${res.statusText}` };
+      }
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch card prices');
       if (data.prices) {
         setCards(data.prices.map(p => ({
           tier: p.tier,
@@ -102,7 +108,13 @@ const CreditCardRequest = () => {
       if (!user) return;
 
       const res = await fetch(`/api/kyc/requests?user_id=${user.id}`);
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        data = { error: `Server error: ${res.status} ${res.statusText}` };
+      }
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch user cards');
       if (data.requests) {
         setUserCards(data.requests);
       }
@@ -124,10 +136,15 @@ const CreditCardRequest = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: user.id, card_tier: card.tier })
       });
-
-      const data = await res.json();
       
-      if (!res.ok) throw new Error(data.error || 'Failed to request card');
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        data = { error: `Server error: ${res.status} ${res.statusText}` };
+      }
+      
+      if (!res.ok) throw new Error(data.error || `Failed to request card (${res.status})`);
       
       setSelectedCard(card);
       setShowSuccessModal(true);

@@ -11,50 +11,55 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Simple path extraction
+  // Parse path from Vercel catch-all or fallback to req.url
   let path = req.url;
   try {
     const url = new URL(req.url, `https://${req.headers.host}`);
-    let pathname = url.pathname;
-    if (pathname.startsWith('/api/auth/')) {
-      path = pathname.slice(9); // Remove '/api/auth'
-    } else if (pathname.startsWith('/api/auth')) {
+    path = url.pathname;
+    // Remove /api/auth prefix
+    if (path.startsWith('/api/auth/')) {
+      path = path.slice(9); // Remove '/api/auth'
+    } else if (path.startsWith('/api/auth')) {
       path = '/';
-    } else {
-      path = pathname;
     }
   } catch (e) {
-    path = req.url;
+    // fallback
+    console.error('Auth path parsing error:', e);
   }
   if (!path.startsWith('/')) path = '/' + path;
   const method = req.method;
 
-  // Debug logging
-  console.log('Auth API:', { path, method, url: req.url });
+  console.log('Auth API Request:', { path, method, url: req.url });
 
-  // ===== AUTH ENDPOINTS =====
-  if (path === '/signin' && method === 'POST') {
-    return handleSignin(req, res);
-  }
-  if (path === '/signup' && method === 'POST') {
-    return handleSignup(req, res);
-  }
-  if (path === '/user' && method === 'GET') {
-    return handleGetUser(req, res);
-  }
+  try {
+    // ===== AUTH ENDPOINTS =====
+    if (path === '/signin' && method === 'POST') {
+      return handleSignin(req, res);
+    }
+    if (path === '/signup' && method === 'POST') {
+      return handleSignup(req, res);
+    }
+    if (path === '/user' && method === 'GET') {
+      return handleGetUser(req, res);
+    }
 
-  // ===== TOTP/2FA ENDPOINTS =====
-  if (path === '/totp/setup' && method === 'POST') {
-    return handleSetup2FA(req, res);
-  }
-  if (path === 'totp/configure' && method === 'POST') {
-    return handleConfigure2FA(req, res);
-  }
-  if (path === 'totp/verify' && method === 'POST') {
-    return handleVerifyTOTP(req, res);
-  }
+    // ===== TOTP/2FA ENDPOINTS =====
+    if (path === '/totp/setup' && method === 'POST') {
+      return handleSetup2FA(req, res);
+    }
+    if (path === 'totp/configure' && method === 'POST') {
+      return handleConfigure2FA(req, res);
+    }
+    if (path === 'totp/verify' && method === 'POST') {
+      return handleVerifyTOTP(req, res);
+    }
 
-  return res.status(404).json({ error: 'Not found', path });
+    console.warn('No auth route matched:', { path, method });
+    return res.status(404).json({ error: 'Not found' });
+  } catch (err) {
+    console.error('Auth API Error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 }
 
 // ===== AUTH HANDLERS =====
