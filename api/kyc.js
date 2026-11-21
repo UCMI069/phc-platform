@@ -19,58 +19,61 @@ export default async function handler(req, res) {
 
   // Parse path from Vercel catch-all
   const pathSegments = req.query.path || [];
-  const path = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
+  const fullPath = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
   const method = req.method;
 
-  // ===== CARD PRICES =====
-  if (path === '/prices' && req.method === 'GET') {
+  // Strip 'kyc/' prefix from path since this is the kyc catch-all
+  const path = fullPath.startsWith('/kyc/') ? fullPath.slice(5) : fullPath;
+
+// ===== CARD PRICES =====
+  if (path === '/prices' && method === 'GET') {
     return handleGetPrices(req, res);
   }
-  if (path === '/prices' && req.method === 'POST') {
+  if (path === '/prices' && method === 'POST') {
     return handlePostPrice(req, res);
   }
 
   // ===== CARD REQUESTS =====
-  if (path === '/requests' && req.method === 'GET') {
+  if (path === '/requests' && method === 'GET') {
     return handleGetRequests(req, res);
   }
-  if (path === '/requests' && req.method === 'POST') {
+  if (path === '/requests' && method === 'POST') {
     return handleCreateRequest(req, res);
   }
 
   // POST /api/kyc/requests/:id/decision - Admin decision on card request
-  if (path.match(/^\/requests\/[^\/]+\/decision$/) && req.method === 'POST') {
+  if (path.match(/^\/requests\/[^\/]+\/decision$/) && method === 'POST') {
     return handleRequestDecision(req, res);
   }
 
   // ===== KYC =====
-  if (path === '/kyc' && req.method === 'GET') {
+  if (path === '/kyc' && method === 'GET') {
     return handleGetKYC(req, res);
   }
-  if (path === '/kyc' && req.method === 'POST') {
+  if (path === '/kyc' && method === 'POST') {
     return handleCreateKYC(req, res);
   }
-  if (path.match(/^\/kyc\/[^\/]+\/decision$/) && req.method === 'POST') {
+  if (path.match(/^\/kyc\/[^\/]+\/decision$/) && method === 'POST') {
     return handleKYCDecision(req, res);
   }
 
   // POST /api/kyc/upload - Upload KYC document
-  if (path === '/upload' && req.method === 'POST') {
+  if (path === '/upload' && method === 'POST') {
     return handleUpload(req, res);
   }
 
   // Admin: GET /api/kyc/admin/requests - All card requests
-  if (path === '/admin/requests' && req.method === 'GET') {
+  if (path === '/admin/requests' && method === 'GET') {
     return handleAdminGetRequests(req, res);
   }
 
   // Admin: GET /api/kyc/admin/kyc - All KYC requests
-  if (path === '/admin/kyc' && req.method === 'GET') {
+  if (path === '/admin/kyc' && method === 'GET') {
     return handleAdminGetKYC(req, res);
   }
 
   // POST /api/kyc/kyc/:id/decision - Admin decision on KYC
-  if (path.match(/^\/kyc\/[^\/]+\/decision$/) && req.method === 'POST') {
+  if (path.match(/^\/kyc\/[^\/]+\/decision$/) && method === 'POST') {
     return handleKYCDecision(req, res);
   }
 
