@@ -28,10 +28,7 @@ export default async function handler(req, res) {
   // Parse path from Vercel catch-all
   const pathSegments = req.query.path || [];
   const fullPath = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
-  const method = req.method;
-
-  // Strip 'kyc/' prefix from path since this is the kyc catch-all
-  const path = fullPath.startsWith('/kyc/') ? fullPath.slice(5) : fullPath;
+  const path = fullPath.startsWith('/kyc/') ? fullPath.slice(5) : fullPath; // strip /kyc/
   const method = req.method;
 
   // ===== CARD PRICES =====
@@ -84,11 +81,6 @@ export default async function handler(req, res) {
   // POST /api/kyc/kyc/:id/decision - Admin decision on KYC
   if (path.match(/^\/kyc\/[^\/]+\/decision$/) && method === 'POST') {
     return handleKYCDecision(req, res);
-  }
-
-  // POST /api/kyc/upload - Upload KYC document
-  if (path === '/upload' && method === 'POST') {
-    return handleUpload(req, res);
   }
 
   return res.status(404).json({ error: 'Not found' });
@@ -380,6 +372,17 @@ async function handleUpload(req, res) {
     if (!allowedTypes.includes(contentType)) {
       return res.status(400).json({ error: 'Only JPG, PNG, or PDF files are allowed' });
     }
+
+    const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+    const s3Client = new S3Client({
+      region: process.env.NEON_S3_REGION || process.env.VITE_NEON_S3_REGION || 'us-east-2',
+      endpoint: process.env.NEON_S3_ENDPOINT || process.env.VITE_NEON_S3_ENDPOINT,
+      credentials: {
+        accessKeyId: process.env.NEON_S3_ACCESS_KEY || process.env.VITE_NEON_S3_ACCESS_KEY,
+        secretAccessKey: process.env.NEON_S3_SECRET_KEY || process.env.VITE_NEON_S3_SECRET_KEY,
+      },
+      forcePathStyle: true,
+    });
 
     const command = new PutObjectCommand({
       Bucket: bucket,

@@ -9,7 +9,10 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const path = req.url.split('/api/auth/')[1] || '';
+  // Parse path from Vercel catch-all
+  const pathSegments = req.query.path || [];
+  const fullPath = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
+  const path = fullPath.startsWith('/auth/') ? fullPath.slice(5) : fullPath; // strip /auth/
   const method = req.method;
 
   // ===== AUTH ENDPOINTS =====
