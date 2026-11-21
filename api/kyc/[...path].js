@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import getSql from '../../db.js';
 
 const s3Client = new S3Client({
   region: process.env.NEON_S3_REGION || process.env.VITE_NEON_S3_REGION || 'us-east-2',
@@ -81,12 +82,6 @@ export default async function handler(req, res) {
   }
 
   return res.status(404).json({ error: 'Not found' });
-}
-
-// Helper: Get SQL client
-function getSql() {
-  const { neon } = require('@neondatabase/serverless');
-  return neon(process.env.DATABASE_URL);
 }
 
 // Helper: Verify admin
