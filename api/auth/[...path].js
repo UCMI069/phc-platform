@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
-import getSql from '../db.js';
+import { neon } from '@neondatabase/serverless';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -46,7 +46,7 @@ async function handleSignin(req, res) {
   if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
 
   try {
-    const sql = getSql();
+    const sql = neon(process.env.DATABASE_URL);
     await sql`SELECT 1`;
     const userResult = await sql`
       SELECT id, email, password_hash, created_at FROM users WHERE email = ${email.toLowerCase()}
@@ -86,7 +86,7 @@ async function handleSignup(req, res) {
   if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
   if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
-  const sql = getSql();
+  const sql = neon(process.env.DATABASE_URL);
   try {
     await sql`SELECT 1`;
     const existing = await sql`SELECT id FROM users WHERE email = ${email.toLowerCase()}`;
@@ -130,7 +130,7 @@ async function handleGetUser(req, res) {
   if (!userId) return res.status(400).json({ error: 'userId required' });
 
   try {
-    const sql = getSql();
+    const sql = neon(process.env.DATABASE_URL);
     const profResult = await sql`
       SELECT id, first_name, last_name, email, currency, is_admin, blocked, is_2fa_enabled, kyc_verified, credit_card_tier, credit_card_status
       FROM profiles WHERE id = ${userId}
@@ -149,7 +149,7 @@ async function handleSetup2FA(req, res) {
   if (!userId) return res.status(400).json({ error: 'userId is required' });
 
   try {
-    const sql = getSql();
+    const sql = neon(process.env.DATABASE_URL);
     const userResult = await sql`SELECT email FROM users WHERE id = ${userId}`;
     if (userResult.length === 0) return res.status(404).json({ error: 'User not found' });
     const user = userResult[0];
@@ -176,7 +176,7 @@ async function handleConfigure2FA(req, res) {
   if (!userId) return res.status(400).json({ error: 'userId is required' });
 
   try {
-    const sql = getSql();
+    const sql = neon(process.env.DATABASE_URL);
 
     if (enable) {
       if (!token) return res.status(400).json({ error: 'TOTP token is required to enable 2FA' });
@@ -209,7 +209,7 @@ async function handleVerifyTOTP(req, res) {
   if (!userId || !token) return res.status(400).json({ error: 'userId and token are required' });
 
   try {
-    const sql = getSql();
+    const sql = neon(process.env.DATABASE_URL);
 
     const profResult = await sql`SELECT totp_secret FROM profiles WHERE id = ${userId} AND is_2fa_enabled = true`;
     if (profResult.length === 0) return res.status(404).json({ error: 'User not found or 2FA not enabled' });

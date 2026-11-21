@@ -1,7 +1,7 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
-import getSql from '../db.js';
+import { neon } from '@neondatabase/serverless';
 
 const s3Client = new S3Client({
   region: process.env.NEON_S3_REGION || process.env.VITE_NEON_S3_REGION || 'us-east-2',
@@ -13,22 +13,24 @@ const s3Client = new S3Client({
   forcePathStyle: true,
 });
 
-const sql = getSql();
+const sql = neon(process.env.DATABASE_URL);
 
 function setCORS(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
 export default async function handler(req, res) {
-  setCORS(res);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   // Parse path from Vercel catch-all
   const pathSegments = req.query.path || [];
   const fullPath = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
-  const path = fullPath.startsWith('/kyc/') ? fullPath.slice(5) : fullPath; // strip /kyc/
+  const path = fullPath.startsWith('/kyc/') ? fullPath.slice(5) : fullPath;
   const method = req.method;
 
   // ===== CARD PRICES =====

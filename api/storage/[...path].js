@@ -1,5 +1,5 @@
 import { S3Client, GetObjectCommand, DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
-import getSql from '../db.js';
+import { neon } from '@neondatabase/serverless';
 
 const s3Client = new S3Client({
   region: process.env.NEON_S3_REGION || process.env.VITE_NEON_S3_REGION || 'us-east-2',
@@ -11,6 +11,8 @@ const s3Client = new S3Client({
   forcePathStyle: true,
 });
 
+const sql = neon(process.env.DATABASE_URL);
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -19,11 +21,12 @@ export default async function handler(req, res) {
 
   // Parse path from Vercel catch-all
   const pathSegments = req.query.path || [];
-  const path = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
+  const fullPath = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
+  const path = fullPath.startsWith('/storage/') ? fullPath.slice(8) : fullPath;
   const method = req.method;
 
   // GET /api/storage - Get object
-  if (path === '' && req.method === 'GET') {
+  if (path === '' && method === 'GET') {
     const { bucket, key } = req.query || {};
     if (!bucket || !key) return res.status(400).json({ error: 'bucket and key query params are required' });
 
@@ -61,7 +64,7 @@ export default async function handler(req, res) {
   }
 
   // POST /api/storage - Upload
-  if (path === '' && req.method === 'POST') {
+  if (path === '' && method === 'POST') {
     const { bucket, path, contentType, data } = req.body;
     if (!bucket || !path || !contentType || !data) {
       return res.status(400).json({ error: 'bucket, path, contentType, and data are required' });
