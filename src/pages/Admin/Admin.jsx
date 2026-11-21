@@ -1050,7 +1050,7 @@ const Admin = () => {
                 </div>
               </div>
               <div className="admin-table-wrapper">
-                <table className="admin-table">
+                <table className="admin-table users-table">
                   <thead>
                     <tr>
                       <th>User</th>
@@ -1349,16 +1349,16 @@ const Admin = () => {
 
         {view === 'crypto' && (
           <div className="admin-grid-main">
-            <section className="admin-section">
-              <div className="section-header">
-                <div className="title-group">
-                  <h3>Crypto Deposit Details</h3>
-                  <p className="form-help">Configure wallet addresses and QR codes shown to users for crypto deposits.</p>
-                </div>
+            <section className="admin-section full-width">
+            <div className="section-header">
+              <div className="title-group">
+                <h3>Crypto Deposit Details</h3>
+                <p className="form-help">Configure wallet addresses and QR codes shown to users for crypto deposits.</p>
               </div>
+            </div>
 
               <div className="admin-table-wrapper">
-                <table className="admin-table">
+                <table className="admin-table crypto-table">
                   <thead>
                     <tr>
                       <th>Currency</th>
@@ -1556,14 +1556,14 @@ const Admin = () => {
               <h3>All Global Transactions</h3>
             </div>
             <div className="admin-table-wrapper">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>User</th>
-                    <th>Description</th>
-                    <th>Amount</th>
-                    <th>Status</th>
+<table className="admin-table transactions-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>User</th>
+                      <th>Description</th>
+                      <th>Amount</th>
+                      <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
