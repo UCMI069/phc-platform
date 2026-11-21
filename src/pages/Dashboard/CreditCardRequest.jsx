@@ -486,6 +486,7 @@ const CreditCardRequest = () => {
         </div>
       )}
 
+      </div>
       <style jsx>{`
         .credit-card-request-page {
           max-width: 1200px;
