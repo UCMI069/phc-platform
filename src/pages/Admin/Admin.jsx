@@ -942,21 +942,26 @@ const Admin = () => {
   if (loading) return <div className="loading-spinner">Loading admin panel...</div>;
 
   return (
-    <div className="admin-container">
+    <div className="admin-panel">
       <div className="admin-header">
         <div className="header-info">
-          <h2>Admin Management</h2>
+          <h1>Admin Management</h1>
           <p>Global oversight and management of all banking operations.</p>
         </div>
-        <div className="admin-nav-tabs">
+        <div className="admin-user-badge">
+          <Shield size={16} /> Admin Access
+        </div>
+      </div>
+
+      <div className="admin-nav-tabs">
           <button className={view === 'users' ? 'active' : ''} onClick={() => setView('users')}>
             <Users size={16} /> Users
           </button>
           <button className={view === 'deposits' ? 'active' : ''} onClick={() => setView('deposits')}>
-            <ArrowDownLeft size={16} /> Pending {pendingActions.length > 0 && <span className="badge">{pendingActions.length}</span>}
+            <ArrowDownLeft size={16} /> Pending {pendingActions.length > 0 && <span className="nav-badge">{pendingActions.length}</span>}
           </button>
           <button className={view === 'upgrades' ? 'active' : ''} onClick={() => setView('upgrades')}>
-            <Crown size={16} /> Upgrades {stats.pendingUpgrades > 0 && <span className="badge">{stats.pendingUpgrades}</span>}
+            <Crown size={16} /> Upgrades {stats.pendingUpgrades > 0 && <span className="nav-badge">{stats.pendingUpgrades}</span>}
           </button>
           <button className={view === 'crypto' ? 'active' : ''} onClick={() => setView('crypto')}>
             <Bitcoin size={16} /> Crypto
@@ -965,16 +970,15 @@ const Admin = () => {
             <Clock size={16} /> History
           </button>
           <button className={view === 'support' ? 'active' : ''} onClick={() => setView('support')}>
-            <MessageCircle size={16} /> Support {stats.pendingSupport > 0 && <span className="badge">{stats.pendingSupport}</span>}
+            <MessageCircle size={16} /> Support {stats.pendingSupport > 0 && <span className="nav-badge">{stats.pendingSupport}</span>}
           </button>
           <button className={view === 'cards' ? 'active' : ''} onClick={() => setView('cards')}>
-            <CreditCard size={16} /> Cards {stats.pendingCards > 0 && <span className="badge">{stats.pendingCards}</span>}
+            <CreditCard size={16} /> Cards {stats.pendingCards > 0 && <span className="nav-badge">{stats.pendingCards}</span>}
           </button>
           <button className={view === 'kyc' ? 'active' : ''} onClick={() => setView('kyc')}>
-            <ShieldCheck size={16} /> KYC {stats.pendingKYC > 0 && <span className="badge">{stats.pendingKYC}</span>}
+            <ShieldCheck size={16} /> KYC {stats.pendingKYC > 0 && <span className="nav-badge">{stats.pendingKYC}</span>}
           </button>
         </div>
-      </div>
 
       {/* Admin Stats */}
       <div className="admin-stats-grid">
@@ -1015,7 +1019,7 @@ const Admin = () => {
         </div>
       </div>
 
-      <div className="admin-main-content">
+      <div className="admin-content tab-content">
         {view === 'users' && (
           <div className="admin-grid-main">
             <section className="admin-section">
