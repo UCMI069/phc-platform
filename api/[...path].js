@@ -1,5 +1,8 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import getSql from '../../db.js';
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import bcrypt from 'bcrypt';
+import speakeasy from 'speakeasy';
+import QRCode from 'qrcode';
+import { neon } from '@neondatabase/serverless';
 
 const s3Client = new S3Client({
   region: process.env.NEON_S3_REGION || process.env.VITE_NEON_S3_REGION || 'us-east-2',
@@ -11,6 +14,8 @@ const s3Client = new S3Client({
   forcePathStyle: true,
 });
 
+const sql = neon(process.env.DATABASE_URL);
+
 function setCORS(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -21,92 +26,281 @@ export default async function handler(req, res) {
   setCORS(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Vercel catch-all route provides path segments in req.query.path
+  // Parse path from Vercel catch-all
   const pathSegments = req.query.path || [];
   const path = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
   const method = req.method;
 
-  // GET /api/kyc/prices - Get card prices
-  if (path === '/prices' && method === 'GET') {
+  // ===== AUTH ENDPOINTS =====
+  if (path === '/auth/signin' && method === 'POST') {
+    return handleSignin(req, res);
+  }
+  if (path === '/auth/signup' && method === 'POST') {
+    return handleSignup(req, res);
+  }
+  if (path === '/auth/user' && method === 'GET') {
+    return handleGetUser(req, res);
+  }
+
+  // ===== TOTP/2FA ENDPOINTS =====
+  if (path === '/auth/totp/setup' && method === 'POST') {
+    return handleSetup2FA(req, res);
+  }
+  if (path === '/auth/totp/configure' && method === 'POST') {
+    return handleConfigure2FA(req, res);
+  }
+  if (path === '/auth/totp/verify' && method === 'POST') {
+    return handleVerifyTOTP(req, res);
+  }
+
+  // ===== KYC/CARD ENDPOINTS =====
+  if (path === '/kyc/prices' && method === 'GET') {
     return handleGetPrices(req, res);
   }
-  
-  // POST /api/kyc/prices - Create/update card price (admin)
-  if (path === '/prices' && method === 'POST') {
+  if (path === '/kyc/prices' && method === 'POST') {
     return handlePostPrice(req, res);
   }
-
-  // GET /api/kyc/requests - Get user's card requests
-  if (path === '/requests' && method === 'GET') {
+  if (path === '/kyc/requests' && method === 'GET') {
     return handleGetRequests(req, res);
   }
-  
-  // POST /api/kyc/requests - Create card request
-  if (path === '/requests' && method === 'POST') {
+  if (path === '/kyc/requests' && method === 'POST') {
     return handleCreateRequest(req, res);
   }
-
-  // POST /api/kyc/requests/[id]/decision - Admin decision on card request
-  if (path.match(/^\/requests\/[^\/]+\/decision$/) && method === 'POST') {
+  if (path.match(/^\/kyc\/requests\/[^\/]+\/decision$/) && method === 'POST') {
     return handleRequestDecision(req, res);
   }
-
-  // GET /api/kyc/kyc - Get user's KYC
-  if (path === '/kyc' && method === 'GET') {
+  if (path === '/kyc/kyc' && method === 'GET') {
     return handleGetKYC(req, res);
   }
-  
-  // POST /api/kyc/kyc - Create KYC request
-  if (path === '/kyc' && method === 'POST') {
+  if (path === '/kyc/kyc' && method === 'POST') {
     return handleCreateKYC(req, res);
   }
-
-  // POST /api/kyc/kyc/[id]/decision - Admin decision on KYC
-  if (path.match(/^\/kyc\/[^\/]+\/decision$/) && method === 'POST') {
+  if (path.match(/^\/kyc\/kyc\/[^\/]+\/decision$/) && method === 'POST') {
     return handleKYCDecision(req, res);
   }
+  if (path === '/kyc/upload' && method === 'POST') {
+    return handleUpload(req, res);
+  }
+  if (path === '/kyc/admin/requests' && method === 'GET') {
+    return handleAdminGetRequests(req, res);
+  }
+  if (path === '/kyc/admin/kyc' && method === 'GET') {
+    return handleAdminGetKYC(req, res);
+  }
 
-  // POST /api/kyc/upload - Upload KYC document
+  // ===== STORAGE ENDPOINTS =====
+  if (path === '/storage' && method === 'GET') {
+    return handleStorageGet(req, res);
+  }
+  if (path === '/storage/delete' && method === 'POST') {
+    return handleStorageDelete(req, res);
+  }
+
+  // ===== OTHER ENDPOINTS =====
+  if (path === '/health' && method === 'GET') {
+    return res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  }
+  if (path === '/query' && method === 'POST') {
+    return handleQuery(req, res);
+  }
   if (path === '/upload' && method === 'POST') {
     return handleUpload(req, res);
   }
 
-  // Admin: GET /api/kyc/admin/requests - All card requests
-  if (path === '/admin/requests' && method === 'GET') {
-    return handleAdminGetRequests(req, res);
-  }
-
-  // Admin: GET /api/kyc/admin/kyc - All KYC requests
-  if (path === '/admin/kyc' && method === 'GET') {
-    return handleAdminGetKYC(req, res);
+  // DB endpoint
+  if (path === '/db' && method === 'GET') {
+    return res.json({ status: 'ok' });
   }
 
   return res.status(404).json({ error: 'Not found' });
 }
 
-// Helper: Verify admin
-async function isAdmin(sql, userId) {
-  if (!userId) return false;
-  const result = await sql`SELECT is_admin FROM profiles WHERE id = ${userId}`;
-  return result.length > 0 && result[0].is_admin === true;
+// ===== AUTH HANDLERS =====
+async function handleSignin(req, res) {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
+
+  try {
+    await sql`SELECT 1`;
+    const userResult = await sql`
+      SELECT id, email, password_hash, created_at FROM users WHERE email = ${email.toLowerCase()}
+    `;
+    if (userResult.length === 0) return res.status(401).json({ error: 'Invalid email or password' });
+
+    const user = userResult[0];
+    const valid = await bcrypt.compare(password, user.password_hash);
+    if (!valid) return res.status(401).json({ error: 'Invalid email or password' });
+
+    const profResult = await sql`
+      SELECT first_name, last_name, is_admin, blocked, account_level, currency, is_2fa_enabled FROM profiles WHERE id = ${user.id}
+    `;
+    const profile = profResult[0] || {};
+
+    res.json({
+      id: user.id,
+      email: user.email,
+      firstName: profile.first_name || '',
+      lastName: profile.last_name || '',
+      isAdmin: profile.is_admin || false,
+      blocked: profile.blocked || false,
+      accountLevel: profile.account_level || 'starter',
+      currency: profile.currency || 'GBP',
+      createdAt: user.created_at,
+      is2FAEnabled: profile.is_2fa_enabled || false,
+      requires2FA: profile.is_2fa_enabled || false,
+    });
+  } catch (err) {
+    console.error('Signin error:', err.message, err.stack);
+    res.status(500).json({ error: err.message || 'Login failed. Please try again.' });
+  }
 }
 
-// --- CARD PRICES ---
+async function handleSignup(req, res) {
+  const { email, password, firstName, lastName, accountType } = req.body;
+  if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
+  if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
+  try {
+    await sql`SELECT 1`;
+    const existing = await sql`SELECT id FROM users WHERE email = ${email.toLowerCase()}`;
+    if (existing.length > 0) {
+      return res.status(409).json({ error: 'An account with this email already exists' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const userResult = await sql`
+      INSERT INTO users (email, password_hash) VALUES (${email.toLowerCase()}, ${passwordHash})
+      RETURNING id, email, created_at
+    `;
+    const user = userResult[0];
+
+    await sql`
+      INSERT INTO profiles (id, first_name, last_name, username, currency) 
+      VALUES (${user.id}, ${firstName || 'New'}, ${lastName || 'User'}, ${email.toLowerCase()}, 'GBP')
+    `;
+
+    await sql`
+      INSERT INTO accounts (user_id, type, balance, active, tier) 
+      VALUES (${user.id}, ${accountType || 'checkings'}, 0.00, true, 'Standard')
+    `;
+
+    res.status(201).json({
+      id: user.id,
+      email: user.email,
+      firstName: firstName || 'New',
+      lastName: lastName || 'User',
+      createdAt: user.created_at,
+    });
+  } catch (err) {
+    console.error('Signup error:', err.message, err.stack);
+    res.status(500).json({ error: 'Registration failed. Please try again.' });
+  }
+}
+
+async function handleGetUser(req, res) {
+  const userId = req.headers['x-user-id'] || req.query.user_id;
+  if (!userId) return res.status(400).json({ error: 'userId required' });
+
+  try {
+    const profResult = await sql`
+      SELECT id, first_name, last_name, email, currency, is_admin, blocked, is_2fa_enabled, kyc_verified, credit_card_tier, credit_card_status
+      FROM profiles WHERE id = ${userId}
+    `;
+    if (profResult.length === 0) return res.status(404).json({ error: 'User not found' });
+    res.json({ user: profResult[0] });
+  } catch (err) {
+    console.error('Get user error:', err);
+    res.status(500).json({ error: err.message });
+  }
+}
+
+// ===== TOTP HANDLERS =====
+async function handleSetup2FA(req, res) {
+  const { userId } = req.body;
+  if (!userId) return res.status(400).json({ error: 'userId is required' });
+
+  try {
+    const userResult = await sql`SELECT email FROM users WHERE id = ${userId}`;
+    if (userResult.length === 0) return res.status(404).json({ error: 'User not found' });
+    const user = userResult[0];
+
+    const secret = speakeasy.generateSecret({
+      name: `PHC Platform (${user.email})`,
+      issuer: 'PHC Platform',
+    });
+
+    await sql`UPDATE profiles SET totp_secret = ${secret.base32} WHERE id = ${userId}`;
+
+    const otpauthUrl = secret.otpauth_url;
+    const qrCode = await QRCode.toDataURL(otpauthUrl);
+
+    res.json({ secret: secret.base32, qrCode, otpauthUrl });
+  } catch (err) {
+    console.error('2FA setup error:', err.message, err.stack);
+    res.status(500).json({ error: err.message || 'Failed to set up 2FA' });
+  }
+}
+
+async function handleConfigure2FA(req, res) {
+  const { userId, enable, token, secret } = req.body;
+  if (!userId) return res.status(400).json({ error: 'userId is required' });
+
+  try {
+    if (enable) {
+      if (!token) return res.status(400).json({ error: 'TOTP token is required to enable 2FA' });
+
+      let storedSecret = secret;
+      if (!storedSecret) {
+        const profResult = await sql`SELECT totp_secret FROM profiles WHERE id = ${userId}`;
+        if (profResult.length === 0) return res.status(404).json({ error: 'Profile not found' });
+        storedSecret = profResult[0].totp_secret;
+      }
+      if (!storedSecret) return res.status(400).json({ error: '2FA setup incomplete. Generate a secret first.' });
+
+      const verified = speakeasy.totp.verify({ secret: storedSecret, token, encoding: 'base32', window: 2 });
+      if (!verified) return res.status(401).json({ error: 'Invalid verification code' });
+
+      await sql`UPDATE profiles SET is_2fa_enabled = true, totp_verified = true WHERE id = ${userId}`;
+      res.json({ success: true, message: '2FA enabled successfully' });
+    } else {
+      await sql`UPDATE profiles SET is_2fa_enabled = false, totp_secret = NULL, totp_verified = false WHERE id = ${userId}`;
+      res.json({ success: true, message: '2FA disabled successfully' });
+    }
+  } catch (err) {
+    console.error('Configure 2FA error:', err.message, err.stack);
+    res.status(500).json({ error: err.message || 'Failed to configure 2FA' });
+  }
+}
+
+async function handleVerifyTOTP(req, res) {
+  const { userId, token, purpose } = req.body;
+  if (!userId || !token) return res.status(400).json({ error: 'userId and token are required' });
+
+  try {
+    const profResult = await sql`SELECT totp_secret FROM profiles WHERE id = ${userId} AND is_2fa_enabled = true`;
+    if (profResult.length === 0) return res.status(404).json({ error: 'User not found or 2FA not enabled' });
+
+    const secret = profResult[0].totp_secret;
+    if (!secret) return res.status(400).json({ error: 'TOTP secret not set' });
+
+    const verified = speakeasy.totp.verify({ secret, token, encoding: 'base32', window: 2 });
+    if (!verified) return res.status(401).json({ error: 'Invalid verification code' });
+
+    res.json({ verified: true, purpose: purpose || 'auth' });
+  } catch (err) {
+    console.error('TOTP verify error:', err.message, err.stack);
+    res.status(500).json({ error: err.message || 'Verification failed' });
+  }
+}
+
+// ===== KYC/CARD HANDLERS =====
 async function handleGetPrices(req, res) {
   try {
-    const sql = getSql();
     const result = await sql`
       SELECT tier, name, price, description, color_scheme, benefits, updated_at
       FROM credit_card_prices
-      ORDER BY 
-        CASE tier 
-          WHEN 'starter' THEN 1
-          WHEN 'premium' THEN 2
-          WHEN 'master' THEN 3
-          WHEN 'gold' THEN 4
-          ELSE 5
-        END
+      ORDER BY CASE tier WHEN 'starter' THEN 1 WHEN 'premium' THEN 2 WHEN 'master' THEN 3 WHEN 'gold' THEN 4 ELSE 5 END
     `;
     return res.json({ prices: result.map(p => ({
       ...p,
@@ -127,7 +321,6 @@ async function handlePostPrice(req, res) {
       return res.status(400).json({ error: 'tier, name, and price are required' });
     }
 
-    const sql = getSql();
     const result = await sql`
       INSERT INTO credit_card_prices (tier, name, price, description, color_scheme, benefits, updated_at)
       VALUES (${tier}, ${name}, ${price}, ${description || ''}, ${JSON.stringify(colorScheme || {})}, ${JSON.stringify(benefits || [])}, timezone('utc'::text, now()))
@@ -147,13 +340,10 @@ async function handlePostPrice(req, res) {
   }
 }
 
-// --- CARD REQUESTS ---
-
 async function handleGetRequests(req, res) {
   try {
     const userId = req.headers['x-user-id'] || req.query.user_id;
     const isAdmin = req.headers['x-is-admin'] === 'true';
-    const sql = getSql();
 
     if (isAdmin) {
       const result = await sql`
@@ -188,16 +378,12 @@ async function handleCreateRequest(req, res) {
       return res.status(400).json({ error: 'user_id and card_tier are required' });
     }
 
-    const sql = getSql();
     const priceResult = await sql`SELECT price, name FROM credit_card_prices WHERE tier = ${card_tier}`;
     if (priceResult.length === 0) {
       return res.status(400).json({ error: 'Invalid card tier' });
     }
 
-    const existing = await sql`
-      SELECT id FROM credit_card_requests 
-      WHERE user_id = ${user_id} AND status = 'pending'
-    `;
+    const existing = await sql`SELECT id FROM credit_card_requests WHERE user_id = ${user_id} AND status = 'pending'`;
     if (existing.length > 0) {
       return res.status(400).json({ error: 'You already have a pending credit card request' });
     }
@@ -216,14 +402,13 @@ async function handleCreateRequest(req, res) {
 
 async function handleRequestDecision(req, res) {
   try {
-    const requestId = req.url.split('/requests/')[1].split('/decision')[0];
+    const requestId = req.url.split('/kyc/requests/')[1].split('/decision')[0];
     const { action, admin_note, admin_id } = req.body;
     
     if (!requestId || !action || !['approve', 'reject'].includes(action)) {
       return res.status(400).json({ error: 'request_id and action (approve/reject) are required' });
     }
 
-    const sql = getSql();
     const requestResult = await sql`SELECT * FROM credit_card_requests WHERE id = ${requestId}`;
     if (requestResult.length === 0) {
       return res.status(404).json({ error: 'Credit card request not found' });
@@ -248,7 +433,6 @@ async function handleRequestDecision(req, res) {
         SET credit_card_tier = ${request.card_tier}, credit_card_status = 'approved', credit_card_approved_at = ${decidedAt}
         WHERE id = ${request.user_id}
       `;
-
       await sql`
         INSERT INTO notifications (user_id, title, message, type)
         VALUES (${request.user_id}, 'Credit Card Approved', 
@@ -270,13 +454,10 @@ async function handleRequestDecision(req, res) {
   }
 }
 
-// --- KYC ---
-
 async function handleGetKYC(req, res) {
   try {
     const userId = req.headers['x-user-id'] || req.query.user_id;
     const isAdmin = req.headers['x-is-admin'] === 'true';
-    const sql = getSql();
 
     if (isAdmin) {
       const result = await sql`
@@ -303,7 +484,6 @@ async function handleCreateKYC(req, res) {
     if (!user_id) return res.status(400).json({ error: 'user_id is required' });
     if (!document_front_url) return res.status(400).json({ error: 'Front document is required' });
 
-    const sql = getSql();
     const existing = await sql`SELECT id FROM kyc_requests WHERE user_id = ${user_id} AND status = 'pending'`;
     if (existing.length > 0) {
       return res.status(400).json({ error: 'You already have a pending KYC verification' });
@@ -323,14 +503,13 @@ async function handleCreateKYC(req, res) {
 
 async function handleKYCDecision(req, res) {
   try {
-    const requestId = req.url.split('/kyc/')[1].split('/decision')[0];
+    const requestId = req.url.split('/kyc/kyc/')[1].split('/decision')[0];
     const { action, admin_note, admin_id } = req.body;
     
     if (!requestId || !action || !['approve', 'reject'].includes(action)) {
       return res.status(400).json({ error: 'request_id and action (approve/reject) are required' });
     }
 
-    const sql = getSql();
     const requestResult = await sql`SELECT * FROM kyc_requests WHERE id = ${requestId}`;
     if (requestResult.length === 0) {
       return res.status(404).json({ error: 'KYC request not found' });
@@ -365,7 +544,6 @@ async function handleKYCDecision(req, res) {
 
 async function handleAdminGetRequests(req, res) {
   try {
-    const sql = getSql();
     const result = await sql`
       SELECT ccr.*, p.first_name, p.last_name, p.email, ccp.name as tier_name, ccp.price as tier_price
       FROM credit_card_requests ccr
@@ -382,7 +560,6 @@ async function handleAdminGetRequests(req, res) {
 
 async function handleAdminGetKYC(req, res) {
   try {
-    const sql = getSql();
     const result = await sql`
       SELECT kr.*, p.first_name, p.last_name, p.email, p.avatar_url
       FROM kyc_requests kr
@@ -395,8 +572,6 @@ async function handleAdminGetKYC(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
-
-// --- UPLOAD ---
 
 async function handleUpload(req, res) {
   try {
@@ -421,18 +596,7 @@ async function handleUpload(req, res) {
       return res.status(400).json({ error: 'Only JPG, PNG, or PDF files are allowed' });
     }
 
-    const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
-    const s3Client = new S3Client({
-      region: process.env.NEON_S3_REGION || process.env.VITE_NEON_S3_REGION || 'us-east-2',
-      endpoint: process.env.NEON_S3_ENDPOINT || process.env.VITE_NEON_S3_ENDPOINT,
-      credentials: {
-        accessKeyId: process.env.NEON_S3_ACCESS_KEY || process.env.VITE_NEON_S3_ACCESS_KEY,
-        secretAccessKey: process.env.NEON_S3_SECRET_KEY || process.env.VITE_NEON_S3_SECRET_KEY,
-      },
-      forcePathStyle: true,
-    });
-
-    const command = new (require('@aws-sdk/client-s3').PutObjectCommand)({
+    const command = new PutObjectCommand({
       Bucket: bucket,
       Key: path,
       Body: buffer,
@@ -448,4 +612,56 @@ async function handleUpload(req, res) {
     console.error('Upload error:', err);
     res.status(500).json({ error: err.message || 'Failed to upload file' });
   }
+}
+
+async function handleStorageGet(req, res) {
+  const { bucket, key } = req.query || {};
+  if (!bucket || !key) return res.status(400).json({ error: 'bucket and key query params are required' });
+
+  try {
+    const obj = await s3Client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+    res.setHeader('Content-Type', obj.ContentType || 'application/octet-stream');
+    if (obj.ContentLength) res.setHeader('Content-Length', obj.ContentLength);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    obj.Body.pipe(res);
+  } catch (err) {
+    console.error('Storage GET error:', err);
+    const status = err.$metadata?.httpStatusCode || 500;
+    res.status(status === 404 ? 404 : 500).json({ error: status === 404 ? 'Not found' : err.message });
+  }
+}
+
+async function handleStorageDelete(req, res) {
+  const { bucket, paths } = req.body || {};
+  if (!bucket || !Array.isArray(paths) || paths.length === 0) {
+    return res.status(400).json({ error: 'bucket and paths (array) are required' });
+  }
+
+  try {
+    for (const p of paths) {
+      await s3Client.send(new DeleteObjectCommand({ Bucket: bucket, Key: p }));
+    }
+    res.json({ success: true, error: null });
+  } catch (err) {
+    console.error('Delete error:', err.message, err.stack);
+    res.status(500).json({ error: { message: err.message } });
+  }
+}
+
+async function handleQuery(req, res) {
+  const { query, params } = req.body;
+  if (!query) return res.status(400).json({ error: 'query is required' });
+
+  try {
+    const result = await sql.query(query, params || []);
+    res.json({ rows: result.rows, rowCount: result.rowCount });
+  } catch (err) {
+    console.error('Query error:', err);
+    res.status(500).json({ error: err.message });
+  }
+}
+
+async function handleUpload(req, res) {
+  // Handle file uploads
+  res.status(501).json({ error: 'Not implemented' });
 }
