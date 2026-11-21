@@ -11,22 +11,26 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Parse path from Vercel catch-all or fallback to req.url
+  // Simple path extraction
   let path = req.url;
   try {
     const url = new URL(req.url, `https://${req.headers.host}`);
-    path = url.pathname;
-    // Remove /api/auth prefix
-    if (path.startsWith('/api/auth/')) {
-      path = path.slice(9); // Remove '/api/auth'
-    } else if (path.startsWith('/api/auth')) {
+    let pathname = url.pathname;
+    if (pathname.startsWith('/api/auth/')) {
+      path = pathname.slice(9); // Remove '/api/auth'
+    } else if (pathname.startsWith('/api/auth')) {
       path = '/';
+    } else {
+      path = pathname;
     }
   } catch (e) {
-    // fallback
+    path = req.url;
   }
   if (!path.startsWith('/')) path = '/' + path;
   const method = req.method;
+
+  // Debug logging
+  console.log('Auth API:', { path, method, url: req.url });
 
   // ===== AUTH ENDPOINTS =====
   if (path === '/signin' && method === 'POST') {
@@ -50,7 +54,7 @@ export default async function handler(req, res) {
     return handleVerifyTOTP(req, res);
   }
 
-  return res.status(404).json({ error: 'Not found' });
+  return res.status(404).json({ error: 'Not found', path });
 }
 
 // ===== AUTH HANDLERS =====
