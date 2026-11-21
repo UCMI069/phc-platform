@@ -992,6 +992,125 @@
   align-items: start;
 }
 
+/* ===== REMAINING MISSING STYLES ===== */
+
+/* User Avatar (used in cards/KYC sections) */
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: var(--admin-primary);
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+/* Empty cell for tables */
+.empty-cell {
+  text-align: center;
+  padding: 40px !important;
+  color: #94a3b8;
+}
+
+/* Text muted */
+.text-muted {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+/* Action toggle buttons (users section) */
+.block-toggle-btn.block {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.block-toggle-btn.unblock {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.inactive-toggle-btn.make-active {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.inactive-toggle-btn.make-inactive {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.role-toggle-btn {
+  background: #f8fafc;
+  color: var(--admin-secondary);
+  border: 1px solid var(--admin-border);
+}
+
+.role-toggle-btn.demote {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.role-toggle-btn.promote {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.action-group button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.action-group button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Transaction amount */
+.tx-amount {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.tx-amount.credit {
+  color: #22c55e;
+}
+
+.tx-amount.debit {
+  color: #ef4444;
+}
+
+/* Transaction status badge */
+.tx-status-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.tx-status-badge.pending_admin { background: #fffbeb; color: #92400e; }
+.tx-status-badge.posted { background: #dcfce7; color: #166534; }
+.tx-status-badge.failed { background: #fee2e2; color: #991b1b; }
+
+/* ===== END MISSING STYLES ===== */
+
 /* Header Search */
 .header-search {
   display: flex;
