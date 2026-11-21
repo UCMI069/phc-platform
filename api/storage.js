@@ -1,4 +1,4 @@
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 const s3 = new S3Client({
   region: process.env.NEON_S3_REGION || process.env.VITE_NEON_S3_REGION || 'us-east-2',
@@ -12,22 +12,80 @@ const s3 = new S3Client({
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+  
+  const path = req.url.split('/api/storage')[1] || '/';
+  const method = req.method;
 
-  const { bucket, key } = req.query || {};
-  if (!bucket || !key) return res.status(400).json({ error: 'bucket and key query params are required' });
+  if (method === 'OPTIONS') return res.status(200).end();
 
-  try {
-    const obj = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
-    res.setHeader('Content-Type', obj.ContentType || 'application/octet-stream');
-    if (obj.ContentLength) res.setHeader('Content-Length', obj.ContentLength);
-    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-    obj.Body.pipe(res);
-  } catch (err) {
-    console.error('Storage GET error:', err);
-    const status = err.$metadata?.httpStatusCode || 500;
-    res.status(status === 404 ? 404 : 500).json({ error: status === 404 ? 'Not found' : err.message });
+  // GET /api/storage - Get object
+  if (path === '/' && method === 'GET') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+
+    const { bucket, key } = req.query || {};
+    if (!bucket || !key) return res.status(400).json({ error: 'bucket and key query params are required' });
+
+    try {
+      const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+      const s3 = new S3Client({
+        region: process.env.NEON_S3_REGION || process.env.VITE_NEON_S3_REGION || 'us-east-2',
+        endpoint: process.env.NEON_S3_ENDPOINT || process.env.VITE_NEON_S3_ENDPOINT,
+        credentials: {
+          accessKeyId: process.env.NEON_S3_ACCESS_KEY || process.env.VITE_NEON_S3_ACCESS_KEY,
+          secretAccessKey: process.env.NEON_S3_SECRET_KEY || process.env.VITE_NEON_S3_SECRET_KEY,
+        },
+        forcePathStyle: true,
+      });
+
+      const obj = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Content-Type', obj.ContentType || 'application/octet-stream');
+      if (obj.ContentLength) res.setHeader('Content-Length', obj.ContentLength);
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      obj.Body.pipe(res);
+    } catch (err) {
+      console.error('Storage GET error:', err);
+      const status = err.$metadata?.httpStatusCode || 500;
+      res.status(status === 404 ? 404 : 500).json({ error: status === 404 ? 'Not found' : err.message });
+    }
+    return;
   }
+
+  // POST /api/storage - Delete objects
+  if (path === '/delete' && method === 'POST') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+    const { bucket, paths } = req.body || {};
+    if (!bucket || !Array.isArray(paths) || paths.length === 0) {
+      return res.status(400).json({ error: 'bucket and paths (array) are required' });
+    }
+
+    try {
+      const { S3Client, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+      const s3 = new S3Client({
+        region: process.env.NEON_S3_REGION || process.env.VITE_NEON_S3_REGION || 'us-east-2',
+        endpoint: process.env.NEON_S3_ENDPOINT || process.env.VITE_NEON_S3_ENDPOINT,
+        credentials: {
+          accessKeyId: process.env.NEON_S3_ACCESS_KEY || process.env.VITE_NEON_S3_ACCESS_KEY,
+          secretAccessKey: process.env.NEON_S3_SECRET_KEY || process.env.VITE_NEON_S3_SECRET_KEY,
+        },
+        forcePathStyle: true,
+      });
+
+      for (const p of paths) {
+        await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: p }));
+      }
+      res.json({ success: true, error: null });
+    } catch (err) {
+      console.error('Delete error:', err.message, err.stack);
+      res.status(500).json({ error: { message: err.message } });
+    }
+    return;
+  }
+
+  return res.status(404).json({ error: 'Not found' });
 }
