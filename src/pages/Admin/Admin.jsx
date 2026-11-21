@@ -57,7 +57,7 @@ const Admin = () => {
           price: Number(p.price),
           colorScheme: typeof p.color_scheme === 'string' ? JSON.parse(p.color_scheme) : p.color_scheme,
           benefits: p.benefits || []
-        }}))
+        })))
       }
     } catch (err) {
       console.error('Failed to fetch card prices:', err);
@@ -76,7 +76,7 @@ const Admin = () => {
           ...r,
           requested_price: Number(r.requested_price),
           created_at: new Date(r.created_at)
-        }}))
+        })))
       }
     } catch (err) {
       console.error('Failed to fetch card requests:', err);
@@ -94,7 +94,7 @@ const Admin = () => {
         setKycRequests(data.requests.map(r => ({
           ...r,
           created_at: new Date(r.created_at)
-        }}))
+        })))
       }
     } catch (err) {
       console.error('Failed to fetch KYC requests:', err);
