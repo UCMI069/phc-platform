@@ -487,7 +487,6 @@ const CreditCardRequest = () => {
 )}
     </div>
   );
-  }
-};
-
+}
+}
 export default CreditCardRequest;
