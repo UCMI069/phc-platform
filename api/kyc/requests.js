@@ -69,3 +69,41 @@ export default async function handler(req, res) {
     res.status(405).json({ error: 'Method not allowed' });
   }
 }
+
+// POST /api/kyc/requests/:id/decision - Admin decision on card request
+export async function handleRequestDecision(req, res) {
+  const sql = getSql();
+  const { action, admin_note, admin_id } = req.body;
+  
+  // Extract request ID from URL
+  const urlParts = req.url.split('/');
+  const requestId = urlParts[urlParts.length - 2]; // .../requests/{id}/decision
+  
+  if (!requestId || !action || !['approve', 'reject'].includes(action)) {
+    return { status: 400, body: { error: 'request_id and action (approve/reject) are required' } };
+  }
+
+  const requestResult = await sql`SELECT * FROM credit_card_requests WHERE id = ${requestId}`;
+  if (requestResult.length === 0) return { status: 404, body: { error: 'Credit card request not found' } };
+  const request = requestResult[0];
+  if (request.status !== 'pending') return { status: 400, body: { error: 'Request already processed' } };
+
+  const newStatus = action === 'approve' ? 'approved' : 'rejected';
+  const decidedAt = new Date().toISOString();
+
+  await sql`
+    UPDATE credit_card_requests 
+    SET status = ${newStatus}, admin_note = ${admin_note || ''}, admin_id = ${admin_id}, decided_at = ${decidedAt}
+    WHERE id = ${requestId}
+  `;
+
+  if (action === 'approve') {
+    await sql`UPDATE profiles SET credit_card_tier = ${request.card_tier}, credit_card_status = 'approved', credit_card_approved_at = ${decidedAt} WHERE id = ${request.user_id}`;
+    await sql`INSERT INTO notifications (user_id, title, message, type) VALUES (${request.user_id}, 'Credit Card Approved', 'Your ' || (SELECT name FROM credit_card_prices WHERE tier = ${request.card_tier}) || ' credit card request has been approved! ' || ${admin_note || ''}, 'success')`;
+  } else {
+    await sql`UPDATE profiles SET credit_card_status = 'rejected' WHERE id = ${request.user_id}`;
+    await sql`INSERT INTO notifications (user_id, title, message, type) VALUES (${request.user_id}, 'Credit Card Request Update', 'Your credit card request was not approved. Admin note: ' || ${admin_note || 'No reason provided'}, 'info')`;
+  }
+
+  return { status: 200, body: { success: true, message: `Credit card request ${action}d successfully` } };
+}
