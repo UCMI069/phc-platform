@@ -1,6 +1,5 @@
 import speakeasy from 'speakeasy';
-
-const { neon } = require('@neondatabase/serverless');
+import getSql from '../../db.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,7 +12,7 @@ export default async function handler(req, res) {
   if (!userId || !token) return res.status(400).json({ error: 'userId and token are required' });
 
   try {
-    const sql = neon(process.env.DATABASE_URL);
+    const sql = getSql();
 
     const profResult = await sql`SELECT totp_secret FROM profiles WHERE id = ${userId} AND is_2fa_enabled = true`;
     if (profResult.length === 0) return res.status(404).json({ error: 'User not found or 2FA not enabled' });

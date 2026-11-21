@@ -1,7 +1,6 @@
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
-
-const { neon } = require('@neondatabase/serverless');
+import getSql from '../../db.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -14,7 +13,7 @@ export default async function handler(req, res) {
   if (!userId) return res.status(400).json({ error: 'userId is required' });
 
   try {
-    const sql = neon(process.env.DATABASE_URL);
+    const sql = getSql();
 
     const userResult = await sql`SELECT email FROM users WHERE id = ${userId}`;
     if (userResult.length === 0) return res.status(404).json({ error: 'User not found' });
@@ -25,7 +24,7 @@ export default async function handler(req, res) {
       issuer: 'PHC Platform',
     });
 
-    await neon(process.env.DATABASE_URL)`UPDATE profiles SET totp_secret = ${secret.base32} WHERE id = ${userId}`;
+    await sql`UPDATE profiles SET totp_secret = ${secret.base32} WHERE id = ${userId}`;
 
     const otpauthUrl = secret.otpauth_url;
     const qrCode = await QRCode.toDataURL(otpauthUrl);
