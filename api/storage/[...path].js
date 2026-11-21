@@ -20,24 +20,34 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   // Parse path from Vercel catch-all or fallback to req.url
-  let path = req.url;
-  try {
-    const url = new URL(req.url, `https://${req.headers.host}`);
-    path = url.pathname;
-    // Remove /api/storage prefix
-    if (path.startsWith('/api/storage/')) {
-      path = path.slice(8); // Remove '/api/storage'
-    } else if (path.startsWith('/api/storage')) {
-      path = '/';
+  let path = '';
+  const pathSegments = req.query.path || [];
+  if (Array.isArray(pathSegments) && pathSegments.length > 0) {
+    path = '/' + pathSegments.join('/');
+  } else {
+    try {
+      const url = new URL(req.url, `https://${req.headers.host}`);
+      let pathname = url.pathname;
+      // Remove /api/storage prefix
+      if (pathname.startsWith('/api/storage/')) {
+        path = pathname.slice(8); // Remove '/api/storage'
+      } else if (pathname.startsWith('/api/storage')) {
+        path = '/';
+      } else {
+        path = pathname;
+      }
+    } catch (e) {
+      // fallback
+      path = req.url;
     }
-  } catch (e) {
-    // fallback
-    console.error('Storage path parsing error:', e);
+    if (!path.startsWith('/')) path = '/' + path;
+  } else {
+    path = '/' + pathSegments.join('/');
   }
-  if (!path.startsWith('/')) path = '/' + path;
+
   const method = req.method;
 
-  console.log('Storage API Request:', { path, method, url: req.url });
+  console.log('Storage API Request:', { path, method, url: req.url, queryPath: req.query.path });
 
   try {
     // GET /api/storage - Get object

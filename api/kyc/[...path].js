@@ -26,25 +26,34 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   // Parse path from Vercel catch-all or fallback to req.url
-  let path = req.url;
-  try {
-    const url = new URL(req.url, `https://${req.headers.host}`);
-    path = url.pathname;
-    // Remove /api/kyc prefix
-    if (path.startsWith('/api/kyc/')) {
-      path = path.slice(8); // Remove '/api/kyc'
-    } else if (path.startsWith('/api/kyc')) {
-      path = '/';
+  let path = '';
+  const pathSegments = req.query.path || [];
+  if (Array.isArray(pathSegments) && pathSegments.length > 0) {
+    path = '/' + pathSegments.join('/');
+  } else {
+    try {
+      const url = new URL(req.url, `https://${req.headers.host}`);
+      let pathname = url.pathname;
+      // Remove /api/kyc prefix
+      if (pathname.startsWith('/api/kyc/')) {
+        path = pathname.slice(8); // Remove '/api/kyc'
+      } else if (pathname.startsWith('/api/kyc')) {
+        path = '/';
+      } else {
+        path = pathname;
+      }
+    } catch (e) {
+      // fallback
+      path = req.url;
     }
-  } catch (e) {
-    // fallback
-    console.error('Path parsing error:', e);
+    if (!path.startsWith('/')) path = '/' + path;
+  } else {
+    path = '/' + pathSegments.join('/');
   }
-  if (!path.startsWith('/')) path = '/' + path;
 
   const method = req.method;
 
-  console.log('KYC API Request:', { path, method, url: req.url });
+  console.log('KYC API Request:', { path, method, url: req.url, queryPath: req.query.path });
 
   try {
     // ===== CARD PRICES =====
@@ -99,10 +108,12 @@ export default async function handler(req, res) {
       return handleKYCDecision(req, res);
     }
 
-    console.warn('No route matched:', { path, method });
+    console.warn('No route matched:', { path, method, url: req.url });
     return res.status(404).json({ error: 'Not found' });
   } catch (err) {
     console.error('KYC API Error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+// ... rest of handlers remain the same
