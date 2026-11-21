@@ -44,6 +44,7 @@ const SIDEBAR_LINKS = [
     group: 'SERVICES', 
     items: [
       { name: 'Loans', href: '/dashboard/loans', icon: Wallet },
+      { name: 'Credit Cards', href: '/dashboard/cards', icon: CreditCard },
       { name: 'Account Upgrade', href: '/dashboard/upgrade', icon: Crown },
       { name: 'Settings', href: '/dashboard/settings', icon: Settings },
       { name: 'Support', href: '/dashboard/support', icon: LifeBuoy },
