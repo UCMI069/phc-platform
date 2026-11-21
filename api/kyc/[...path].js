@@ -20,7 +20,9 @@ export default async function handler(req, res) {
   setCORS(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const path = req.url.split('/api/kyc')[1] || '/';
+  // Vercel catch-all route provides path segments in req.query.path
+  const pathSegments = req.query.path || [];
+  const path = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
   const method = req.method;
 
   // GET /api/kyc/prices - Get card prices
