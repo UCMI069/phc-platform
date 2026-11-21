@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { neon as supabase, proxiedStorageUrl } from '../../lib/neon';
-import { User, Mail, Phone, MapPin, Globe, Camera, Save, AlertCircle, CheckCircle2, Shield, QrCode, Key, Trash2, Copy, Check, FileText, Upload, CheckCircle2 as CheckCircle2Icon, XCircle, Eye, Loader2, X } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Globe, Camera, Save, AlertCircle, CheckCircle2, Shield, QrCode, Key, Trash2, Copy, Check, FileText, Upload, CheckCircle2 as CheckCircle2Icon, XCircle, Eye, Loader2 } from 'lucide-react';
 import './Settings.css';
 
 const CURRENCIES = [
@@ -90,7 +90,7 @@ const Settings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const res = await fetch(`/api/kyc/kyc?user_id=${user.id}`);
+      const res = await fetch(`/api/kyc-requests?user_id=${user.id}`);
       const data = await res.json();
       if (data.request) {
         setKyc(prev => ({ 
@@ -226,7 +226,7 @@ const Settings = () => {
       
       // Upload files to storage (using the upload API)
       const uploadFile = async (dataUrl, suffix) => {
-        const response = await fetch('/api/kyc/upload', {
+        const response = await fetch('/api/upload-kyc', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -236,13 +236,7 @@ const Settings = () => {
             data: dataUrl
           })
         });
-        let data;
-        try {
-          data = await response.json();
-        } catch (e) {
-          data = { error: `Server error: ${response.status} ${response.statusText}` };
-        }
-        if (!response.ok) throw new Error(data.error || 'Upload failed');
+        const data = await response.json();
         return data.url;
       };
 
@@ -250,7 +244,7 @@ const Settings = () => {
       const backUrl = kyc.documentBack ? await uploadFile(kyc.documentBack, 'back') : null;
 
       // Submit KYC request
-      const res = await fetch('/api/kyc/kyc', {
+      const res = await fetch('/api/kyc-requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -260,12 +254,7 @@ const Settings = () => {
         })
       });
 
-      let data;
-      try {
-        data = await res.json();
-      } catch (e) {
-        data = { error: `Server error: ${res.status} ${res.statusText}` };
-      }
+      const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to submit KYC');
 
       setKyc(prev => ({ 
