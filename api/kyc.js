@@ -1,4 +1,6 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import speakeasy from 'speakeasy';
+import QRCode from 'qrcode';
 
 const s3Client = new S3Client({
   region: process.env.NEON_S3_REGION || process.env.VITE_NEON_S3_REGION || 'us-east-2',
@@ -480,8 +482,6 @@ async function handleSetup2FA(req, res) {
 
   try {
     const sql = getSql();
-    const { speakeasy } = await import('speakeasy');
-    const QRCode = (await import('qrcode')).default;
 
     const userResult = await sql`SELECT email FROM users WHERE id = ${userId}`;
     if (userResult.length === 0) return res.status(404).json({ error: 'User not found' });
@@ -510,7 +510,6 @@ async function handleConfigure2FA(req, res) {
 
   try {
     const sql = getSql();
-    const { speakeasy } = await import('speakeasy');
 
     if (enable) {
       if (!token) return res.status(400).json({ error: 'TOTP token is required to enable 2FA' });
@@ -544,7 +543,6 @@ async function handleVerifyTOTP(req, res) {
 
   try {
     const sql = getSql();
-    const { speakeasy } = await import('speakeasy');
 
     const profResult = await sql`SELECT totp_secret FROM profiles WHERE id = ${userId} AND is_2fa_enabled = true`;
     if (profResult.length === 0) return res.status(404).json({ error: 'User not found or 2FA not enabled' });
@@ -557,6 +555,10 @@ async function handleVerifyTOTP(req, res) {
 
     res.json({ verified: true, purpose: purpose || 'auth' });
   } catch (err) {
+    console.error('TOTP verify error:', err.message, err.stack);
+    res.status(500).json({ error: err.message || 'Verification failed' });
+  }
+}
     console.error('TOTP verify error:', err.message, err.stack);
     res.status(500).json({ error: err.message || 'Verification failed' });
   }
