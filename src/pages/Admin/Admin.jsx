@@ -354,7 +354,6 @@ const handleKYCAction = async (requestId, action) => {
                 value={requestSearch}
                 onChange={(e) => setRequestSearch(e.target.value)}
                 className="search-input"
-                placeholder="Search..."
               />
               <select value={requestFilter} onChange={(e) => setRequestFilter(e.target.value)} className="filter-select">
                 <option value="all">All Status</option>
