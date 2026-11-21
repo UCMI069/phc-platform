@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { neon as supabase } from '../../lib/neon';
-import { CreditCard, ArrowRight, CheckCircle2, AlertCircle, Loader2, X, Info } from 'lucide-react';
+import { CreditCard, ArrowRight, CheckCircle2, AlertCircle, Loader2, X, Info, CheckCircle2 as CheckCircle2Icon } from 'lucide-react';
 import './CreditCardRequest.css';
 
 const CARD_TIERS = [
@@ -9,7 +9,6 @@ const CARD_TIERS = [
     name: 'Starter Card',
     price: 430,
     description: 'Entry level credit card for everyday spending',
-    colorScheme: { primary: '#6366f1', secondary: '#818cf8', accent: '#f8fafc' },
     benefits: [
       '1% cashback on all purchases',
       'No annual fee',
@@ -22,7 +21,6 @@ const CARD_TIERS = [
     name: 'Premium Card',
     price: 1800,
     description: 'Premium credit card with enhanced rewards',
-    colorScheme: { primary: '#0891b2', secondary: '#06b6d4', accent: '#f0fdfa' },
     benefits: [
       '2% cashback on all purchases',
       'Travel insurance',
@@ -36,7 +34,6 @@ const CARD_TIERS = [
     name: 'Master Card',
     price: 2350,
     description: 'High-end credit card with premium benefits',
-    colorScheme: { primary: '#7c2d12', secondary: '#ea580c', accent: '#fef3f2' },
     benefits: [
       '3% cashback on all purchases',
       'Comprehensive travel insurance',
@@ -51,7 +48,6 @@ const CARD_TIERS = [
     name: 'Gold Card',
     price: 5520,
     description: 'Ultimate prestige credit card with exclusive privileges',
-    colorScheme: { primary: '#f59e0b', secondary: '#fbbf24', accent: '#fffbeb' },
     benefits: [
       '5% cashback on all purchases',
       'Premium travel insurance',
@@ -90,7 +86,6 @@ const CreditCardRequest = () => {
           name: p.name,
           price: Number(p.price),
           description: p.description,
-          colorScheme: typeof p.color_scheme === 'string' ? JSON.parse(p.color_scheme) : p.color_scheme,
           benefits: p.benefits || []
         })));
       }
@@ -160,182 +155,44 @@ const CreditCardRequest = () => {
 
   const renderCard = (card) => {
     const status = getCardStatus(card.tier);
-    const { primary, secondary, accent } = card.colorScheme;
     
-    const cardStyle = {
-      background: `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`,
-      border: 'none',
-      borderRadius: '20px',
-      padding: '32px',
-      color: 'white',
-      position: 'relative',
-      overflow: 'hidden',
-      boxShadow: `0 20px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.1)`,
-      minHeight: '240px',
-      width: '100%',
-      maxWidth: '380px'
-    };
-
-    const chipStyle = {
-      width: '56px',
-      height: '36px',
-      borderRadius: '6px',
-      background: 'linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '10px',
-      fontWeight: '700',
-      letterSpacing: '2px',
-      color: '#374151',
-      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1), 0 1px 2px rgba(255,255,255,0.3)'
-    };
-
     const statusConfig = {
       available: { label: 'Request Card', color: '#10b981', icon: <ArrowRight size={18} /> },
       pending: { label: 'Pending Review', color: '#f59e0b', icon: <Loader2 size={18} className="spin" /> },
-      approved: { label: 'Approved', color: '#10b981', icon: <CheckCircle2 size={18} /> },
+      approved: { label: 'Approved', color: '#10b981', icon: <CheckCircle2Icon size={18} /> },
       rejected: { label: 'Rejected', color: '#ef4444', icon: <AlertCircle size={18} /> }
     };
 
     const statusInfo = statusConfig[status];
 
     return (
-      <div className="credit-card-wrapper" style={{ perspective: '1000px' }}>
-        <div 
-          className="credit-card" 
-          style={{ 
-            ...cardStyle,
-            transform: `rotateY(0deg)`,
-            transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-            cursor: status === 'available' ? 'pointer' : 'default'
-          }}
-          onClick={() => status === 'available' && handleRequest(card)}
-        >
-          {/* Card background pattern */}
-          <div style={{
-            position: 'absolute',
-            top: '-50%',
-            right: '-50%',
-            width: '200%',
-            height: '200%',
-            background: `radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 0%, transparent 70%)`,
-            pointerEvents: 'none'
-          }} />
-          
-          {/* Card brand */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
-            <div style={{
-              fontSize: '12px',
-              fontWeight: '600',
-              letterSpacing: '2px',
-              opacity: 0.9,
-              textTransform: 'uppercase'
-            }}>
-              PHC Platform
-            </div>
-            <div style={{
-              width: '48px',
-              height: '30px',
-              borderRadius: '4px',
-              background: 'rgba(255,255,255,0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '10px',
-              fontWeight: '700',
-              letterSpacing: '1px'
-            }}>
-              VISA
-            </div>
+      <div className="card-info">
+        <div className="card-header">
+          <div className="card-title-row">
+            <h3 className="card-name">{card.name}</h3>
+            <span className="card-price">${card.price.toLocaleString()}</span>
           </div>
-
-          {/* Chip */}
-          <div style={chipStyle}>CHIP</div>
-
-          {/* Card number placeholder */}
-          <div style={{
-            marginTop: '32px',
-            fontSize: '22px',
-            fontWeight: '500',
-            letterSpacing: '4px',
-            fontFamily: '"Courier New", monospace',
-            opacity: 0.95
-          }}>
-            •••• •••• •••• ••••
-          </div>
-
-          {/* Card holder & expiry */}
-          <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ fontSize: '10px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                CARDHOLDER
-              </div>
-              <div style={{ fontSize: '16px', fontWeight: '600', textTransform: 'uppercase', marginTop: '4px' }}>
-                YOUR NAME
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: '10px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                EXPIRES
-              </div>
-              <div style={{ fontSize: '16px', fontWeight: '600', marginTop: '4px' }}>
-                12/28
-              </div>
-            </div>
-          </div>
-
-          {/* Card tier badge */}
-          <div style={{
-            position: 'absolute',
-            bottom: '24px',
-            left: '24px',
-            right: '24px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            <span style={{
-              background: 'rgba(255,255,255,0.2)',
-              padding: '6px 14px',
-              borderRadius: '20px',
-              fontSize: '12px',
-              fontWeight: '700',
-              letterSpacing: '1px',
-              textTransform: 'uppercase'
-            }}>
-              {card.name.toUpperCase()}
-            </span>
-            <span style={{
-              fontSize: '24px',
-              fontWeight: '800'
-            }}>
-              ${card.price.toLocaleString()}
-            </span>
-          </div>
+          <p className="card-description">{card.description}</p>
         </div>
 
-        {/* Status / Action button */}
-        <div style={{ marginTop: '16px', textAlign: 'center' }}>
+        <div className="card-benefits">
+          <h4>Benefits</h4>
+          <ul>
+            {card.benefits.map((benefit, i) => (
+              <li key={i}>
+                <CheckCircle2Icon size={16} className="benefit-check" />
+                {benefit}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="card-status-section">
           {status === 'available' && (
             <button 
               className="request-btn"
-              onClick={(e) => { e.stopPropagation(); handleRequest(card); }}
+              onClick={() => handleRequest(card)}
               disabled={requesting}
-              style={{
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                color: 'white',
-                border: 'none',
-                padding: '14px 32px',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 4px 16px rgba(16, 185, 129, 0.4)',
-                width: '100%',
-                maxWidth: '380px'
-              }}
             >
               {requesting ? (
                 <>
@@ -352,84 +209,25 @@ const CreditCardRequest = () => {
           )}
 
           {status === 'pending' && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              padding: '16px',
-              background: 'rgba(245, 158, 11, 0.1)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
-              borderRadius: '12px',
-              color: '#f59e0b',
-              maxWidth: '380px',
-              margin: '0 auto'
-            }}>
-              <Loader2 size={20} className="spin" />
-              <span style={{ fontWeight: '600' }}>Pending Review</span>
+            <div className="status-badge pending">
+              <Loader2 size={18} className="spin" />
+              <span>Pending Review</span>
             </div>
           )}
 
           {status === 'approved' && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              padding: '16px',
-              background: 'rgba(16, 185, 129, 0.1)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: '12px',
-              color: '#10b981',
-              maxWidth: '380px',
-              margin: '0 auto'
-            }}>
-              <CheckCircle2 size={20} />
-              <span style={{ fontWeight: '600' }}>Approved - Card Issued</span>
+            <div className="status-badge approved">
+              <CheckCircle2Icon size={18} />
+              <span>Approved - Card Issued</span>
             </div>
           )}
 
           {status === 'rejected' && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              padding: '16px',
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '12px',
-              color: '#ef4444',
-              maxWidth: '380px',
-              margin: '0 auto'
-            }}>
-              <AlertCircle size={20} />
-              <span style={{ fontWeight: '600' }}>Request Rejected</span>
+            <div className="status-badge rejected">
+              <AlertCircle size={18} />
+              <span>Request Rejected</span>
             </div>
           )}
-        </div>
-
-        {/* Benefits */}
-        <div style={{ marginTop: '20px' }}>
-          <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: '#374151' }}>
-            Benefits
-          </h4>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {card.benefits.map((benefit, i) => (
-              <li key={i} style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '10px',
-                padding: '8px 0',
-                color: '#4b5563',
-                fontSize: '14px',
-                lineHeight: '1.5'
-              }}>
-                <CheckCircle2 size={16} style={{ color: '#10b981', flexShrink: 0, marginTop: '2px' }} />
-                {benefit}
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     );
@@ -474,7 +272,7 @@ const CreditCardRequest = () => {
         <div className="modal-overlay" onClick={closeSuccessModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-icon success">
-              <CheckCircle2 size={48} />
+              <CheckCircle2Icon size={48} />
             </div>
             <h2>Order Placed Successfully!</h2>
             <p>Your <strong>{selectedCard.name}</strong> request has been submitted.</p>
@@ -484,8 +282,9 @@ const CreditCardRequest = () => {
             </button>
           </div>
         </div>
-)}
+      )}
     </div>
   );
-}
+};
+
 export default CreditCardRequest;
