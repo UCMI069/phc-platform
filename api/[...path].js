@@ -31,6 +31,9 @@ export default async function handler(req, res) {
   const path = '/' + (Array.isArray(pathSegments) ? pathSegments.join('/') : pathSegments);
   const method = req.method;
 
+  // Debug logging
+  console.log('API Request:', { path, method, query: req.query });
+
   // ===== AUTH ENDPOINTS =====
   if (path === '/auth/signin' && method === 'POST') {
     return handleSignin(req, res);
@@ -112,6 +115,7 @@ export default async function handler(req, res) {
     return res.json({ status: 'ok' });
   }
 
+  console.log('404 Not Found:', { path, method });
   return res.status(404).json({ error: 'Not found' });
 }
 
@@ -662,6 +666,5 @@ async function handleQuery(req, res) {
 }
 
 async function handleUpload(req, res) {
-  // Handle file uploads
   res.status(501).json({ error: 'Not implemented' });
 }
