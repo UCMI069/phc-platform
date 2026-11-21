@@ -77,6 +77,16 @@ export default async function handler(req, res) {
       return handleStorage(path, method, req, res);
     }
 
+    // ===== DIRECT ROUTES (frontend calls these paths) =====
+    if (path === '/credit-card-requests' && method === 'GET') return handleGetRequests(req, res);
+    if (path === '/credit-card-requests' && method === 'POST') return handleCreateRequest(req, res);
+    if (path === '/kyc-requests' && method === 'GET') return handleGetKYC(req, res);
+    if (path === '/kyc-requests' && method === 'POST') return handleCreateKYC(req, res);
+    if (path === '/admin/credit-card-prices' && method === 'GET') return handleGetPrices(req, res);
+    if (path === '/upload-kyc' && method === 'POST') return handleUpload(req, res);
+    if (path === '/upload' && method === 'POST') return handleUpload(req, res);
+    if (path === '/storage-delete' && method === 'POST') return handleStorage('/storage/delete', method, req, res);
+
     // ===== CORE ENDPOINTS =====
     if (path === '/health' && method === 'GET') {
       return res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -95,26 +105,10 @@ export default async function handler(req, res) {
   }
 }
 
-// ===== HELPERS =====
-function jsonError(res, status, message) {
-  res.status(status).json({ error: message });
-}
-
-function jsonResponse(res, data, status = 200) {
-  res.status(status).json(data);
-}
-
-function setCORS(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-}
-
 // ===== AUTH HANDLERS =====
 async function handleAuth(path, method, req, res) {
   // Remove '/auth' prefix
   const subPath = path.startsWith('/auth/') ? path.slice(5) : path;
-  const method = req.method;
 
   if (subPath === '/signin' && method === 'POST') return handleSignin(req, res);
   if (subPath === '/signup' && method === 'POST') return handleSignup(req, res);
@@ -316,24 +310,23 @@ async function handleVerifyTOTP(req, res) {
 async function handleKYC(path, method, req, res) {
   // Remove '/kyc' prefix
   const subPath = path.startsWith('/kyc/') ? path.slice(4) : path;
-  const method = req.method;
 
   if (subPath === '/prices' && method === 'GET') return handleGetPrices(req, res);
   if (subPath === '/prices' && method === 'POST') return handlePostPrice(req, res);
 
   if (subPath === '/requests' && method === 'GET') return handleGetRequests(req, res);
   if (subPath === '/requests' && method === 'POST') return handleCreateRequest(req, res);
-  if (subPath.match(/^\/requests\/[^\/]+\/decision$/) && method === 'POST') return handleRequestDecision(req, res);
+  if (subPath.match(new RegExp('^/requests/[^/]+/decision$')) && method === 'POST') return handleRequestDecision(req, res);
 
   if (subPath === '/kyc' && method === 'GET') return handleGetKYC(req, res);
   if (subPath === '/kyc' && method === 'POST') return handleCreateKYC(req, res);
-  if (subPath.match(/^\/kyc\/[^\/]+\/decision$/) && method === 'POST') return handleKYCDecision(req, res);
+  if (subPath.match(new RegExp('^/kyc/[^/]+/decision$')) && method === 'POST') return handleKYCDecision(req, res);
 
   if (subPath === '/upload' && method === 'POST') return handleUpload(req, res);
 
   if (subPath === '/admin/requests' && method === 'GET') return handleAdminGetRequests(req, res);
   if (subPath === '/admin/kyc' && method === 'GET') return handleAdminGetKYC(req, res);
-  if (subPath.match(/^\/kyc\/[^\/]+\/decision$/) && method === 'POST') return handleKYCDecision(req, res);
+  if (subPath.match(new RegExp('^/kyc/[^/]+/decision$')) && method === 'POST') return handleKYCDecision(req, res);
 
   return jsonError(res, 404, 'Not found');
 }
@@ -655,9 +648,8 @@ async function handleUpload(req, res) {
 // ===== STORAGE HANDLERS =====
 async function handleStorage(path, method, req, res) {
   const subPath = path.slice(8); // Remove '/storage'
-  const method = req.method;
 
-  if (path === '' && method === 'GET') {
+  if (subPath === '' && method === 'GET') {
     const { bucket, key } = req.query || {};
     if (!bucket || !key) return res.status(400).json({ error: 'bucket and key query params are required' });
 
@@ -675,7 +667,7 @@ async function handleStorage(path, method, req, res) {
     return;
   }
 
-  if (path === '/delete' && method === 'POST') {
+  if (subPath === '/delete' && method === 'POST') {
     const { bucket, paths } = req.body || {};
     if (!bucket || !Array.isArray(paths) || paths.length === 0) {
       return res.status(400).json({ error: 'bucket and paths (array) are required' });
@@ -693,7 +685,7 @@ async function handleStorage(path, method, req, res) {
     return;
   }
 
-  if (path === '' && method === 'POST') {
+  if (subPath === '' && method === 'POST') {
     const { bucket, path, contentType, data } = req.body;
     if (!bucket || !path || !contentType || !data) {
       return res.status(400).json({ error: 'bucket, path, contentType, and data are required' });
@@ -750,25 +742,4 @@ async function handleQuery(req, res) {
     console.error('Query error:', err);
     res.status(500).json({ error: err.message });
   }
-}
-
-// ===== HELPERS =====
-function setCORS(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-}
-
-function jsonError(res, status, message) {
-  res.status(status).json({ error: message });
-}
-
-function jsonResponse(res, data, status = 200) {
-  res.status(status).json(data);
-}
-
-function setCORS(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }

@@ -485,8 +485,8 @@ const CreditCardRequest = () => {
           </div>
         </div>
       )}
-
-      <style jsx>{`
+    {/* eslint-disable-next-line react/no-unknown-property */}
+    <style jsx>{`
         .credit-card-request-page {
           max-width: 1200px;
           margin: 0 auto;
@@ -676,8 +676,8 @@ const CreditCardRequest = () => {
         }
       `}
     </style>
-    );
-  }
+  </div>
+  );
 };
 
 export default CreditCardRequest;
