@@ -68,20 +68,22 @@ export default async function handler(req, res) {
 
   console.log('API Request:', { path, method, url: req.url, queryPath: req.query.path });
 
-  // Parse request body for POST/PUT/PATCH — check runtime-parsed body first,
-  // fall back to reading raw stream if empty
+  // Parse request body for POST/PUT/PATCH — handle all Vercel runtime scenarios
   if (['POST', 'PUT', 'PATCH'].includes(method)) {
-    console.log('[API] Body debug:', { hasBody: !!req.body, bodyType: typeof req.body, bodyKeys: req.body ? Object.keys(req.body) : 'none', body: JSON.stringify(req.body).slice(0, 200) });
-    if (!req.body || Object.keys(req.body).length === 0) {
+    if (!req.body || typeof req.body !== 'object' || Object.keys(req.body).length === 0) {
       const text = await new Promise((resolve) => {
         const chunks = [];
         req.on('data', c => chunks.push(c));
         req.on('end', () => resolve(Buffer.concat(chunks).toString()));
         req.on('error', () => resolve(''));
       });
-      console.log('[API] Stream debug:', { textLength: text ? text.length : 0, textPreview: text ? text.slice(0, 200) : 'none' });
-      try { req.body = text ? JSON.parse(text) : {}; } catch { req.body = {}; }
+      try {
+        req.body = text ? JSON.parse(text) : {};
+      } catch {
+        req.body = {};
+      }
     }
+    console.log('[API] Final req.body:', { keys: Object.keys(req.body || {}), hasQuery: !!((req.body || {}).query), bodyPreview: JSON.stringify(req.body || {}).slice(0, 300) });
   }
 
   try {
