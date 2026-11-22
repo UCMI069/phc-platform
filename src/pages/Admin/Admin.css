@@ -168,13 +168,14 @@ body {
 }
 
 .nav-badge {
-  background: rgba(255,255,255,0.25);
-  color: #bae6fd;
+  background: var(--danger-bg);
+  color: var(--danger);
   padding: 2px 8px;
   border-radius: var(--radius-full);
   font-size: 11px;
   font-weight: 700;
   margin-left: var(--space-xs);
+  border: 1px solid #fecaca;
 }
 
 /* === Stats Grid === */
@@ -880,6 +881,20 @@ body {
   background: white;
 }
 
+.form-select {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  outline: none;
+  transition: all var(--transition);
+  font-family: inherit;
+  background: white;
+  cursor: pointer;
+  min-height: var(--touch-target);
+}
+
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
@@ -1571,6 +1586,20 @@ body {
 .upgrade-approve-fields input {
   flex: 1;
   min-width: 0;
+}
+
+/* Upgrade decision row fields */
+.upgrade-decision-fields {
+  display: flex;
+  gap: var(--space-2xs);
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .upgrade-decision-fields {
+    flex-direction: row;
+    align-items: center;
+  }
 }
 
 /* Crypto table */

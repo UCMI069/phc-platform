@@ -447,7 +447,7 @@ const Deposit = () => {
 
               <div className="notice-box">
                 <ShieldCheck size={20} />
-                <p>An administrator will review your deposit and credit your account shortly.</p>
+                <p>Our team will review your deposit and credit your account shortly.</p>
               </div>
 
               <button onClick={() => {
