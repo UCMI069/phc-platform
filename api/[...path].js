@@ -68,19 +68,16 @@ export default async function handler(req, res) {
 
   console.log('API Request:', { path, method, url: req.url, queryPath: req.query.path });
 
-  // Parse request body for POST/PUT/PATCH if not already parsed by runtime
-  if (['POST', 'PUT', 'PATCH'].includes(method) && (!req.body || typeof req.body !== 'object')) {
-    try {
-      const text = await new Promise((resolve) => {
-        const chunks = [];
-        req.on('data', c => chunks.push(c));
-        req.on('end', () => resolve(Buffer.concat(chunks).toString()));
-        req.on('error', () => resolve(''));
-      });
-      req.body = text ? JSON.parse(text) : {};
-    } catch {
-      req.body = {};
-    }
+  // Parse request body for POST/PUT/PATCH — always read raw stream to ensure
+  // body is available regardless of runtime pre-parsing behavior
+  if (['POST', 'PUT', 'PATCH'].includes(method)) {
+    const text = await new Promise((resolve) => {
+      const chunks = [];
+      req.on('data', c => chunks.push(c));
+      req.on('end', () => resolve(Buffer.concat(chunks).toString()));
+      req.on('error', () => resolve(''));
+    });
+    try { req.body = text ? JSON.parse(text) : {}; } catch { req.body = {}; }
   }
 
   try {
