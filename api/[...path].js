@@ -650,17 +650,6 @@ async function handleUpload(req, res) {
       return res.status(400).json({ error: 'Only JPG, PNG, or PDF files are allowed' });
     }
 
-    const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
-    const s3Client = new S3Client({
-      region: process.env.NEON_S3_REGION || process.env.VITE_NEON_S3_REGION || 'us-east-2',
-      endpoint: process.env.NEON_S3_ENDPOINT || process.env.VITE_NEON_S3_ENDPOINT,
-      credentials: {
-        accessKeyId: process.env.NEON_S3_ACCESS_KEY || process.env.VITE_NEON_S3_ACCESS_KEY,
-        secretAccessKey: process.env.NEON_S3_SECRET_KEY || process.env.VITE_NEON_S3_SECRET_KEY,
-      },
-      forcePathStyle: true,
-    });
-
     const command = new PutObjectCommand({
       Bucket: bucket,
       Key: path,
