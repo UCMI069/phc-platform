@@ -479,114 +479,259 @@ body {
   text-decoration: underline;
 }
 
-/* === Action Buttons — never squished === */
-.action-group {
-  display: flex;
-  gap: var(--space-2xs);
-  flex-wrap: wrap;
-  align-items: center;
-}
+/* === Unified Button Design System ===
+   Mature, consistent buttons across the entire admin panel.
+   All buttons share: 44px min touch target, 12px radius, 600 font weight,
+   smooth hover/active/disabled states, theme-consistent colors. === */
 
-.btn-icon {
-  background: none;
-  border: 1px solid var(--border);
-  padding: var(--space-xs);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  color: var(--secondary);
-  transition: all var(--transition);
-  font-size: 16px;
-  min-width: var(--touch-target);
-  min-height: var(--touch-target);
-  display: flex;
+/* Base button reset — removes browser defaults, sets shared anatomy */
+.btn-base {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-xs);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  min-height: var(--touch-target);
+  min-width: 100px;
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-.btn-icon:hover {
+.btn-base:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.btn-base:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: grayscale(0.4);
+}
+
+.btn-base:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Icon-only buttons (44px touch target) */
+.btn-icon {
+  width: var(--touch-target);
+  height: var(--touch-target);
+  min-width: var(--touch-target);
+  padding: 0;
+  font-size: 16px;
+  border-radius: var(--radius-sm);
+}
+
+/* --- Primary: solid gradient brand button --- */
+.btn-primary,
+.admin-btn.primary,
+.save-btn {
+  background: linear-gradient(135deg, var(--primary) 0%, #3B82F6 100%);
+  color: #ffffff;
+  padding: var(--space-sm) var(--space-xl);
+}
+
+.btn-primary:hover:not(:disabled),
+.admin-btn.primary:hover:not(:disabled),
+.save-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(30, 58, 138, 0.35);
+}
+
+/* --- Secondary: outlined / white surface --- */
+.btn-secondary,
+.admin-btn.secondary,
+.cancel-btn {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  color: var(--primary);
+  padding: var(--space-sm) var(--space-xl);
+}
+
+.btn-secondary:hover:not(:disabled),
+.admin-btn.secondary:hover:not(:disabled),
+.cancel-btn:hover {
+  background: #f8fafc;
+  border-color: var(--primary);
+}
+
+/* --- Success: green positive action --- */
+.btn-success,
+.btn-approve,
+.approve-btn,
+.decision-btn.approve,
+.adjust-btn.credit {
+  background: var(--success-bg);
+  border: 1px solid #86efac;
+  color: #15803d;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.btn-success:hover:not(:disabled),
+.btn-approve:hover:not(:disabled),
+.approve-btn:hover:not(:disabled),
+.decision-btn.approve:hover:not(:disabled),
+.adjust-btn.credit:hover:not(:disabled) {
+  background: #86efac;
+  color: #14532d;
+}
+
+/* --- Danger: red destructive action --- */
+.btn-danger,
+.btn-reject,
+.reject-btn,
+.decision-btn.reject,
+.adjust-btn.debit,
+.btn-delete,
+.delete-user-btn {
+  background: var(--danger-bg);
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.btn-danger:hover:not(:disabled),
+.btn-reject:hover:not(:disabled),
+.reject-btn:hover:not(:disabled),
+.decision-btn.reject:hover:not(:disabled),
+.adjust-btn.debit:hover:not(:disabled),
+.btn-delete:hover:not(:disabled),
+.delete-user-btn:hover:not(:disabled) {
+  background: #fecaca;
+  color: #7f1d1d;
+}
+
+/* --- Warning: amber action --- */
+.btn-warning,
+.btn-edit {
+  background: var(--warning-bg);
+  border: 1px solid #fde68a;
+  color: #92400e;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.btn-warning:hover:not(:disabled),
+.btn-edit:hover:not(:disabled) {
+  background: #fde047;
+  color: #713f12;
+}
+
+/* --- Ghost: transparent, icon/text only --- */
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--secondary);
+  padding: var(--space-xs);
+}
+
+.btn-ghost:hover:not(:disabled) {
   background: #f8fafc;
   border-color: var(--primary);
   color: var(--primary);
 }
 
-.btn-approve {
-  background: var(--success-bg);
-  border-color: #86efac;
-  color: var(--success);
+/* --- Full width variant --- */
+.btn-full {
+  width: 100%;
+  justify-content: center;
 }
 
-.btn-approve:hover {
-  background: #86efac;
-  color: #15803d;
-}
-
-.btn-reject {
-  background: var(--danger-bg);
-  border-color: #fecaca;
-  color: var(--danger);
-}
-
-.btn-reject:hover {
-  background: #fecaca;
-  color: #b91c1c;
-}
-
-.btn-edit {
-  background: var(--warning-bg);
-  border-color: #fde68a;
-  color: var(--warning);
-}
-
-.btn-edit:hover {
-  background: #fde047;
-  color: #713f12;
-}
-
-.btn-delete {
-  background: var(--danger-bg);
-  border-color: #fecaca;
-  color: var(--danger);
-}
-
-.btn-delete:hover {
-  background: #fecaca;
-  color: #b91c1c;
-}
-
-/* Primary Button — proper touch target */
-.btn-primary {
-  background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
-  color: white;
-  border: none;
+/* --- Ping / emphasized action (brand solid) --- */
+.ping-send-btn {
+  background: var(--primary);
+  color: #ffffff;
   padding: var(--space-md) var(--space-xl);
-  border-radius: var(--radius-md);
+  font-size: 13px;
+}
+
+.ping-send-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(30, 58, 138, 0.35);
+}
+
+/* --- Toggle / status buttons (block, inactive, role) --- */
+.btn-toggle {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 12px;
   font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
+  min-width: auto;
+}
+
+.btn-toggle:hover:not(:disabled) {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-toggle.active {
+  background: #d1fae5;
+  border-color: #86efac;
+  color: #059669;
+}
+
+.btn-toggle.danger {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.btn-toggle.danger:hover:not(:disabled) {
+  background: #fecaca;
+  color: #7f1d1d;
+}
+
+/* --- Transaction approve/reject (kept as named aliases) --- */
+.approve-btn,
+.reject-btn {
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
   min-height: var(--touch-target);
-  min-width: 140px;
-  transition: all var(--transition);
   white-space: nowrap;
+  transition: all var(--transition);
 }
 
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(30, 58, 138, 0.3);
+.approve-btn {
+  background: var(--success-bg);
+  color: #15803d;
 }
 
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
+.approve-btn:hover:not(:disabled) {
+  background: #86efac;
 }
 
-.btn-secondary {
-  background: #ffffff;
-  border: 1px solid var(--border);
-  color: var(--primary);
+.reject-btn {
+  background: var(--danger-bg);
+  color: #b91c1c;
+}
+
+.reject-btn:hover:not(:disabled) {
+  background: #fecaca;
+}
+
+/* --- Deprecated/legacy classes kept for compatibility --- */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
   padding: var(--space-md) var(--space-xl);
   border-radius: var(--radius-md);
   font-weight: 600;
@@ -594,14 +739,121 @@ body {
   cursor: pointer;
   min-height: var(--touch-target);
   transition: all var(--transition);
-  white-space: nowrap;
+  border: none;
+  font-family: inherit;
 }
 
-.btn-secondary:hover {
+.admin-btn.primary {
+  background: linear-gradient(135deg, var(--primary) 0%, #3B82F6 100%);
+  color: #ffffff;
+}
+
+.admin-btn.secondary {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  color: var(--primary);
+}
+
+.admin-btn.secondary:hover:not(:disabled) {
   background: #f8fafc;
 }
 
-/* === Forms === */
+/* --- Legacy block/role/inactive toggle classes (mapped to new system) --- */
+.block-toggle-btn,
+.unblock,
+.block,
+.inactive-toggle-btn,
+.make-active,
+.make-inactive,
+.role-toggle-btn,
+.demote,
+.promote,
+.delete-user-btn {
+  /* mapped to .btn-toggle variants via JSX className updates below */
+}
+
+/* Ensure modal footers lay out primary first, then secondary */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-md);
+  padding: var(--space-lg) var(--space-xl);
+  border-top: 1px solid var(--border);
+}
+
+/* Decision modal buttons side by side with equal weight */
+.decision-actions {
+  display: flex;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.decision-btn {
+  flex: 1;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: none;
+  min-height: var(--touch-target);
+  white-space: nowrap;
+}
+
+.decision-btn.approve {
+  background: var(--success-bg);
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.decision-btn.approve:hover:not(:disabled) {
+  background: #86efac;
+}
+
+.decision-btn.approve.selected {
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
+.decision-btn.reject {
+  background: var(--danger-bg);
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.decision-btn.reject:hover:not(:disabled) {
+  background: #fecaca;
+}
+
+.decision-btn.reject.selected {
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
+/* Adjustment buttons (credit/debit) */
+.adjust-actions {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.adjust-btn {
+  flex: 1;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  min-height: var(--touch-target);
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.adjust-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
 .form-group {
   margin-bottom: var(--space-md);
 }

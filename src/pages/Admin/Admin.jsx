@@ -1083,7 +1083,7 @@ const Admin = () => {
                         <td data-label="Balance">
                           <div className="balance-cell">
                             <strong>{formatCurrency(profile.accounts?.[0]?.balance || 0, profile.currency)}</strong>
-                            <button className="edit-btn" onClick={() => {
+                            <button className="btn-icon btn-edit btn-ghost" title="Edit account" onClick={() => {
                               setSelectedUser(profile);
                               setEditBalance(profile.accounts?.[0]?.balance || 0);
                               setEditAccountType(profile.accounts?.[0]?.type || 'checkings');
@@ -1113,13 +1113,13 @@ const Admin = () => {
                         <td data-label="Actions">
                           <div className="action-group">
                             <button 
-                              className={`block-toggle-btn ${profile.blocked ? 'unblock' : 'block'}`}
+                              className={`btn-toggle ${profile.blocked ? 'danger' : ''}`}
                               onClick={() => handleToggleBlock(profile.id, profile.blocked)}
                             >
                               {profile.blocked ? 'Unblock' : 'Block'}
                             </button>
                             <button
-                              className={`inactive-toggle-btn ${profile.is_inactive ? 'make-active' : 'make-inactive'}`}
+                              className={`btn-toggle ${profile.is_inactive ? 'active' : ''}`}
                               onClick={() => handleToggleInactive(profile.id, profile.is_inactive)}
                             >
                               {profile.is_inactive ? 'Set Active' : 'Set Inactive'}
@@ -1128,13 +1128,13 @@ const Admin = () => {
                             {profile.id !== profiles.find(p => p.is_admin)?.id && (
                               <>
                                 <button 
-                                  className={`role-toggle-btn ${profile.is_admin ? 'demote' : 'promote'}`}
+                                  className={`btn-toggle ${profile.is_admin ? 'danger' : ''}`}
                                   onClick={() => handleToggleAdmin(profile.id, profile.is_admin)}
                                 >
                                   {profile.is_admin ? 'Remove Admin' : 'Make Admin'}
                                 </button>
                                 <button 
-                                  className="delete-user-btn"
+                                  className="btn-toggle danger delete-user-btn"
                                   onClick={() => handleDeleteUser(profile.id)}
                                 >
                                   Delete
@@ -1389,13 +1389,13 @@ const Admin = () => {
                         <td data-label="Actions">
                           <div className="action-group">
                             <button
-                              className="role-toggle-btn"
+                              className="btn-ghost btn-warning"
                               onClick={() => handleEditCryptoDetails(row)}
                             >
                               Edit
                             </button>
                             <button
-                              className="delete-user-btn"
+                              className="btn-danger delete-user-btn"
                               onClick={() => handleDeleteCryptoDetails(row)}
                               disabled={submitting}
                             >
@@ -2132,7 +2132,7 @@ const Admin = () => {
               <div className="access-actions">
                 <button
                   type="button"
-                  className={`inactive-toggle-btn ${selectedUser.is_inactive ? 'make-active' : 'make-inactive'}`}
+                  className={`btn-toggle ${selectedUser.is_inactive ? 'active' : ''}`}
                   disabled={submitting}
                   onClick={() => handleToggleInactive(selectedUser.id, selectedUser.is_inactive)}
                 >
@@ -2140,7 +2140,7 @@ const Admin = () => {
                 </button>
                 <button
                   type="button"
-                  className={`block-toggle-btn ${selectedUser.blocked ? 'unblock' : 'block'}`}
+                  className={`btn-toggle danger ${selectedUser.blocked ? '' : ''}`}
                   disabled={submitting}
                   onClick={() => handleToggleBlock(selectedUser.id, selectedUser.blocked)}
                 >
