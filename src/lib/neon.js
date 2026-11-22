@@ -26,6 +26,10 @@ function setStoredSession(session) {
 function extractRows(data) {
   if (Array.isArray(data)) return data;
   if (data && typeof data === 'object') {
+    if (data.data && typeof data.data === 'object') {
+      if (Array.isArray(data.data.rows)) return data.data.rows;
+      if (Array.isArray(data.data)) return data.data;
+    }
     if (Array.isArray(data.rows)) return data.rows;
     if (data.rows && typeof data.rows === 'object') return extractRows(data.rows);
     const values = Object.values(data);
@@ -63,10 +67,10 @@ async function serverQuery(query, params = []) {
   }
   if (result.error) throw new Error(result.error.message);
   // Recursively unwrap regardless of server response shape:
+  //   { rows: [...] }
   //   { data: [...rows] }
   //   { data: { rows: [...] } }
-  //   { data: { rows: { rows: [...] } } }
-  return extractRows(result.data);
+  return extractRows(result);
 }
 
 // ── Query Builder ──
