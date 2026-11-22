@@ -24,14 +24,25 @@ function setStoredSession(session) {
 
 // Recursively pull an array of rows out of any server response shape.
 function extractRows(data) {
+  // Direct array of rows
   if (Array.isArray(data)) return data;
   if (data && typeof data === 'object') {
+    // Nested: { data: { rows: [...] } }
     if (data.data && typeof data.data === 'object') {
       if (Array.isArray(data.data.rows)) return data.data.rows;
       if (Array.isArray(data.data)) return data.data;
+      for (const key of Object.keys(data.data)) {
+        if (Array.isArray(data.data[key])) return data.data[key];
+      }
     }
+    // Flat: { rows: [...] }
     if (Array.isArray(data.rows)) return data.rows;
     if (data.rows && typeof data.rows === 'object') return extractRows(data.rows);
+    // Any array-valued property at top level
+    for (const key of Object.keys(data)) {
+      if (Array.isArray(data[key])) return data[key];
+    }
+    // Values contain an array
     const values = Object.values(data);
     if (values.length > 0 && Array.isArray(values[0])) return values[0];
   }
