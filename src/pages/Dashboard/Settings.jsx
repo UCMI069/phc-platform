@@ -536,7 +536,7 @@ const Settings = () => {
                       />
                       {kyc.documentFront ? (
                         <div className="upload-preview">
-                          <img src={kyc.documentFront} alt="Front" />
+                          <img src={proxiedStorageUrl(kyc.documentFront)} alt="Front" />
                           <button type="button" className="remove-btn" onClick={(e) => { e.stopPropagation(); removeKYCFile('front'); }}>
                             <X size={16} />
                           </button>
@@ -560,7 +560,7 @@ const Settings = () => {
                       />
                       {kyc.documentBack ? (
                         <div className="upload-preview">
-                          <img src={kyc.documentBack} alt="Back" />
+                          <img src={proxiedStorageUrl(kyc.documentBack)} alt="Back" />
                           <button type="button" className="remove-btn" onClick={(e) => { e.stopPropagation(); removeKYCFile('back'); }}>
                             <X size={16} />
                           </button>
