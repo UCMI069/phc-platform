@@ -470,7 +470,7 @@ class AuthClient {
         console.warn('[neon] getUser server error; using stored session:', data);
         return { data: { user: session.user }, error: null };
       }
-      return { data: { user: data }, error: null };
+      return { data: { user: data.user }, error: null };
     } catch (err) {
       console.error('[neon] getUser error:', err);
       // API unreachable — keep the app usable from the stored session.
