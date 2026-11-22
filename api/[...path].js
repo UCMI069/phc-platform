@@ -4,6 +4,8 @@ import QRCode from 'qrcode';
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { neon } from '@neondatabase/serverless';
 
+// PHC Platform API — single catch-all handler (Vercel Hobby: 4 serverless functions max)
+
 const sql = neon(process.env.DATABASE_URL);
 
 const s3Client = new S3Client({
