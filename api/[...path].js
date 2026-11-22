@@ -764,6 +764,7 @@ async function handleQuery(req, res) {
     const sql = neon(process.env.DATABASE_URL);
     const result = await sql.query(query, params || []);
     const rows = Array.isArray(result) ? result : (result?.rows || []);
+    console.log('[API] handleQuery:', { query: query.slice(0, 100), params, resultType: Array.isArray(result) ? 'array' : typeof result, resultKeys: result ? Object.keys(result) : 'none', rowsCount: rows.length });
     res.json({ data: { rows, rowCount: Array.isArray(result) ? result.length : (result?.rowCount ?? rows.length) } });
   } catch (err) {
     console.error('Query error:', err);
