@@ -119,6 +119,7 @@ export default async function handler(req, res) {
     if (path === '/upload-kyc' && method === 'POST') return handleUpload(req, res);
     if (path === '/upload' && method === 'POST') return handleUpload(req, res);
     if (path === '/storage-delete' && method === 'POST') return handleStorage('/storage/delete', method, req, res);
+    if (path === '/storage' && method === 'GET') return handleStorage(path, method, req, res);
 
     // ===== CORE ENDPOINTS =====
     if (path === '/health' && method === 'GET') {

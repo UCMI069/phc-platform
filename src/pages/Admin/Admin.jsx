@@ -52,6 +52,8 @@ const Admin = () => {
   const [selectedSupport, setSelectedSupport] = useState(null);
   const [supportResponse, setSupportResponse] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [userStatusFilter, setUserStatusFilter] = useState('all');
+  const [upgradeSearchTerm, setUpgradeSearchTerm] = useState('');
   const [editBalance, setEditBalance] = useState('');
   const [editAccountType, setEditAccountType] = useState('');
   const [adjustAmount, setAdjustAmount] = useState('');
@@ -75,6 +77,7 @@ const Admin = () => {
   const [kycNoteDraft, setKycNoteDraft] = useState({});
   const [selectedCardRequest, setSelectedCardRequest] = useState(null);
   const [selectedKycRequest, setSelectedKycRequest] = useState(null);
+  const [selectedKycView, setSelectedKycView] = useState(null);
   const [cryptoUploading, setCryptoUploading] = useState(false);
   const [editBankDetails, setEditBankDetails] = useState({
     bankName: '',
@@ -945,6 +948,12 @@ const Admin = () => {
     }
   };
 
+  const profileBlockedStatus = (p) => {
+    if (p.blocked) return 'blocked';
+    if (p.is_inactive) return 'inactive';
+    return 'active';
+  };
+
   const formatCurrency = (amount, userCurrency = 'GBP') => {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
@@ -994,59 +1003,27 @@ const Admin = () => {
           </button>
         </div>
 
-      {/* Admin Stats */}
-      <div className="admin-stats-grid">
-        <div className="admin-stat-card">
-          <div className="stat-icon users"><Users size={20} /></div>
-          <div className="stat-info">
-            <h3>Active Users</h3>
-            <div className="stat-value">{stats.totalUsers}</div>
-          </div>
-        </div>
-        <div className="admin-stat-card">
-          <div className="stat-icon deposits"><ArrowDownLeft size={20} /></div>
-          <div className="stat-info">
-            <h3>Net Deposits</h3>
-            <div className="stat-value">{formatCurrency(stats.totalDeposits, 'GBP')}</div>
-          </div>
-        </div>
-        <div className="admin-stat-card">
-          <div className="stat-icon withdrawals"><ArrowUpRight size={20} /></div>
-          <div className="stat-info">
-            <h3>Net Withdrawals</h3>
-            <div className="stat-value">{formatCurrency(stats.totalWithdrawals, 'GBP')}</div>
-          </div>
-        </div>
-        <div className="admin-stat-card">
-          <div className="stat-icon kyc"><Clock size={20} /></div>
-          <div className="stat-info">
-            <h3>Pending Actions</h3>
-            <div className="stat-value">{pendingActions.length}</div>
-          </div>
-        </div>
-        <div className="admin-stat-card">
-          <div className="stat-icon cards"><CreditCard size={20} /></div>
-          <div className="stat-info">
-            <h3>Pending Cards</h3>
-            <div className="stat-value">{stats.pendingCards}</div>
-          </div>
-        </div>
-      </div>
-
       <div className="admin-content tab-content">
         {view === 'users' && (
           <div className="admin-grid-main">
             <section className="admin-section">
               <div className="section-header">
-                <h3>User Management</h3>
-                <div className="header-search">
-                  <Search size={18} />
-                  <input
-                    type="text"
-                    placeholder="Search users..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
+                <div className="table-toolbar">
+                  <div className="header-search">
+                    <Search size={18} />
+                    <input
+                      type="text"
+                      placeholder="Search users..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <select className="filter-select" onChange={(e) => setUserStatusFilter(e.target.value)}>
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="blocked">Blocked</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
                 </div>
               </div>
               <div className="admin-table-wrapper">
@@ -1055,6 +1032,7 @@ const Admin = () => {
                     <tr>
                       <th>User</th>
                       <th>Balance</th>
+                      <th>Tier</th>
                       <th>Status</th>
                       <th>Actions</th>
                     </tr>
@@ -1063,16 +1041,26 @@ const Admin = () => {
                     {profiles
                       .filter((p) => {
                         const q = String(searchTerm || '').trim().toLowerCase();
-                        if (!q) return true;
                         const name = `${p.first_name || ''} ${p.last_name || ''}`.toLowerCase();
                         const email = String(p.username || '').toLowerCase();
-                        return name.includes(q) || email.includes(q);
+                        const matchesSearch = !q || name.includes(q) || email.includes(q);
+
+                        const status = profileBlockedStatus(p);
+                        const matchesFilter =
+                          userStatusFilter === 'all' ||
+                          (userStatusFilter === 'active' && status === 'active') ||
+                          (userStatusFilter === 'blocked' && status === 'blocked') ||
+                          (userStatusFilter === 'inactive' && status === 'inactive');
+
+                        return matchesSearch && matchesFilter;
                       })
                       .map((profile) => (
                       <tr key={profile.id}>
                         <td data-label="User">
                           <div className="user-profile-cell">
-                            <div className="user-initials">{profile.first_name?.[0]}{profile.last_name?.[0]}</div>
+                            <div className="user-avatar">
+                              {profile.first_name?.[0]}{profile.last_name?.[0]}
+                            </div>
                             <div className="user-details">
                               <span className="user-name">{profile.first_name} {profile.last_name}</span>
                               <span className="user-email">{profile.username || 'No username'}</span>
@@ -1082,43 +1070,50 @@ const Admin = () => {
                         <td data-label="Balance">
                           <div className="balance-cell">
                             <strong>{formatCurrency(profile.accounts?.[0]?.balance || 0, profile.currency)}</strong>
-                            <button className="edit-btn" onClick={() => {
-                              setSelectedUser(profile);
-                              setEditBalance(profile.accounts?.[0]?.balance || 0);
-                              setEditAccountType(profile.accounts?.[0]?.type || 'checkings');
-                              setAdjustAmount('');
-                              setAdjustDescription('');
-                              setPingTitle('Important Message');
-                              setPingMessage('');
-                              setEditBankDetails({
-                                bankName: profile.deposit_bank_name || '',
-                                accountNumber: profile.deposit_account_number || '',
-                                sortCode: profile.deposit_sort_code || '',
-                                recipientName: profile.deposit_recipient_name || ''
-                              });
-                            }}><Settings size={14} /></button>
                           </div>
                         </td>
+                        <td data-label="Tier">
+                          <span className={`tier-badge ${String(profile.account_level || 'starter').toLowerCase()}`}>
+                            {String(profile.account_level || 'starter').toUpperCase()}
+                          </span>
+                        </td>
                         <td data-label="Status">
-                          <span
-                            className={`status-pill ${
-                              profile.blocked ? 'blocked' : (profile.is_inactive ? 'inactive' : 'active')
-                            }`}
-                          >
+                          <span className={`status-pill ${profile.blocked ? 'blocked' : (profile.is_inactive ? 'inactive' : 'active')}`}>
                             {profile.blocked ? 'Blocked' : (profile.is_inactive ? 'Inactive' : 'Active')}
                           </span>
                           {profile.is_admin && <span className="status-pill admin-badge">Admin</span>}
                         </td>
                         <td data-label="Actions">
                           <div className="action-group">
-                            <button 
-                              className={`block-toggle-btn ${profile.blocked ? 'unblock' : 'block'}`}
+                            <button
+                              className="btn-icon btn-edit btn-ghost"
+                              title="Edit account"
+                              onClick={() => {
+                                setSelectedUser(profile);
+                                setEditBalance(profile.accounts?.[0]?.balance || 0);
+                                setEditAccountType(profile.accounts?.[0]?.type || 'checkings');
+                                setAdjustAmount('');
+                                setAdjustDescription('');
+                                setPingTitle('Important Message');
+                                setPingMessage('');
+                                setEditBankDetails({
+                                  bankName: profile.deposit_bank_name || '',
+                                  accountNumber: profile.deposit_account_number || '',
+                                  sortCode: profile.deposit_sort_code || '',
+                                  recipientName: profile.deposit_recipient_name || ''
+                                });
+                              }}
+                            >
+                              <Settings size={14} />
+                            </button>
+                            <button
+                              className={`btn-toggle ${profile.blocked ? 'danger' : ''}`}
                               onClick={() => handleToggleBlock(profile.id, profile.blocked)}
                             >
                               {profile.blocked ? 'Unblock' : 'Block'}
                             </button>
                             <button
-                              className={`inactive-toggle-btn ${profile.is_inactive ? 'make-active' : 'make-inactive'}`}
+                              className={`btn-toggle ${profile.is_inactive ? 'active' : ''}`}
                               onClick={() => handleToggleInactive(profile.id, profile.is_inactive)}
                             >
                               {profile.is_inactive ? 'Set Active' : 'Set Inactive'}
@@ -1126,14 +1121,14 @@ const Admin = () => {
                             
                             {profile.id !== profiles.find(p => p.is_admin)?.id && (
                               <>
-                                <button 
-                                  className={`role-toggle-btn ${profile.is_admin ? 'demote' : 'promote'}`}
+                                <button
+                                  className={`btn-toggle ${profile.is_admin ? 'danger' : ''}`}
                                   onClick={() => handleToggleAdmin(profile.id, profile.is_admin)}
                                 >
                                   {profile.is_admin ? 'Remove Admin' : 'Make Admin'}
                                 </button>
-                                <button 
-                                  className="delete-user-btn"
+                                <button
+                                  className="btn-toggle danger"
                                   onClick={() => handleDeleteUser(profile.id)}
                                 >
                                   Delete
@@ -1152,11 +1147,11 @@ const Admin = () => {
             {/* Create Incoming Deposit Form */}
             <section className="admin-section sidebar-form">
               <h3>Create Incoming Deposit</h3>
-              <p className="form-help">This will show as "Pending Admin" for the user until you approve it.</p>
+              <p className="form-help">This will show as "Pending" for the user until you approve it.</p>
               <form onSubmit={handleCreateIncomingDeposit}>
                 <div className="form-group">
                   <label>Select User</label>
-                  <select name="userId" required>
+                  <select name="userId" required className="form-select">
                     <option value="">Choose a recipient...</option>
                     {profiles.map(p => (
                       <option key={p.id} value={p.id}>{p.first_name} {p.last_name} ({p.username})</option>
@@ -1171,7 +1166,7 @@ const Admin = () => {
                   <label>Description</label>
                   <input type="text" name="description" placeholder="e.g. International Wire Transfer" />
                 </div>
-                <button type="submit" className="admin-btn primary full-width">Create Deposit</button>
+                <button type="submit" className="btn-primary full-width">Create Deposit</button>
               </form>
             </section>
           </div>
@@ -1244,77 +1239,107 @@ const Admin = () => {
           <div className="admin-grid-main">
             <section className="admin-section">
               <div className="section-header">
-                <div className="title-group">
-                  <h3>Account Upgrade Requests</h3>
-                  <p className="form-help">Approve or decline upgrade requests and notify users.</p>
+                <div className="table-toolbar">
+                  <div className="header-search">
+                    <Search size={18} />
+                    <input
+                      type="text"
+                      placeholder="Search upgrade requests..."
+                      value={upgradeSearchTerm}
+                      onChange={(e) => setUpgradeSearchTerm(e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
-              <div className="admin-tx-list">
-                {upgradeRequests.filter((r) => r.status === 'pending').map((req) => (
-                  <div key={req.id} className="admin-tx-item">
-                    <div className="tx-main-info">
-                      <div className="tx-icon-wrapper pending">
-                        <Crown size={20} />
-                      </div>
-                      <div className="tx-user-data">
-                        <span className="user-name">{req.profiles?.first_name} {req.profiles?.last_name}</span>
-                        <span className="tx-description">
-                          <strong>UPGRADE:</strong> {String(req.requested_tier).toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="tx-amount-data">
-                      <div className="upgrade-approve-fields">
-                        <input
-                          type="number"
-                          step="0.01"
-                          placeholder="Approved price"
-                          value={(upgradeDecisionDraft[req.id]?.price ?? req.requested_price ?? '')}
-                          onChange={(e) => setUpgradeDecisionDraft((prev) => ({
-                            ...prev,
-                            [req.id]: { ...(prev[req.id] || {}), price: e.target.value }
-                          }))}
-                        />
-                        <input
-                          type="text"
-                          placeholder="Admin note (optional)"
-                          value={(upgradeDecisionDraft[req.id]?.note ?? '')}
-                          onChange={(e) => setUpgradeDecisionDraft((prev) => ({
-                            ...prev,
-                            [req.id]: { ...(prev[req.id] || {}), note: e.target.value }
-                          }))}
-                        />
-                      </div>
-                      <span className="date">{new Date(req.created_at).toLocaleDateString()}</span>
-                    </div>
-
-                    <div className="tx-actions">
-                      <button
-                        className="approve-btn"
-                        onClick={() => handleDecideUpgrade(req, 'approve')}
-                        disabled={submitting}
-                      >
-                        <CheckCircle2 size={16} /> Approve
-                      </button>
-                      <button
-                        className="reject-btn"
-                        onClick={() => handleDecideUpgrade(req, 'deny')}
-                        disabled={submitting}
-                      >
-                        <XCircle size={16} /> Decline
-                      </button>
-                    </div>
-                  </div>
-                ))}
-
-                {upgradeRequests.filter((r) => r.status === 'pending').length === 0 && (
-                  <div className="empty-state">
-                    <Crown size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
-                    <p>No pending upgrade requests.</p>
-                  </div>
-                )}
+              <div className="admin-table-wrapper">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Requested Tier</th>
+                      <th>Requested Price</th>
+                      <th>Status</th>
+                      <th>Requested</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {upgradeRequests
+                      .filter((r) => r.status === 'pending')
+                      .filter((r) => {
+                        const q = String(upgradeSearchTerm || '').trim().toLowerCase();
+                        const name = `${r.profiles?.first_name || ''} ${r.profiles?.last_name || ''}`.toLowerCase();
+                        return !q || name.includes(q);
+                      })
+                      .map((req) => (
+                      <tr key={req.id}>
+                        <td data-label="User">
+                          <div className="user-profile-cell">
+                            <div className="user-avatar">
+                              {req.profiles?.first_name?.[0]}{req.profiles?.last_name?.[0]}
+                            </div>
+                            <div className="user-details">
+                              <span className="user-name">{req.profiles?.first_name} {req.profiles?.last_name}</span>
+                              <span className="user-email">{req.profiles?.username || 'No username'}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td data-label="Requested Tier">
+                          <span className={`tier-badge ${String(req.requested_tier || 'starter').toLowerCase()}`}>
+                            {String(req.requested_tier || 'starter').toUpperCase()}
+                          </span>
+                        </td>
+                        <td data-label="Requested Price">
+                          <strong>${Number(req.requested_price || 0).toLocaleString()}</strong>
+                        </td>
+                        <td data-label="Status">
+                          <span className="status-badge status-badge.pending">Pending</span>
+                        </td>
+                        <td data-label="Requested">
+                          {req.created_at ? new Date(req.created_at).toLocaleDateString() : '-'}
+                        </td>
+                        <td data-label="Actions">
+                          <div className="action-group">
+                            <div className="upgrade-decision-fields">
+                              <input
+                                type="number"
+                                step="0.01"
+                                placeholder="Approved price"
+                                value={upgradeDecisionDraft[req.id]?.price ?? req.requested_price ?? ''}
+                                onChange={(e) => setUpgradeDecisionDraft((prev) => ({
+                                  ...prev,
+                                  [req.id]: { ...(prev[req.id] || {}), price: e.target.value }
+                                }))}
+                                className="no-symbol-input"
+                              />
+                              <button
+                                className="btn-success btn-full"
+                                onClick={() => handleDecideUpgrade(req, 'approve')}
+                                disabled={submitting}
+                              >
+                                Approve
+                              </button>
+                              <button
+                                className="btn-danger btn-full"
+                                onClick={() => handleDecideUpgrade(req, 'deny')}
+                                disabled={submitting}
+                              >
+                                Decline
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
+              {upgradeRequests.filter((r) => r.status === 'pending').length === 0 && (
+                <div className="empty-state" style={{ padding: '48px 16px' }}>
+                  <Crown size={48} style={{ opacity: 0.1, marginBottom: 16 }} />
+                  <p>No pending upgrade requests.</p>
+                </div>
+              )}
             </section>
 
             <section className="admin-section sidebar-form">
@@ -1337,7 +1362,7 @@ const Admin = () => {
               </div>
               <button
                 type="button"
-                className="admin-btn primary full-width"
+                className="btn-primary full-width"
                 onClick={handleSaveUpgradePrices}
                 disabled={submitting}
               >
@@ -1388,13 +1413,13 @@ const Admin = () => {
                         <td data-label="Actions">
                           <div className="action-group">
                             <button
-                              className="role-toggle-btn"
+                              className="btn-ghost btn-warning"
                               onClick={() => handleEditCryptoDetails(row)}
                             >
                               Edit
                             </button>
                             <button
-                              className="delete-user-btn"
+                              className="btn-danger delete-user-btn"
                               onClick={() => handleDeleteCryptoDetails(row)}
                               disabled={submitting}
                             >
@@ -1719,8 +1744,42 @@ const Admin = () => {
                       </td>
                       <td data-label="Documents">
                         <div className="doc-status">
-                          <span className={`doc-badge ${req.document_front_url ? '' : 'missing'}`}>Front</span>
-                          <span className={`doc-badge ${req.document_back_url ? '' : 'missing'}`}>Back</span>
+                          {req.document_front_url ? (
+                            <button
+                              className="doc-badge"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedKycView({
+                                  id: req.id,
+                                  user: `${req.first_name} ${req.last_name}`,
+                                  front: req.document_front_url,
+                                  back: req.document_back_url || null,
+                                });
+                              }}
+                            >
+                              <Eye size={14} /> Front
+                            </button>
+                          ) : (
+                            <span className="doc-badge missing">Front</span>
+                          )}
+                          {req.document_back_url ? (
+                            <button
+                              className="doc-badge"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedKycView({
+                                  id: req.id,
+                                  user: `${req.first_name} ${req.last_name}`,
+                                  front: req.document_front_url,
+                                  back: req.document_back_url,
+                                });
+                              }}
+                            >
+                              <Eye size={14} /> Back
+                            </button>
+                          ) : (
+                            <span className="doc-badge missing">Back</span>
+                          )}
                         </div>
                       </td>
                       <td data-label="Status">
@@ -1890,6 +1949,51 @@ const Admin = () => {
         </div>
       )}
 
+      {/* KYC Document View Modal */}
+      {selectedKycView && (
+        <div className="admin-modal-overlay" onClick={() => setSelectedKycView(null)}>
+          <div className="admin-modal modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>KYC Documents — {selectedKycView.user}</h3>
+              <button onClick={() => setSelectedKycView(null)}><XCircle size={20} /></button>
+            </div>
+            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
+              {selectedKycView.front && (
+                <div className="kyc-doc-view">
+                  <label style={{ fontWeight: 600, marginBottom: '8px', display: 'block' }}>Front Document</label>
+                  <img
+                    src={proxiedStorageUrl(selectedKycView.front)}
+                    alt="KYC front document"
+                    className="kyc-doc-image"
+                    onError={(e) => { e.target.src = ''; }}
+                  />
+                </div>
+              )}
+              {selectedKycView.back && (
+                <div className="kyc-doc-view">
+                  <label style={{ fontWeight: 600, marginBottom: '8px', display: 'block' }}>Back Document</label>
+                  <img
+                    src={proxiedStorageUrl(selectedKycView.back)}
+                    alt="KYC back document"
+                    className="kyc-doc-image"
+                    onError={(e) => { e.target.src = ''; }}
+                  />
+                </div>
+              )}
+              {!selectedKycView.front && !selectedKycView.back && (
+                <div className="empty-state" style={{ margin: '24px 0' }}>
+                  <ShieldAlert size={48} style={{ opacity: 0.2, marginBottom: 16 }} />
+                  <p>No documents available to view.</p>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setSelectedKycView(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Edit Balance Modal */}
       {selectedUser && (
         <div className="admin-modal-overlay">
@@ -2052,7 +2156,7 @@ const Admin = () => {
               <div className="access-actions">
                 <button
                   type="button"
-                  className={`inactive-toggle-btn ${selectedUser.is_inactive ? 'make-active' : 'make-inactive'}`}
+                  className={`btn-toggle ${selectedUser.is_inactive ? 'active' : ''}`}
                   disabled={submitting}
                   onClick={() => handleToggleInactive(selectedUser.id, selectedUser.is_inactive)}
                 >
@@ -2060,7 +2164,7 @@ const Admin = () => {
                 </button>
                 <button
                   type="button"
-                  className={`block-toggle-btn ${selectedUser.blocked ? 'unblock' : 'block'}`}
+                  className={`btn-toggle danger ${selectedUser.blocked ? '' : ''}`}
                   disabled={submitting}
                   onClick={() => handleToggleBlock(selectedUser.id, selectedUser.blocked)}
                 >
