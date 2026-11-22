@@ -271,14 +271,33 @@ function storageProxyUrl(bucket, path) {
 
 // Rewrite any legacy stored URL that points straight at the S3 endpoint to the proxy,
 // so old avatar_url / qr_image_url values already saved in the DB still render.
+// Also handles KYC document URLs and any other private-bucket asset URLs.
 function proxiedStorageUrl(url) {
   if (typeof url !== 'string' || !url) return url;
+
+  // Already a proxied storage URL — return as-is
+  if (url.includes('/api/storage?')) return url;
+
   const ep = import.meta.env.VITE_NEON_S3_ENDPOINT;
+
+  // Try matching against the configured S3 endpoint
   if (ep && url.startsWith(ep)) {
-    const rel = url.slice(ep.length + 1); // e.g. "avatars/xxx.png" or "avatars/sub/xxx.png"
+    const rel = url.slice(ep.length).replace(/^\//, ''); // strip leading slash
     const slash = rel.indexOf('/');
     if (slash > 0) return storageProxyUrl(rel.slice(0, slash), rel.slice(slash + 1));
   }
+
+  // Fallback: parse any https URL of the form <endpoint>/<bucket>/<key>
+  try {
+    const parsed = new URL(url);
+    const parts = parsed.pathname.split('/').filter(Boolean);
+    if (parts.length >= 2) {
+      return storageProxyUrl(parts[0], parts.slice(1).join('/'));
+    }
+  } catch (_) {
+    /* not a parseable URL, leave as-is */
+  }
+
   return url;
 }
 
