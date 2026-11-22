@@ -71,6 +71,7 @@ export default async function handler(req, res) {
   // Parse request body for POST/PUT/PATCH — check runtime-parsed body first,
   // fall back to reading raw stream if empty
   if (['POST', 'PUT', 'PATCH'].includes(method)) {
+    console.log('[API] Body debug:', { hasBody: !!req.body, bodyType: typeof req.body, bodyKeys: req.body ? Object.keys(req.body) : 'none', body: JSON.stringify(req.body).slice(0, 200) });
     if (!req.body || Object.keys(req.body).length === 0) {
       const text = await new Promise((resolve) => {
         const chunks = [];
@@ -78,6 +79,7 @@ export default async function handler(req, res) {
         req.on('end', () => resolve(Buffer.concat(chunks).toString()));
         req.on('error', () => resolve(''));
       });
+      console.log('[API] Stream debug:', { textLength: text ? text.length : 0, textPreview: text ? text.slice(0, 200) : 'none' });
       try { req.body = text ? JSON.parse(text) : {}; } catch { req.body = {}; }
     }
   }
@@ -757,6 +759,7 @@ async function handleStorage(path, method, req, res) {
 // ===== CORE HANDLERS =====
 async function handleQuery(req, res) {
   const { query, params } = req.body;
+  console.log('[API] Final body:', { query: typeof query, queryPreview: query ? query.slice(0, 100) : 'undefined', paramsType: typeof params });
   if (!query) return res.status(400).json({ error: 'query is required' });
 
   try {
