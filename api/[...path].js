@@ -70,6 +70,11 @@ export default async function handler(req, res) {
 
   // Parse request body for POST/PUT/PATCH — handle all Vercel runtime scenarios
   if (['POST', 'PUT', 'PATCH'].includes(method)) {
+    // If body is a string, parse it
+    if (typeof req.body === 'string') {
+      try { req.body = JSON.parse(req.body); } catch { req.body = {}; }
+    }
+    // If body is missing or empty, read raw stream
     if (!req.body || typeof req.body !== 'object' || Object.keys(req.body).length === 0) {
       const text = await new Promise((resolve) => {
         const chunks = [];
