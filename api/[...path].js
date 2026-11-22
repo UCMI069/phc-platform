@@ -761,8 +761,9 @@ async function handleQuery(req, res) {
   if (!query) return res.status(400).json({ error: 'query is required' });
 
   try {
+    const sql = neon(process.env.DATABASE_URL);
     const result = await sql.query(query, params || []);
-    res.json({ rows: result.rows, rowCount: result.rowCount });
+    res.json({ data: { rows: result.rows, rowCount: result.rowCount } });
   } catch (err) {
     console.error('Query error:', err);
     res.status(500).json({ error: err.message });
