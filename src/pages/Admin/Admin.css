@@ -462,6 +462,22 @@ body {
 
 .doc-badge { background: #dcfce7; color: #166534; }
 .doc-badge.missing { background: #fee2e2; color: #dc2626; }
+.doc-badge button {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+}
+.doc-badge button:hover {
+  opacity: 0.9;
+  text-decoration: underline;
+}
 
 /* === Action Buttons — never squished === */
 .action-group {
@@ -877,6 +893,27 @@ body {
 .kyc-doc img {
   width: 100%;
   max-height: 250px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: white;
+}
+
+.kyc-doc-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  max-width: 100%;
+}
+
+.kyc-doc-image {
+  max-width: 100%;
+  max-height: 400px;
   object-fit: contain;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);

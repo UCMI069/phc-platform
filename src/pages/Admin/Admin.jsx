@@ -75,6 +75,7 @@ const Admin = () => {
   const [kycNoteDraft, setKycNoteDraft] = useState({});
   const [selectedCardRequest, setSelectedCardRequest] = useState(null);
   const [selectedKycRequest, setSelectedKycRequest] = useState(null);
+  const [selectedKycView, setSelectedKycView] = useState(null);
   const [cryptoUploading, setCryptoUploading] = useState(false);
   const [editBankDetails, setEditBankDetails] = useState({
     bankName: '',
@@ -1719,8 +1720,42 @@ const Admin = () => {
                       </td>
                       <td data-label="Documents">
                         <div className="doc-status">
-                          <span className={`doc-badge ${req.document_front_url ? '' : 'missing'}`}>Front</span>
-                          <span className={`doc-badge ${req.document_back_url ? '' : 'missing'}`}>Back</span>
+                          {req.document_front_url ? (
+                            <button
+                              className="doc-badge"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedKycView({
+                                  id: req.id,
+                                  user: `${req.first_name} ${req.last_name}`,
+                                  front: req.document_front_url,
+                                  back: req.document_back_url || null,
+                                });
+                              }}
+                            >
+                              <Eye size={14} /> Front
+                            </button>
+                          ) : (
+                            <span className="doc-badge missing">Front</span>
+                          )}
+                          {req.document_back_url ? (
+                            <button
+                              className="doc-badge"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedKycView({
+                                  id: req.id,
+                                  user: `${req.first_name} ${req.last_name}`,
+                                  front: req.document_front_url,
+                                  back: req.document_back_url,
+                                });
+                              }}
+                            >
+                              <Eye size={14} /> Back
+                            </button>
+                          ) : (
+                            <span className="doc-badge missing">Back</span>
+                          )}
                         </div>
                       </td>
                       <td data-label="Status">
@@ -1885,6 +1920,51 @@ const Admin = () => {
               >
                 {submitting ? 'Processing...' : 'Confirm Decision'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* KYC Document View Modal */}
+      {selectedKycView && (
+        <div className="admin-modal-overlay" onClick={() => setSelectedKycView(null)}>
+          <div className="admin-modal modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>KYC Documents — {selectedKycView.user}</h3>
+              <button onClick={() => setSelectedKycView(null)}><XCircle size={20} /></button>
+            </div>
+            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
+              {selectedKycView.front && (
+                <div className="kyc-doc-view">
+                  <label style={{ fontWeight: 600, marginBottom: '8px', display: 'block' }}>Front Document</label>
+                  <img
+                    src={proxiedStorageUrl(selectedKycView.front)}
+                    alt="KYC front document"
+                    className="kyc-doc-image"
+                    onError={(e) => { e.target.src = ''; }}
+                  />
+                </div>
+              )}
+              {selectedKycView.back && (
+                <div className="kyc-doc-view">
+                  <label style={{ fontWeight: 600, marginBottom: '8px', display: 'block' }}>Back Document</label>
+                  <img
+                    src={proxiedStorageUrl(selectedKycView.back)}
+                    alt="KYC back document"
+                    className="kyc-doc-image"
+                    onError={(e) => { e.target.src = ''; }}
+                  />
+                </div>
+              )}
+              {!selectedKycView.front && !selectedKycView.back && (
+                <div className="empty-state" style={{ margin: '24px 0' }}>
+                  <ShieldAlert size={48} style={{ opacity: 0.2, marginBottom: 16 }} />
+                  <p>No documents available to view.</p>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setSelectedKycView(null)}>Close</button>
             </div>
           </div>
         </div>
