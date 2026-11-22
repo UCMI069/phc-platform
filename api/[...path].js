@@ -763,7 +763,8 @@ async function handleQuery(req, res) {
   try {
     const sql = neon(process.env.DATABASE_URL);
     const result = await sql.query(query, params || []);
-    res.json({ data: { rows: result.rows, rowCount: result.rowCount } });
+    const rows = Array.isArray(result) ? result : (result?.rows || []);
+    res.json({ data: { rows, rowCount: Array.isArray(result) ? result.length : (result?.rowCount ?? rows.length) } });
   } catch (err) {
     console.error('Query error:', err);
     res.status(500).json({ error: err.message });
